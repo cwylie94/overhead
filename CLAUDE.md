@@ -76,6 +76,10 @@ src/
 
 There is no collection table. The collection is derived from verified sightings.
 
+- The schema lives in `src/data/schema.ts`. After changing it, run `npm run db:generate` and commit the generated files in `src/data/migrations/`. Never edit the generated migrations by hand.
+- Times are stored as integer milliseconds since the Unix epoch, not `Date` objects.
+- Repositories (`src/data/repositories/`) are synchronous and take a `Database`, which works with both expo-sqlite on the device and better-sqlite3 in tests. Test them with `createTestDatabase()`, which applies the real migrations to an in-memory database.
+
 ## Domain rules
 
 - **Catch:** only inside a predicted visible pass window, with the aim (heading plus tilt) within about 10° of the predicted position for 2 s. "I saw it" logs an unverified sighting. Only verified sightings add to the collection.

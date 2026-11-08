@@ -23,3 +23,4 @@ npm start
 | `npm run format`                  | Format with Prettier                      |
 | `npm run typecheck`               | Type-check with TypeScript                |
 | `npm test`                        | Run the Jest test suite                   |
+| `npm run db:generate`             | Generate a migration from the schema      |
