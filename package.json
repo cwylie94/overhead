@@ -74,6 +74,7 @@
     "test": "jest",
     "db:generate": "drizzle-kit generate",
     "snapshot:update": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/fetch-snapshot.ts",
+    "cities:update": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/fetch-cities.ts",
     "fixtures:passes": "tools/fixtures/.venv/bin/python tools/fixtures/generate_pass_fixtures.py",
     "bench": "jest --testMatch '**/__benchmarks__/**/*.bench.ts'",
     "e2e": "maestro test .maestro",
