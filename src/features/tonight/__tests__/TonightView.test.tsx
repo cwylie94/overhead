@@ -74,10 +74,20 @@ describe('TonightView', () => {
     expect(onCatch).toHaveBeenCalledWith(expect.objectContaining({ name: 'SL-16 R/B' }));
   });
 
-  test('offers no catch before the pass is visible', async () => {
+  test('offers to get ready in the ten minutes before a pass', async () => {
+    const onCatch = jest.fn();
+    await renderView({ passes: [makePass({ startAt: NOW + 8 * MINUTE })], onCatch });
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Get ready' }));
+    expect(onCatch).toHaveBeenCalledWith(expect.objectContaining({ name: 'SL-16 R/B' }));
+    expect(screen.queryByRole('button', { name: 'Catch' })).toBeNull();
+  });
+
+  test('offers no catch well before the pass', async () => {
     await renderView();
 
     expect(screen.queryByRole('button', { name: 'Catch' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Get ready' })).toBeNull();
   });
 
   test('says a pass has just ended rather than counting back from its start', async () => {

@@ -8,7 +8,8 @@
     "locked": "Hold steady…",
     "caught": "Caught!",
     "failed": "The pass has ended",
-    "notUp": "This pass isn't visible right now"
+    "notUp": "This pass isn't visible right now",
+    "waiting": "Appears {{countdown}}. Get your bearings in the meantime."
   },
   "calibrate": "Your compass needs calibrating. Move your phone in a figure of eight.",
   "sawIt": "I saw it",
@@ -31,5 +32,6 @@
     "calibrated": "Calibrated on the Moon {{time}}",
     "down": "Calibration needs the Moon, which is below the horizon.",
     "tooFar": "That’s more than 45° from the Moon. Check the Moon is in the crosshair and try again."
-  }
+  },
+  "getReady": "Get ready"
 }

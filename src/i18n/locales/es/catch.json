@@ -8,7 +8,8 @@
     "locked": "Mantén el pulso…",
     "caught": "¡Atrapado!",
     "failed": "El paso ha terminado",
-    "notUp": "Este paso no es visible ahora"
+    "notUp": "Este paso no es visible ahora",
+    "waiting": "Aparece {{countdown}}. Mientras, oriéntate."
   },
   "calibrate": "La brújula necesita calibrarse. Mueve el teléfono dibujando un ocho.",
   "sawIt": "Lo he visto",
@@ -31,5 +32,6 @@
     "calibrated": "Calibrado con la Luna {{time}}",
     "down": "La calibración necesita la Luna, que está bajo el horizonte.",
     "tooFar": "Eso está a más de 45° de la Luna. Comprueba que la Luna esté en la mira e inténtalo de nuevo."
-  }
+  },
+  "getReady": "Prepárate"
 }

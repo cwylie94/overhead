@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
+import { catchWindow } from '@/domain/catchWindow';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useNow } from '@/environment/clock';
@@ -20,18 +21,21 @@ type PassRowProps = {
 
 function CatchButton({ pass, onCatch }: { pass: UpcomingPass; onCatch(): void }) {
   const { t } = useTranslation('catch');
-  const now = useNow(1_000);
-  if (now < pass.startAt || now >= pass.endAt) {
+  const window = catchWindow(pass, useNow(1_000));
+  if (window !== 'ready' && window !== 'live') {
     return null;
   }
+  const live = window === 'live';
   return (
     <Pressable
       accessibilityRole="button"
       testID={`catch-${pass.noradId}`}
       hitSlop={spacing.sm}
       onPress={onCatch}
-      style={[styles.remind, styles.remindSet]}>
-      <Text style={[styles.remindText, styles.remindTextSet]}>{t('catch')}</Text>
+      style={[styles.remind, live && styles.remindSet]}>
+      <Text style={[styles.remindText, live && styles.remindTextSet]}>
+        {live ? t('catch') : t('getReady')}
+      </Text>
     </Pressable>
   );
 }
@@ -66,20 +70,22 @@ export function PassRow({ pass, reminder, onCatch }: PassRowProps) {
       )}
       <View style={styles.footer}>
         <Chip label={t(`common:rarity.${pass.rarity}`)} color={rarityColors[pass.rarity]} />
-        <CatchButton pass={pass} onCatch={onCatch} />
-        {reminder && (
-          <Pressable
-            accessibilityRole="switch"
-            accessibilityState={{ checked: reminder.isSet }}
-            accessibilityLabel={t('reminder.add')}
-            hitSlop={spacing.sm}
-            onPress={reminder.onToggle}
-            style={[styles.remind, reminder.isSet && styles.remindSet]}>
-            <Text style={[styles.remindText, reminder.isSet && styles.remindTextSet]}>
-              {reminder.isSet ? t('reminder.set') : t('reminder.add')}
-            </Text>
-          </Pressable>
-        )}
+        <View style={styles.actions}>
+          <CatchButton pass={pass} onCatch={onCatch} />
+          {reminder && (
+            <Pressable
+              accessibilityRole="switch"
+              accessibilityState={{ checked: reminder.isSet }}
+              accessibilityLabel={t('reminder.add')}
+              hitSlop={spacing.sm}
+              onPress={reminder.onToggle}
+              style={[styles.remind, reminder.isSet && styles.remindSet]}>
+              <Text style={[styles.remindText, reminder.isSet && styles.remindTextSet]}>
+                {reminder.isSet ? t('reminder.set') : t('reminder.add')}
+              </Text>
+            </Pressable>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -122,6 +128,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
   },
   remind: {
     borderRadius: radius.sm,
