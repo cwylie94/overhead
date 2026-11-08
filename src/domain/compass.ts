@@ -12,6 +12,8 @@ export function compassPoint(azimuth: number): CompassPoint {
 export type PassWindow = {
   startAt: number;
   endAt: number;
+  peakAt: number;
+  maxElevation: number;
   appears: CompassPoint;
   disappears: CompassPoint;
 };
@@ -27,9 +29,21 @@ export function visibleWindow(pass: Pick<FoundPass, 'visible' | 'track'>): PassW
   if (!start || !end) {
     return null;
   }
+
+  const candidates = [
+    { time: first.startAt, elevation: start.elevation },
+    { time: last.endAt, elevation: end.elevation },
+    ...pass.track.filter((point) => point.time > first.startAt && point.time < last.endAt),
+  ];
+  const peak = candidates.reduce((best, point) =>
+    point.elevation > best.elevation ? point : best,
+  );
+
   return {
     startAt: first.startAt,
     endAt: last.endAt,
+    peakAt: peak.time,
+    maxElevation: peak.elevation,
     appears: compassPoint(start.azimuth),
     disappears: compassPoint(end.azimuth),
   };

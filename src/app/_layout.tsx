@@ -5,7 +5,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { passCacheRunner } from '@/data/client';
 import { DatabaseGate } from '@/data/DatabaseGate';
+import { PassCacheProvider } from '@/data/passCache/PassCacheScheduler';
 import { ClockProvider, systemClock } from '@/environment/clock';
 import { DeviceLocationProvider } from '@/environment/location';
 import { colors } from '@/ui/theme';
@@ -31,9 +33,11 @@ export default function RootLayout() {
         <ClockProvider clock={systemClock}>
           <DeviceLocationProvider>
             <DatabaseGate>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" />
-              </Stack>
+              <PassCacheProvider runner={passCacheRunner}>
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="(tabs)" />
+                </Stack>
+              </PassCacheProvider>
             </DatabaseGate>
           </DeviceLocationProvider>
         </ClockProvider>

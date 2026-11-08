@@ -40,13 +40,28 @@ describe('visibleWindow', () => {
       ],
     });
 
-    expect(window).toEqual({ startAt: 0, endAt: 120_000, appears: 'NW', disappears: 'SE' });
+    expect(window).toEqual({
+      startAt: 0,
+      endAt: 120_000,
+      peakAt: 60_000,
+      maxElevation: 60,
+      appears: 'NW',
+      disappears: 'SE',
+    });
   });
 
   test('uses the visible part, not the whole pass', () => {
     const window = visibleWindow({ track, visible: [{ startAt: 60_000, endAt: 120_000 }] });
 
     expect(window?.appears).toBe('N');
+  });
+
+  test('peaks at the highest visible point when the satellite enters shadow before culmination', () => {
+    const window = visibleWindow({ track, visible: [{ startAt: 0, endAt: 30_000 }] })!;
+
+    expect(window.peakAt).toBe(30_000);
+    expect(window.maxElevation).toBeGreaterThan(10);
+    expect(window.maxElevation).toBeLessThan(60);
   });
 
   test('is null for a pass with no visible part', () => {

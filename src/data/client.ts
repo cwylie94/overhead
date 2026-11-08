@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { openDatabaseSync } from 'expo-sqlite';
 
+import { createPassCacheRunner } from './passCache/runner';
 import { createRepositories } from './repositories';
 import * as schema from './schema';
 
@@ -12,3 +13,5 @@ sqlite.execSync('PRAGMA journal_mode = WAL;');
 export const db = drizzle(sqlite, { schema });
 
 export const repositories = createRepositories(db);
+
+export const passCacheRunner = createPassCacheRunner(repositories);
