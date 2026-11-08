@@ -1,5 +1,7 @@
+import { BRIGHTNESS_TIERS } from '@/domain/brightness';
 import { COLLECTION_SETS } from '@/domain/collectionSets';
 import { COMPASS_POINTS } from '@/domain/compass';
+import { RARITIES } from '@/domain/types';
 import i18n from '@/i18n';
 
 import { FALLBACK_LANGUAGE, resources, SUPPORTED_LANGUAGES } from '../resources';
@@ -64,6 +66,15 @@ describe('domain words', () => {
   test('every compass point has a translation', () => {
     for (const point of COMPASS_POINTS) {
       expect(i18n.t(`compass.${point}`)).not.toBe(`compass.${point}`);
+    }
+  });
+
+  test('every brightness tier and rarity has a name', () => {
+    for (const tier of BRIGHTNESS_TIERS) {
+      expect(i18n.t(`brightness.${tier}`)).not.toBe(`brightness.${tier}`);
+    }
+    for (const rarity of RARITIES) {
+      expect(i18n.t(`rarity.${rarity}`)).not.toBe(`rarity.${rarity}`);
     }
   });
 

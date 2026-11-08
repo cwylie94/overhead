@@ -97,6 +97,12 @@ There is no collection table. The collection is derived from verified sightings.
 - How often a satellite is visible from the user's location is a card stat, never part of rarity, because it varies by place and over time.
 - **Collection sets** (`src/domain/collectionSets.ts`): each satellite is in exactly one set, decided in this order. Space stations (the CelesTrak stations group), Observatories and Earth watchers (NORAD ID lists with names), Cold War veterans (launched before 1992), Spent stages (later rocket bodies), Constellations (commercial constellations only), and Spies & secrets for the rest. The set is stored on `satellites` at import, like rarity. A test fails if a listed ID's name no longer matches the bundled catalogue.
 - **The collection** is derived, never stored (`deriveCollection`): a satellite is caught at its earliest verified sighting.
+- **Brightness** is an estimate, accurate to about a magnitude (`src/domain/brightness.ts`):
+  - The standard magnitude (at 1000 km, half lit) is `5.5 − 2.5·log10(RCS)`, from SATCAT's radar cross-section. It's calibrated roughly on the ISS and Hubble, and stored on `satellites` at import.
+  - Objects without a cross-section, mostly recent launches, use a typical size for their type. ISS and CSS station modules use 100 m².
+  - A pass's `peakMagnitude` is its brightest moment across the visible parts, adjusted for distance and sun angle (diffuse-sphere phase function).
+  - Tiers: brilliant ≤ 1, bright ≤ 3, faint beyond. Passes fainter than `NAKED_EYE_LIMIT` (4.5) aren't worth listing.
+  - All the constants are starting points to tune against real observations.
 - After changing the rarity or set rules, bump `CATALOGUE_RULES_VERSION` in `src/domain/catalogue.ts` so existing installs re-sort their catalogue. A bundled-snapshot test fails if a refresh breaks the rarity pyramid or leaves a set empty.
 
 ## Network and sync

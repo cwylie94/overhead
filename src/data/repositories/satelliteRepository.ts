@@ -21,6 +21,7 @@ export function createSatelliteRepository(db: Database): SatelliteRepository {
                 launchDate: excluded(satellites.launchDate),
                 rarity: excluded(satellites.rarity),
                 collectionSet: excluded(satellites.collectionSet),
+                standardMagnitude: excluded(satellites.standardMagnitude),
               },
             })
             .run();

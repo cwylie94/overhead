@@ -1,6 +1,7 @@
 import { ecfToEci, geodeticToEcf, gstime, type GeodeticLocation } from 'satellite.js';
 
-import { DEG, dot, EARTH_RADIUS_KM, length, type Vector3 } from './geometry';
+import { apparentMagnitude, phaseAngle } from './brightness';
+import { DEG, dot, EARTH_RADIUS_KM, length, subtract, type Vector3 } from './geometry';
 import { lookAnglesFromEci, toGeodetic, type Observer } from './observer';
 import { positionAt, type Orbit } from './orbit';
 import { isSunlit, sunLookAngles, sunPositionEci } from './sun';
@@ -35,6 +36,7 @@ export type FoundPass = {
   setAt: number;
   maxElevation: number;
   visible: VisibleInterval[];
+  peakMagnitude: number | null;
   track: TrackPoint[];
 };
 
@@ -44,6 +46,7 @@ type Context = {
   observerEcf: Vector3;
   minElevation: number;
   sunDarkBelow: number;
+  standardMagnitude: number | null;
 };
 
 type ScanSample = { time: number; elevation: number; angleFromObserver: number };
@@ -53,12 +56,16 @@ function elevationAt({ orbit, observer }: Context, time: number): number {
   return position ? lookAnglesFromEci(position, observer, time).elevation : BELOW_EVERYTHING;
 }
 
+function observerEciAt(context: Context, time: number): Vector3 {
+  return ecfToEci(context.observerEcf, gstime(new Date(time)));
+}
+
 function scanSample(context: Context, time: number): ScanSample {
   const position = positionAt(context.orbit, time);
   if (!position) {
     return { time, elevation: BELOW_EVERYTHING, angleFromObserver: 180 };
   }
-  const observerEci = ecfToEci(context.observerEcf, gstime(new Date(time)));
+  const observerEci = observerEciAt(context, time);
   const cosine = dot(position, observerEci) / (length(position) * length(observerEci));
   return {
     time,
@@ -160,6 +167,36 @@ function findVisibleIntervals(context: Context, track: TrackPoint[]): VisibleInt
   return intervals.filter(({ startAt, endAt }) => endAt - startAt >= MIN_VISIBLE_DURATION);
 }
 
+function peakMagnitude(
+  context: Context,
+  track: TrackPoint[],
+  visible: VisibleInterval[],
+): number | null {
+  if (context.standardMagnitude === null || visible.length === 0) {
+    return null;
+  }
+  const times = [
+    ...visible.flatMap(({ startAt, endAt }) => [startAt, endAt]),
+    ...track
+      .map((point) => point.time)
+      .filter((time) => visible.some(({ startAt, endAt }) => time >= startAt && time <= endAt)),
+  ];
+  let brightest = Number.POSITIVE_INFINITY;
+  for (const time of times) {
+    const position = positionAt(context.orbit, time);
+    if (position) {
+      const observerEci = observerEciAt(context, time);
+      const magnitude = apparentMagnitude(
+        context.standardMagnitude,
+        length(subtract(position, observerEci)),
+        phaseAngle(position, observerEci, sunPositionEci(time)),
+      );
+      brightest = Math.min(brightest, magnitude);
+    }
+  }
+  return Number.isFinite(brightest) ? Math.round(brightest * 10) / 10 : null;
+}
+
 export function footprintDegrees(altitudeKm: number, minElevation: number): number {
   const ratio = EARTH_RADIUS_KM / (EARTH_RADIUS_KM + altitudeKm);
   return Math.acos(ratio * Math.cos(minElevation * DEG)) / DEG - minElevation;
@@ -183,13 +220,15 @@ function buildPass(context: Context, search: PassSearch, peakAt: number): FoundP
     return null;
   }
   const track = buildTrack(context, riseAt, setAt);
+  const visible = findVisibleIntervals(context, track);
   return {
     noradId: context.orbit.noradId,
     riseAt,
     peakAt,
     setAt,
     maxElevation,
-    visible: findVisibleIntervals(context, track),
+    visible,
+    peakMagnitude: peakMagnitude(context, track, visible),
     track,
   };
 }
@@ -205,7 +244,11 @@ function peaksIn(samples: ScanSample[]): number[] {
   return peaks;
 }
 
-export function findPasses(orbit: Orbit, search: PassSearch): FoundPass[] {
+export function findPasses(
+  orbit: Orbit,
+  search: PassSearch,
+  standardMagnitude: number | null = null,
+): FoundPass[] {
   if (!canReachObserver(orbit, search.observer, search.minElevation)) {
     return [];
   }
@@ -217,6 +260,7 @@ export function findPasses(orbit: Orbit, search: PassSearch): FoundPass[] {
     observerEcf: geodeticToEcf(observer),
     minElevation: search.minElevation,
     sunDarkBelow: search.sunDarkBelow ?? DEFAULT_SUN_DARK_BELOW,
+    standardMagnitude,
   };
   const reach = footprintDegrees(orbit.apogeeKm, search.minElevation) + REACH_MARGIN_DEGREES;
   const scanEnd = search.to + SCAN_MARGIN;

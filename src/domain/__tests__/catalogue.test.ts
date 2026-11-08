@@ -91,6 +91,7 @@ describe('catalogueEntryFromSatcat', () => {
       launchDate: '1963-11-27',
       rarity: 'legendary',
       collectionSet: 'coldWarVeterans',
+      standardMagnitude: 3.39,
     });
   });
 

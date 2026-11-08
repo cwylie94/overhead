@@ -1,3 +1,4 @@
+import { standardMagnitude } from './brightness';
 import { collectionSetFor, startsWithAny, type CollectionSet } from './collectionSets';
 import type { ObjectType, Rarity } from './types';
 
@@ -8,6 +9,7 @@ export type SatcatRecord = {
   OBJECT_TYPE: string;
   OWNER: string;
   LAUNCH_DATE: string | null;
+  RCS?: number | null;
 };
 
 export type CatalogueEntry = {
@@ -18,9 +20,10 @@ export type CatalogueEntry = {
   launchDate: string | null;
   rarity: Rarity;
   collectionSet: CollectionSet;
+  standardMagnitude: number;
 };
 
-export const CATALOGUE_RULES_VERSION = 3;
+export const CATALOGUE_RULES_VERSION = 4;
 export const LEGENDARY_BEFORE_YEAR = 1980;
 export const MODERN_ROCKET_BODY_FROM_YEAR = 2000;
 
@@ -93,6 +96,12 @@ export function catalogueEntryFromSatcat(record: SatcatRecord, isStation: boolea
     launchDate,
     rarity: rarityFor(facts),
     collectionSet: collectionSetFor(facts),
+    standardMagnitude: standardMagnitude({
+      name: record.OBJECT_NAME,
+      rcs: record.RCS ?? null,
+      objectType,
+      isStation,
+    }),
   };
 }
 

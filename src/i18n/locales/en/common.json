@@ -17,5 +17,16 @@
     "SW": "SW",
     "W": "W",
     "NW": "NW"
+  },
+  "brightness": {
+    "brilliant": "Brilliant",
+    "bright": "Bright",
+    "faint": "Faint"
+  },
+  "rarity": {
+    "legendary": "Legendary",
+    "rare": "Rare",
+    "uncommon": "Uncommon",
+    "common": "Common"
   }
 }

@@ -1,0 +1,1 @@
+ALTER TABLE `satellites` ADD `standard_magnitude` real DEFAULT 4 NOT NULL;

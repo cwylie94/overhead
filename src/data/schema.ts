@@ -20,6 +20,7 @@ export const satellites = sqliteTable('satellites', {
   collectionSet: text('collection_set', { enum: COLLECTION_SETS })
     .notNull()
     .default('spiesAndSecrets'),
+  standardMagnitude: real('standard_magnitude').notNull().default(4),
 });
 
 export const orbits = sqliteTable('orbits', {
