@@ -46,8 +46,10 @@ describe('refreshPassCache', () => {
     await refreshPassCache(repositories, input, { force: true, yieldToUi: noYield });
     const firstNightEnd = input.now + 16 * 60 * 60_000;
     const stored = repositories.passes.listBetween(input.now, firstNightEnd);
+    const docked = repositories.orbits.dockingHosts();
     const expected = skyfield.passes.filter(
       (pass) =>
+        !docked.has(pass.noradId) &&
         pass.visible.some(([start, end]) => end - start >= 25_000) &&
         pass.riseAt >= input.now &&
         pass.setAt < firstNightEnd,
@@ -58,6 +60,17 @@ describe('refreshPassCache', () => {
       expect(
         stored.some((row) => row.noradId === pass.noradId && Math.abs(row.startAt - start) < 3_000),
       ).toBe(true);
+    }
+  });
+
+  test('lists a station once, not once per docked module or visiting vehicle', async () => {
+    await refreshPassCache(repositories, input, { force: true, yieldToUi: noYield });
+    const stored = repositories.passes.listBetween(input.now, input.now + PASS_WINDOW_AFTER);
+    const ids = new Set(stored.map((pass) => pass.noradId));
+
+    expect(stored.length).toBeGreaterThan(100);
+    for (const docked of [36086, 49044, 53239, 54216, 100882]) {
+      expect(ids.has(docked)).toBe(false);
     }
   });
 

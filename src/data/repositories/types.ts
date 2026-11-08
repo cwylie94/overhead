@@ -23,6 +23,7 @@ export type OrbitRepository = {
   getById(noradId: number): Orbit | undefined;
   listAll(): Orbit[];
   latestFetchedAt(group: CelestrakGroup): number | undefined;
+  dockingHosts(): Map<number, number>;
 };
 
 export type PassRepository = {

@@ -36,6 +36,7 @@
     "nextPassValue": "{{day}}, {{time}}",
     "noPass": "Ningún paso visible en las próximas dos noches",
     "flipHint": "Toca para girar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "dockedTo": "Acoplado a"
   }
 }

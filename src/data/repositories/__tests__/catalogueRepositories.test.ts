@@ -1,4 +1,6 @@
+import { createRepositories } from '..';
 import type { Database } from '../../database';
+import { bundledSnapshot, importSnapshot } from '../../snapshot';
 import { createTestDatabase } from '../../testing/createTestDatabase';
 import {
   HUBBLE_NORAD_ID,
@@ -139,5 +141,17 @@ describe('sync meta repository', () => {
     syncMeta.set('pullCursor', '42');
 
     expect(syncMeta.get('pullCursor')).toBe('42');
+  });
+});
+
+describe('docking hosts from stored orbits', () => {
+  test('folds the bundled ISS modules into the ISS', () => {
+    const repositories = createRepositories(db);
+    importSnapshot(repositories, bundledSnapshot);
+
+    const hosts = repositories.orbits.dockingHosts();
+
+    expect(hosts.get(49044)).toBe(25544);
+    expect(hosts.has(25544)).toBe(false);
   });
 });

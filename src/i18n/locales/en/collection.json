@@ -35,6 +35,7 @@
     "nextPassValue": "{{day}}, {{time}}",
     "noPass": "No visible pass in the next two nights",
     "flipHint": "Tap to flip",
-    "close": "Close"
+    "close": "Close",
+    "dockedTo": "Docked to"
   }
 }

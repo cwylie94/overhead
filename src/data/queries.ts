@@ -34,6 +34,10 @@ export function orbitFreshnessQuery(db: Database) {
     .groupBy(orbits.group);
 }
 
+export function orbitElementsQuery(db: Database) {
+  return db.select({ omm: orbits.omm }).from(orbits);
+}
+
 export function skyPassesQuery(db: Database, from: number, to: number) {
   return db
     .select({

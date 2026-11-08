@@ -55,9 +55,13 @@ export function SatelliteScreen() {
   const { db, repositories } = useAppData();
   const satellite = useMemo(() => repositories.satellites.getById(id), [repositories, id]);
   const orbit = useMemo(() => repositories.orbits.getById(id), [repositories, id]);
+  const host = useMemo(() => {
+    const hostId = repositories.orbits.dockingHosts().get(id);
+    return hostId === undefined ? null : (repositories.satellites.getById(hostId) ?? null);
+  }, [repositories, id]);
   const nextPass = useMemo(
-    () => repositories.passes.nextForSatellite(id, now),
-    [repositories, id, now],
+    () => repositories.passes.nextForSatellite(host?.noradId ?? id, now),
+    [repositories, host, id, now],
   );
   const { data: sightings } = useLiveQuery(satelliteSightingsQuery(db, id), [id]);
 
@@ -102,6 +106,7 @@ export function SatelliteScreen() {
         }
       />
       <Fact label={t('detail.owner')} value={owner} />
+      {host && <Fact label={t('detail.dockedTo')} value={host.name} />}
       {orbit && (
         <>
           <Fact

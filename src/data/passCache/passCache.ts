@@ -16,6 +16,7 @@ export const MIN_LOOKAHEAD = 24 * HOUR;
 export const SATELLITES_PER_CHUNK = 12;
 
 export const PASS_CACHE_KEY = 'passes.key';
+const PASS_CACHE_VERSION = 2;
 export const PASS_CACHE_VALID_UNTIL = 'passes.validUntil';
 
 export type PassCacheInput = {
@@ -44,7 +45,7 @@ export function passCacheKey(
   const orbitStamps = CELESTRAK_GROUPS.map(
     (group) => `${group}:${repositories.orbits.latestFetchedAt(group) ?? 'none'}`,
   ).join(',');
-  return `${orbitStamps}|${observer.latitude},${observer.longitude},${observer.altitude}|${minElevation}`;
+  return `v${PASS_CACHE_VERSION}|${orbitStamps}|${observer.latitude},${observer.longitude},${observer.altitude}|${minElevation}`;
 }
 
 export function isPassCacheFresh(
@@ -77,6 +78,7 @@ export async function refreshPassCache(
       .map((satellite) => [satellite.noradId, satellite.standardMagnitude]),
   );
   const orbits = repositories.orbits.listAll();
+  const docked = repositories.orbits.dockingHosts();
   const rows: NewPass[] = [];
 
   for (let index = 0; index < orbits.length; index++) {
@@ -89,7 +91,7 @@ export async function refreshPassCache(
 
     const { noradId, omm } = orbits[index]!;
     const standardMagnitude = standardMagnitudes.get(noradId);
-    if (standardMagnitude === undefined) {
+    if (standardMagnitude === undefined || docked.has(noradId)) {
       continue;
     }
     for (const pass of findPasses(orbitFromOmm(omm), search, standardMagnitude)) {

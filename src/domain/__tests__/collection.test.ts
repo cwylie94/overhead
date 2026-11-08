@@ -68,4 +68,21 @@ describe('deriveCollection', () => {
 
     expect(collection.caught).toBe(0);
   });
+
+  test('leaves out docked modules and visitors unless they were already seen', () => {
+    const withModules: CollectableSatellite[] = [
+      ...satellites,
+      { noradId: 49044, name: 'ISS (NAUKA)', rarity: 'common', collectionSet: 'spaceStations' },
+      { noradId: 36086, name: 'POISK', rarity: 'common', collectionSet: 'spaceStations' },
+    ];
+    const collection = deriveCollection(
+      withModules,
+      [{ noradId: 36086, observedAt: T, verified: true }],
+      new Set([49044, 36086]),
+    );
+    const stations = collection.sets[0]!.cards.map((card) => card.name);
+
+    expect(stations).toEqual(['CSS (TIANHE)', 'ISS (ZARYA)', 'POISK']);
+    expect(collection.total).toBe(6);
+  });
 });

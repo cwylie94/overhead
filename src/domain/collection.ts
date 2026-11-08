@@ -36,9 +36,12 @@ function byRarityThenName(a: CollectionCard, b: CollectionCard): number {
   return RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity) || a.name.localeCompare(b.name);
 }
 
+const NOTHING_DOCKED: ReadonlySet<number> = new Set();
+
 export function deriveCollection(
   satellites: CollectableSatellite[],
   sightings: SightingRecord[],
+  docked: ReadonlySet<number> = NOTHING_DOCKED,
 ): Collection {
   const firstCatch = new Map<number, number>();
   const sightingCounts = new Map<number, number>();
@@ -54,6 +57,9 @@ export function deriveCollection(
   const sets = COLLECTION_SETS.map((id): CollectionSetProgress => {
     const cards = satellites
       .filter((satellite) => satellite.collectionSet === id)
+      .filter(
+        (satellite) => !docked.has(satellite.noradId) || sightingCounts.has(satellite.noradId),
+      )
       .map((satellite) => ({
         ...satellite,
         caughtAt: firstCatch.get(satellite.noradId) ?? null,

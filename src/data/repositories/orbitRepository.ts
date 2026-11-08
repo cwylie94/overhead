@@ -1,5 +1,7 @@
 import { eq, max } from 'drizzle-orm';
 
+import { dockingHosts } from '@/domain/docking';
+
 import type { Database } from '../database';
 import { orbits } from '../schema';
 import { chunk, excluded } from './helpers';
@@ -33,6 +35,16 @@ export function createOrbitRepository(db: Database): OrbitRepository {
 
     listAll() {
       return db.select().from(orbits).all();
+    },
+
+    dockingHosts() {
+      return dockingHosts(
+        db
+          .select({ omm: orbits.omm })
+          .from(orbits)
+          .all()
+          .map((row) => row.omm),
+      );
     },
 
     latestFetchedAt(group) {
