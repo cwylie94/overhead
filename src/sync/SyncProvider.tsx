@@ -13,7 +13,7 @@ import { httpOrbitFetcher } from './celestrak';
 import { orbitsChanged, runSync } from './runSync';
 import { httpTransport } from './transport';
 
-export const SYNC_URL = process.env.EXPO_PUBLIC_SYNC_URL ?? null;
+export const SYNC_URL = process.env.EXPO_PUBLIC_SYNC_URL || null;
 
 type SyncContextValue = { syncNow(): Promise<void>; configured: boolean };
 
