@@ -1,9 +1,7 @@
 {
   "location": {
     "title": "Ubicación",
-    "gps": "Los pasos se calculan para donde estás, con el GPS.",
-    "custom": "Usando {{name}}, {{country}} en lugar del GPS.",
-    "customHint": "Lo que atrapes sigue contando, pero la app no puede comprobar que estés allí, y las horas siguen en la zona horaria del teléfono.",
+    "current": "Ubicación actual",
     "choose": "Elegir una ciudad",
     "useGps": "Usar el GPS",
     "pickerTitle": "Elegir una ciudad",

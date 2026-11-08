@@ -1,9 +1,7 @@
 {
   "location": {
     "title": "Location",
-    "gps": "Passes are worked out for where you are, using GPS.",
-    "custom": "Using {{name}}, {{country}} instead of GPS.",
-    "customHint": "Catches still count, but the app can’t check you’re really there, and times stay in your phone’s time zone.",
+    "current": "Current location",
     "choose": "Choose a city",
     "useGps": "Use GPS",
     "pickerTitle": "Choose a city",

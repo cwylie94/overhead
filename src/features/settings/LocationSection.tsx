@@ -1,10 +1,13 @@
+import { SymbolView } from 'expo-symbols';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { CustomLocation } from '@/stores/settingsStore';
-import { spacing } from '@/ui/theme';
+import { colors, spacing } from '@/ui/theme';
 
 import { Section, sectionStyles } from './controls';
+
+const ICON_SIZE = 20;
 
 type LocationSectionProps = {
   customLocation: CustomLocation | null;
@@ -17,12 +20,17 @@ export function LocationSection({ customLocation, onChooseCity, onUseGps }: Loca
 
   return (
     <Section title={t('location.title')}>
-      <Text style={sectionStyles.body}>
-        {customLocation
-          ? t('location.custom', { name: customLocation.name, country: customLocation.country })
-          : t('location.gps')}
-      </Text>
-      {customLocation && <Text style={sectionStyles.caption}>{t('location.customHint')}</Text>}
+      <View style={styles.current}>
+        <SymbolView
+          name={customLocation ? 'mappin.and.ellipse' : 'location.fill'}
+          size={ICON_SIZE}
+          tintColor={colors.accent}
+          fallback={null}
+        />
+        <Text style={sectionStyles.body}>
+          {customLocation ? customLocation.name : t('location.current')}
+        </Text>
+      </View>
       <View style={styles.buttons}>
         <Pressable accessibilityRole="button" onPress={onChooseCity} style={sectionStyles.button}>
           <Text style={sectionStyles.buttonText}>{t('location.choose')}</Text>
@@ -38,6 +46,11 @@ export function LocationSection({ customLocation, onChooseCity, onUseGps }: Loca
 }
 
 const styles = StyleSheet.create({
+  current: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   buttons: {
     flexDirection: 'row',
     gap: spacing.sm,
@@ -47,10 +60,10 @@ const styles = StyleSheet.create({
     ...sectionStyles.button,
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: sectionStyles.caption.color,
+    borderColor: colors.border,
   },
   secondaryText: {
     ...sectionStyles.buttonText,
-    color: sectionStyles.body.color,
+    color: colors.text,
   },
 });
