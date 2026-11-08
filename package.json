@@ -73,7 +73,8 @@
     "snapshot:update": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/fetch-snapshot.ts",
     "fixtures:passes": "tools/fixtures/.venv/bin/python tools/fixtures/generate_pass_fixtures.py",
     "bench": "jest --testMatch '**/__benchmarks__/**/*.bench.ts'",
-    "e2e": "maestro test .maestro"
+    "e2e": "maestro test .maestro",
+    "fixtures:moon": "tools/fixtures/.venv/bin/python tools/fixtures/generate_moon_fixtures.py"
   },
   "private": true,
   "engines": {
