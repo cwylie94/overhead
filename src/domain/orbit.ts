@@ -22,10 +22,21 @@ export function maxAngularRateDegPerMinute(meanMotion: number, eccentricity: num
   return perigeeRate + EARTH_ROTATION_DEG_PER_MINUTE;
 }
 
-export function apogeeAltitudeKm(meanMotion: number, eccentricity: number): number {
+function semiMajorAxisKm(meanMotion: number): number {
   const radiansPerSecond = (meanMotion * 2 * Math.PI) / SECONDS_PER_DAY;
-  const semiMajorAxis = Math.cbrt(EARTH_GM_KM3_S2 / radiansPerSecond ** 2);
-  return semiMajorAxis * (1 + eccentricity) - EARTH_RADIUS_KM;
+  return Math.cbrt(EARTH_GM_KM3_S2 / radiansPerSecond ** 2);
+}
+
+export function apogeeAltitudeKm(meanMotion: number, eccentricity: number): number {
+  return semiMajorAxisKm(meanMotion) * (1 + eccentricity) - EARTH_RADIUS_KM;
+}
+
+export function perigeeAltitudeKm(meanMotion: number, eccentricity: number): number {
+  return semiMajorAxisKm(meanMotion) * (1 - eccentricity) - EARTH_RADIUS_KM;
+}
+
+export function periodMinutes(meanMotion: number): number {
+  return 1440 / meanMotion;
 }
 
 export function orbitFromOmm(omm: OmmRecord): Orbit {

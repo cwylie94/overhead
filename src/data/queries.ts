@@ -1,9 +1,9 @@
-import { and, asc, eq, gt, lt, lte, max } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, lt, lte, max } from 'drizzle-orm';
 
 import { NAKED_EYE_LIMIT } from '@/domain/brightness';
 
 import type { Database } from './database';
-import { orbits, passes, satellites } from './schema';
+import { orbits, passes, satellites, sightings } from './schema';
 
 export function upcomingPassesQuery(db: Database, now: number) {
   return db
@@ -78,4 +78,33 @@ export function passWithSatelliteQuery(db: Database, id: number) {
     .from(passes)
     .innerJoin(satellites, eq(passes.noradId, satellites.noradId))
     .where(eq(passes.id, id));
+}
+
+export function collectableSatellitesQuery(db: Database) {
+  return db
+    .select({
+      noradId: satellites.noradId,
+      name: satellites.name,
+      rarity: satellites.rarity,
+      collectionSet: satellites.collectionSet,
+    })
+    .from(satellites);
+}
+
+export function sightingRecordsQuery(db: Database) {
+  return db
+    .select({
+      noradId: sightings.noradId,
+      observedAt: sightings.observedAt,
+      verified: sightings.verified,
+    })
+    .from(sightings);
+}
+
+export function satelliteSightingsQuery(db: Database, noradId: number) {
+  return db
+    .select()
+    .from(sightings)
+    .where(eq(sightings.noradId, noradId))
+    .orderBy(desc(sightings.observedAt));
 }

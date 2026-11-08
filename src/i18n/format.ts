@@ -69,3 +69,13 @@ export function formatNightDate(time: number, language: string): string {
   );
   return formatter.format(time);
 }
+
+export function formatCalendarDate(date: string | number, language: string): string {
+  const time =
+    typeof date === 'number' ? date : new Date(`${date.slice(0, 10)}T12:00:00`).getTime();
+  const formatter = cached(
+    `calendar:${language}`,
+    () => new Intl.DateTimeFormat(language, { day: 'numeric', month: 'long', year: 'numeric' }),
+  );
+  return formatter.format(time);
+}

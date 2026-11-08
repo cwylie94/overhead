@@ -33,5 +33,20 @@
     "offline": "You’re offline. Passes are worked out on this phone, so this list still works.",
     "stale_one": "Orbit data is {{count}} day old, so predictions may be off by a few minutes.",
     "stale_other": "Orbit data is {{count}} days old, so predictions may be off by a few minutes."
+  },
+  "owners": {
+    "US": "United States",
+    "CIS": "Soviet Union / Russia",
+    "PRC": "China",
+    "JPN": "Japan",
+    "ESA": "European Space Agency",
+    "FR": "France",
+    "IT": "Italy",
+    "CA": "Canada",
+    "ISS": "ISS partners",
+    "ARGN": "Argentina",
+    "IND": "India",
+    "THAI": "Thailand",
+    "MEX": "Mexico"
   }
 }

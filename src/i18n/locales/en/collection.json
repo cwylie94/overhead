@@ -8,5 +8,33 @@
     "spentStages": "Spent stages",
     "spiesAndSecrets": "Spies & secrets"
   },
-  "progress": "{{caught}} of {{total}} caught"
+  "progress": "{{caught}} of {{total}} caught",
+  "summary": "{{caught}} of {{total}} caught",
+  "filters": {
+    "all": "All"
+  },
+  "unknown": "Not caught yet",
+  "empty": "No satellites match these filters.",
+  "detail": {
+    "notCaught": "Not caught yet",
+    "launched": "Launched",
+    "owner": "Owner",
+    "orbit": "Orbit",
+    "orbitValue": "{{perigee}}–{{apogee}} km, {{inclination}}°",
+    "period": "Period",
+    "periodValue": "{{minutes}} minutes",
+    "set": "Set",
+    "unknownDate": "Unknown",
+    "yourSightings": "Your sightings",
+    "sightings_one": "{{count}} sighting, {{verified}} verified",
+    "sightings_other": "{{count}} sightings, {{verified}} verified",
+    "noSightings": "You haven’t seen this one yet.",
+    "firstCaught": "First caught {{date}}",
+    "bestAim": "Best aim {{degrees}}° off",
+    "nextPass": "Next visible pass",
+    "nextPassValue": "{{day}}, {{time}}",
+    "noPass": "No visible pass in the next two nights",
+    "flipHint": "Tap to flip",
+    "close": "Close"
+  }
 }

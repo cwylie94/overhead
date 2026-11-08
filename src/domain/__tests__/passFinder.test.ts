@@ -1,4 +1,4 @@
-import { apogeeAltitudeKm } from '../orbit';
+import { apogeeAltitudeKm, perigeeAltitudeKm, periodMinutes } from '../orbit';
 import { canReachObserver, findPasses, MIN_VISIBLE_DURATION, type FoundPass } from '../passFinder';
 import { london, orbitFor, orbits, skyfield, type FixturePass } from '../testing/skyfieldFixture';
 
@@ -163,6 +163,15 @@ describe('apogeeAltitudeKm', () => {
   test('a mean motion of about 15.5 revolutions a day is a low orbit near 420 km', () => {
     expect(apogeeAltitudeKm(15.5, 0.0005)).toBeGreaterThan(380);
     expect(apogeeAltitudeKm(15.5, 0.0005)).toBeLessThan(440);
+  });
+
+  test('perigee is below apogee for an eccentric orbit and equal for a circular one', () => {
+    expect(perigeeAltitudeKm(14.13, 0.054)).toBeLessThan(apogeeAltitudeKm(14.13, 0.054) - 500);
+    expect(perigeeAltitudeKm(15.5, 0)).toBeCloseTo(apogeeAltitudeKm(15.5, 0), 6);
+  });
+
+  test('the ISS goes round in about 93 minutes', () => {
+    expect(periodMinutes(15.5)).toBeCloseTo(92.9, 1);
   });
 
   test('one revolution a day is geostationary', () => {

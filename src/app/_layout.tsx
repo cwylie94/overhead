@@ -42,6 +42,7 @@ export default function RootLayout() {
                     name="catch/[passId]"
                     options={{ presentation: 'fullScreenModal' }}
                   />
+                  <Stack.Screen name="satellite/[noradId]" options={{ presentation: 'modal' }} />
                 </Stack>
               </PassCacheProvider>
             </DatabaseGate>
