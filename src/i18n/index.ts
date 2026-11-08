@@ -4,6 +4,8 @@ import { getLocales } from 'expo-localization';
 import { createInstance } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
+import { useSettingsStore } from '@/stores/settingsStore';
+
 import {
   defaultNS,
   FALLBACK_LANGUAGE,
@@ -21,17 +23,27 @@ export function detectDeviceLanguage(): Language {
   return isSupportedLanguage(match?.languageCode) ? match.languageCode : FALLBACK_LANGUAGE;
 }
 
+export function resolveLanguage(preference: Language | null): Language {
+  return preference ?? detectDeviceLanguage();
+}
+
 const i18n = createInstance();
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: detectDeviceLanguage(),
+  lng: resolveLanguage(useSettingsStore.getState().language),
   fallbackLng: FALLBACK_LANGUAGE,
   supportedLngs: SUPPORTED_LANGUAGES,
   defaultNS,
   ns: Object.keys(resources[FALLBACK_LANGUAGE]),
   initAsync: false,
   interpolation: { escapeValue: false },
+});
+
+useSettingsStore.subscribe((state, previous) => {
+  if (state.language !== previous.language) {
+    i18n.changeLanguage(resolveLanguage(state.language));
+  }
 });
 
 export default i18n;

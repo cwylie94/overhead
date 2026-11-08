@@ -36,7 +36,8 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Add packages with `npx expo install <package>`, never `npm install`, so versions match the SDK. Use `npx expo-doctor` to diagnose dependency problems.
 - iOS and Android only; there is no web target.
 - `ios/` and `android/` are generated (Continuous Native Generation) and git-ignored. Configure native behaviour through `app.json` and config plugins, never by editing those folders.
-- Libraries with native code need a development build (`npx expo run:ios` / `run:android`), not Expo Go.
+- The app runs as a development build (`expo-dev-client`), not Expo Go, because MMKV has native code Expo Go doesn't include. `npm run ios` builds and launches it. Rebuild only after adding or changing a native dependency or `app.json`. For JS-only changes, `npm start` is enough.
+- CocoaPods is pinned per project in `Gemfile` and installed into `vendor/bundle`. It needs Ruby 3.3 or later, and this Mac's is Homebrew's keg-only Ruby at `/opt/homebrew/opt/ruby/bin`. Put that first on `PATH` for iOS builds. Never upgrade the global `pod` or system Ruby.
 - Routes live in `src/app/` and stay thin: each route file re-exports a screen from `src/features/`.
 - Run `npm run lint`, `npm run typecheck` and the tests before calling a task done.
 
@@ -46,7 +47,9 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Only the sync engine talks to the network. Screens never call an API directly.
 - All orbit maths lives in the pure `domain/` layer and takes a clock and a location as inputs. Never call `Date.now()` or read sensors inside `domain/`.
 - Fast-changing sensor data (compass heading, tilt) stays in Reanimated shared values, never in Zustand.
-- Components subscribe to stores with selectors, e.g. `useSkyStore(s => s.selectedId)`.
+- Components subscribe to stores with selectors, e.g. `useSkyStore(s => s.selectedNoradId)`.
+- Stores in `src/stores/` hold UI and session state only. `settingsStore` and `syncStore` (last sync time only) persist to MMKV via `persistStorage`, with `partialize` listing exactly what is saved. Pure logic, such as the catch state machine, lives in `src/domain/`, and its store only dispatches events to it. Actions that change nothing must return the same state, so subscribers aren't notified.
+- Test stores by calling actions directly, resetting with `useXStore.setState(useXStore.getInitialState())`. Jest swaps MMKV for its in-memory mock in `jest.setup.ts`.
 - Compute pass tracks once, as a point every 10 s stored in `passes`. Worklets interpolate between points, so no orbit maths runs per frame.
 - The database sits behind repository interfaces, so the same code runs on the device and in Node tests.
 
