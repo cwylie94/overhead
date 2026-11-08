@@ -22,3 +22,4 @@ npm start
 | `npm run lint`                    | Lint with ESLint                          |
 | `npm run format`                  | Format with Prettier                      |
 | `npm run typecheck`               | Type-check with TypeScript                |
+| `npm test`                        | Run the Jest test suite                   |
