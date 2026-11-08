@@ -30,6 +30,16 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Backend: Hono on Cloudflare Workers with D1
 - Tests: Jest, React Native Testing Library and Maestro
 
+## Working with Expo
+
+- The project is on Expo SDK 58 and runs on Node 24 (`.nvmrc`). Expo APIs change between SDKs, so check the versioned docs at `https://docs.expo.dev/versions/v58.0.0/` (or `https://docs.expo.dev/llms.txt`) rather than relying on memory.
+- Add packages with `npx expo install <package>`, never `npm install`, so versions match the SDK. Use `npx expo-doctor` to diagnose dependency problems.
+- iOS and Android only; there is no web target.
+- `ios/` and `android/` are generated (Continuous Native Generation) and git-ignored. Configure native behaviour through `app.json` and config plugins, never by editing those folders.
+- Libraries with native code need a development build (`npx expo run:ios` / `run:android`), not Expo Go.
+- Routes live in `src/app/` and stay thin: each route file re-exports a screen from `src/features/`.
+- Run `npm run lint`, `npm run typecheck` and the tests before calling a task done.
+
 ## Architecture rules
 
 - SQLite is the single source of truth for data. Database rows never go into Zustand. Screens read them with Drizzle live queries.
