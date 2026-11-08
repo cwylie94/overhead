@@ -54,6 +54,10 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Passes are computed into SQLite by the pass cache (`src/data/passCache/`). `refreshPassCache` covers 30 minutes ago to 48 hours ahead, stores only passes with a visible part, and is keyed on the orbit data, rounded location and minimum elevation. The runner lives outside React, cancels runs that have been overtaken and yields to the UI between chunks. `PassCacheProvider` schedules it, and `usePassCache().refresh()` forces a recompute.
 - Screens read through query builders in `src/data/queries.ts` with `useLiveQuery`. A screen is a thin data hook plus a presentational view that takes plain props, and tests render the view directly. Anything a test needs from a hook file (such as `staleDaysFor`) lives in its own module, because importing `src/data/client.ts` opens the real database.
 - Reminders are local notifications with stable IDs (`pass-<noradId>-<startMinute>`). The scheduled notifications are the source of truth, so nothing else stores them.
+- Sky view (`src/features/sky/`): time, paths, dots, zoom and heading all live in Reanimated shared values. Their maths is worklets (`projection.ts`, `timeline.ts`, `domeDots.ts`, `domeGeometry.ts`) that take the precomputed tracks, so nothing re-renders while scrubbing. Keep anything that imports Skia out of the files tests need, because Skia's native module doesn't load in Jest.
+- Read and write shared values with `.get()` / `.set()`, not `.value`. The React Compiler lint treats `.value =` in gesture callbacks as mutation.
+- Skia 2 paths are built with `Skia.PathBuilder.Make()…build()`. A `Group` applies `transform` before `clip`, so to clip zoomed content, put the clip on an outer group and the transform on an inner one.
+- If the device reports a function as undefined right after you've added it, Metro's cache is probably stale. Restart it with `npx expo start --dev-client --clear` before debugging further.
 - Compute pass tracks once, as a point every 10 s stored in `passes`. Worklets interpolate between points, so no orbit maths runs per frame.
 - The pass finder (`src/domain/passFinder.ts`) is checked against Skyfield fixtures across all 172 satellites: rise, set and visible boundaries within 2 s. Keep those tolerances. If a change breaks them, fix the change, not the test. It skips ahead while a satellite is out of reach, so one night for the whole catalogue costs about 117k SGP4 propagations: 1.6 s in Node, 1.2 s under Hermes on the simulator. Check `npm run bench` after touching it.
 - The database sits behind repository interfaces, so the same code runs on the device and in Node tests.
@@ -125,7 +129,7 @@ There is no collection table. The collection is derived from verified sightings.
 - Keys are typed, so a missing or misspelt key fails `npm run typecheck`. Plurals use i18next's `_one` / `_other` suffixes with `count`.
 - Format times, countdowns and distances with the helpers in `src/i18n/format.ts`. Never build them by hand. Satellite names stay untranslated.
 - Hermes on iOS has no `Intl.PluralRules`, `Intl.RelativeTimeFormat` or `Intl.Locale`, and its `Intl.NumberFormat` silently converts units to the device region's system. `src/i18n/polyfills.ts` loads the `@formatjs` polyfills (forcing NumberFormat) and must stay the first import. When adding a language, add its locale data there too.
-- Node has full `Intl`, so passing tests don't prove device behaviour. Check new formatting on a simulator.
+- Node has full `Intl`, so passing tests don't prove device behaviour. Check new formatting on a simulator. Hermes' own `Intl.DateTimeFormat` isn't polyfilled and lacks `formatToParts`, so use `format()` only.
 
 ## Testing
 
