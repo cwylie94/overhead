@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAppData } from '@/data/AppDataContext';
 import { passWithSatelliteQuery, type UpcomingPass } from '@/data/queries';
+import { useDemo } from '@/demo/session';
 import { CATCH_HOLD_MS } from '@/domain/catchMachine';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
@@ -64,10 +65,14 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
     pass.track,
     Math.min(Math.max(clock.now(), pass.startAt), pass.endAt),
   );
-  const pointing = usePointing({
-    azimuth: ((startPosition?.azimuth ?? 0) + 25) % 360,
-    elevation: Math.max(0, (startPosition?.elevation ?? 30) - 15),
-  });
+  const demo = useDemo();
+  const pointing = usePointing(
+    {
+      azimuth: ((startPosition?.azimuth ?? 0) + 25) % 360,
+      elevation: Math.max(0, (startPosition?.elevation ?? 30) - 15),
+    },
+    demo !== null,
+  );
   const session = useCatchSession(pass, pointing);
   const { machine } = session;
 

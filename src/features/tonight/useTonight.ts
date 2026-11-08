@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useAppData } from '@/data/AppDataContext';
 import { usePassCache } from '@/data/passCache/PassCacheScheduler';
 import { orbitFreshnessQuery, upcomingPassesQuery } from '@/data/queries';
+import { useDemo } from '@/demo/session';
 import { useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
 
@@ -15,6 +16,7 @@ import { useReminders } from './useReminders';
 
 export function useTonight(): TonightViewProps {
   const { db } = useAppData();
+  const demo = useDemo();
   const now = useNow(60_000);
   const location = useLocation();
   const { state: cache, refresh } = usePassCache();
@@ -29,11 +31,14 @@ export function useTonight(): TonightViewProps {
     computing: cache.status === 'computing',
     passes,
     now,
-    offline: net.isConnected === false,
-    staleDays: staleDaysFor(
-      freshness.map((group) => group.fetchedAt),
-      now,
-    ),
+    offline: demo === null && net.isConnected === false,
+    staleDays: demo
+      ? null
+      : staleDaysFor(
+          freshness.map((group) => group.fetchedAt),
+          now,
+        ),
+    demoStartsAt: demo?.startsAt ?? null,
     reminders,
     refreshing,
     onRefresh: () => {

@@ -6,6 +6,7 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { useAppData } from '@/data/AppDataContext';
 import { pendingChangesQuery } from '@/data/queries';
+import { useDemo } from '@/demo/session';
 import { useNow } from '@/environment/clock';
 import { cancelAllReminders } from '@/features/tonight/reminders';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -15,6 +16,7 @@ import { Screen } from '@/ui/Screen';
 import { spacing } from '@/ui/theme';
 
 import { AboutSection } from './AboutSection';
+import { DemoSection } from './DemoSection';
 import { PreferencesSections, type PreferenceActions } from './PreferencesSections';
 import { SyncSection } from './SyncSection';
 
@@ -72,23 +74,29 @@ export function SettingsScreen() {
   const lastError = useSyncStore((sync) => sync.lastError);
   const pending = usePendingChanges();
   const { preferences, actions } = usePreferences();
+  const demo = useDemo();
+  const setDemoMode = useSettingsStore((settings) => settings.setDemoMode);
 
   return (
     <Screen title={t('tabs.settings')}>
       <ScrollView contentContainerStyle={styles.content}>
         <PreferencesSections preferences={preferences} actions={actions} />
-        <SyncSection
-          configured={configured}
-          status={status}
-          lastSyncedAt={lastSyncedAt}
-          lastError={lastError}
-          pending={pending}
-          now={now}
-          onSyncNow={() => {
-            syncNow();
-          }}
-        />
-        <AboutSection version={APP_VERSION} />
+        {demo ? (
+          <DemoSection startsAt={demo.startsAt} onTurnOff={() => setDemoMode(false)} />
+        ) : (
+          <SyncSection
+            configured={configured}
+            status={status}
+            lastSyncedAt={lastSyncedAt}
+            lastError={lastError}
+            pending={pending}
+            now={now}
+            onSyncNow={() => {
+              syncNow();
+            }}
+          />
+        )}
+        <AboutSection version={APP_VERSION} onToggleDemo={() => setDemoMode(demo === null)} />
       </ScrollView>
     </Screen>
   );

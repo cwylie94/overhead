@@ -20,7 +20,9 @@ export type Reminders = {
 };
 
 export function useReminders(): Reminders | null {
-  const enabled = useSettingsStore((settings) => settings.notificationsEnabled);
+  const enabled = useSettingsStore(
+    (settings) => settings.notificationsEnabled && !settings.demoMode,
+  );
   const { t } = useTranslation(['tonight', 'common']);
   const [ids, setIds] = useState<ReadonlySet<string>>(new Set());
 

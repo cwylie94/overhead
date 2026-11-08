@@ -19,6 +19,7 @@ export type TonightViewProps = {
   now: number;
   offline: boolean;
   staleDays: number | null;
+  demoStartsAt: number | null;
   reminders: Reminders | null;
   refreshing: boolean;
   onRefresh(): void;
@@ -42,6 +43,7 @@ export function TonightView({
   now,
   offline,
   staleDays,
+  demoStartsAt,
   reminders,
   refreshing,
   onRefresh,
@@ -55,6 +57,11 @@ export function TonightView({
 
   const banners = (
     <View>
+      {demoStartsAt !== null && (
+        <Banner
+          message={t('common:banners.demo', { date: formatNightDate(demoStartsAt, i18n.language) })}
+        />
+      )}
       {offline && <Banner message={t('common:banners.offline')} />}
       {staleDays !== null && (
         <Banner tone="warning" message={t('common:banners.stale', { count: staleDays })} />

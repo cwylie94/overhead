@@ -37,6 +37,7 @@ const defaults: TonightViewProps = {
   now: NOW,
   offline: false,
   staleDays: null,
+  demoStartsAt: null,
   reminders: null,
   refreshing: false,
   onRefresh: () => {},
@@ -113,6 +114,14 @@ describe('TonightView', () => {
     await renderView({ passes: [], computing: true });
 
     expect(screen.getByText('Working out the passes over you…')).toBeOnTheScreen();
+  });
+
+  test('says when it is showing the demo evening', async () => {
+    await renderView({ demoStartsAt: NOW });
+
+    expect(
+      screen.getByText('Demo mode: Sunday, November 8 in London. Turn it off in Settings.'),
+    ).toBeOnTheScreen();
   });
 
   test('shows the offline banner and keeps listing passes', async () => {

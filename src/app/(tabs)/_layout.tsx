@@ -1,12 +1,15 @@
 import { NativeTabs } from 'expo-router/native-tabs';
 import { useTranslation } from 'react-i18next';
 
+import { useDemo } from '@/demo/session';
 import { usePendingChanges } from '@/features/settings/SettingsScreen';
 import { colors } from '@/ui/theme';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
   const pending = usePendingChanges();
+  const demo = useDemo();
+  const showPending = pending > 0 && demo === null;
 
   return (
     <NativeTabs
@@ -30,7 +33,7 @@ export default function TabsLayout() {
 
       <NativeTabs.Trigger name="settings">
         <NativeTabs.Trigger.Label>{t('tabs.settings')}</NativeTabs.Trigger.Label>
-        {pending > 0 && <NativeTabs.Trigger.Badge>{String(pending)}</NativeTabs.Trigger.Badge>}
+        {showPending && <NativeTabs.Trigger.Badge>{String(pending)}</NativeTabs.Trigger.Badge>}
         <NativeTabs.Trigger.Icon sf="gearshape" md="settings" />
       </NativeTabs.Trigger>
     </NativeTabs>

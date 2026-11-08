@@ -45,5 +45,11 @@
   "about": {
     "title": "About",
     "version": "Version {{version}}"
+  },
+  "demo": {
+    "title": "Demo mode",
+    "body": "Replaying {{date}} in London from {{time}}, with the orbit data bundled in the app.",
+    "separate": "Demo catches go into a separate collection that is wiped each time the demo starts, and nothing syncs.",
+    "turnOff": "Turn off demo mode"
   }
 }

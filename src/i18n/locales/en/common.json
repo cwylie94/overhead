@@ -32,7 +32,8 @@
   "banners": {
     "offline": "You’re offline. Passes are worked out on this phone, so this list still works.",
     "stale_one": "Orbit data is {{count}} day old, so predictions may be off by a few minutes.",
-    "stale_other": "Orbit data is {{count}} days old, so predictions may be off by a few minutes."
+    "stale_other": "Orbit data is {{count}} days old, so predictions may be off by a few minutes.",
+    "demo": "Demo mode: {{date}} in London. Turn it off in Settings."
   },
   "owners": {
     "US": "United States",
