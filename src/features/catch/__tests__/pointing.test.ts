@@ -11,11 +11,11 @@ const G = 9.81;
 
 describe('elevationFromGravity', () => {
   test.each([
-    ['lying flat, screen up, camera at the ground', { x: 0, y: 0, z: G }, -90],
-    ['held upright, camera at the horizon', { x: 0, y: G, z: 0 }, 0],
-    ['held overhead, camera at the zenith', { x: 0, y: 0, z: -G }, 90],
-    ['tilted back 45 degrees', { x: 0, y: G * Math.SQRT1_2, z: -G * Math.SQRT1_2 }, 45],
-    ['upright in landscape', { x: G, y: 0, z: 0 }, 0],
+    ['lying flat, screen up, camera at the ground', { x: 0, y: 0, z: -G }, -90],
+    ['held upright, camera at the horizon', { x: 0, y: -G, z: 0 }, 0],
+    ['held overhead, screen down, camera at the zenith', { x: 0, y: 0, z: G }, 90],
+    ['tilted back 45 degrees', { x: 0, y: -G * Math.SQRT1_2, z: G * Math.SQRT1_2 }, 45],
+    ['upright in landscape', { x: -G, y: 0, z: 0 }, 0],
   ])('%s', (_, gravity, expected) => {
     expect(elevationFromGravity(gravity)).toBeCloseTo(expected, 6);
   });

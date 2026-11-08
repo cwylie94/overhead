@@ -10,7 +10,7 @@ export function elevationFromGravity({ x, y, z }: Vector): number {
   if (magnitude === 0) {
     return 0;
   }
-  return Math.asin(Math.max(-1, Math.min(1, -z / magnitude))) / DEG;
+  return Math.asin(Math.max(-1, Math.min(1, z / magnitude))) / DEG;
 }
 
 export function wrapDegrees(delta: number): number {
