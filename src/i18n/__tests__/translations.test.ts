@@ -1,3 +1,4 @@
+import { COMPASS_POINTS } from '@/domain/compass';
 import i18n from '@/i18n';
 
 import { FALLBACK_LANGUAGE, resources, SUPPORTED_LANGUAGES } from '../resources';
@@ -55,5 +56,13 @@ describe('typed keys', () => {
     expect(i18n.t('tabs.tonight')).toBe('Tonight');
     // @ts-expect-error unknown keys must fail to compile
     expect(i18n.t('tabs.doesNotExist')).toBe('tabs.doesNotExist');
+  });
+});
+
+describe('domain words', () => {
+  test('every compass point has a translation', () => {
+    for (const point of COMPASS_POINTS) {
+      expect(i18n.t(`compass.${point}`)).not.toBe(`compass.${point}`);
+    }
   });
 });
