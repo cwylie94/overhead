@@ -1,8 +1,23 @@
 # Overhead
 
-Overhead finds the satellites passing over you tonight, guides you to them in the sky, and lets you catch them into a collection. It works fully offline.
+Overhead finds the satellites passing over you tonight, guides you to them in the sky, and lets you catch them into a collection. It works fully offline, because the best places to watch from have no signal.
 
-Built with Expo (SDK 58), React Native and TypeScript.
+The loop is **Plan → Point → Catch → Collect**:
+
+- **Tonight** lists every visible pass for the next two nights, with when and where to look, how bright it will be and how rare it is. You can ask for a reminder 5 minutes before.
+- **Sky** shows the dome overhead with each satellite's path. Drag the timeline to see the sky later tonight, pinch to zoom, or turn on Compass to match the dome to the way you're facing.
+- **Catch** points you at a satellite during its pass. Hold the crosshair on it for 2 seconds, guided by haptic pulses, to catch it.
+- **Collection** groups everything you've caught into themed sets, with a card for each satellite.
+
+Built with Expo (SDK 58), React Native and TypeScript, in English and Spanish.
+
+## Demo mode
+
+Demo mode replays a fixed evening so the app can be shown anywhere, any time. Open Settings and tap the version number five times, or open the `overhead://demo` link (`overhead://demo?enabled=0` turns it off).
+
+- The clock starts a minute before a bright ISS pass over London, picked from the bundled orbit data, and runs in real time from there.
+- Catch mode uses drag-to-aim instead of the compass.
+- It runs on its own database, recreated each time the demo starts, so demo catches never reach your real collection or the sync server. Sync, reminders and the orbit refresh are off.
 
 ## Getting started
 
@@ -32,6 +47,32 @@ After the first build, `npm start` is enough for JavaScript changes. Rebuild wit
 | `npm run snapshot:update`         | Refresh the bundled CelesTrak snapshot      |
 | `npm run fixtures:passes`         | Regenerate the Skyfield reference passes    |
 | `npm run bench`                   | Time pass finding for the whole catalogue   |
+| `npm run e2e`                     | Run the Maestro flows on a running build    |
+
+## Architecture
+
+```
+src/
+  domain/    pure TypeScript: pass finder, sun, look angles, rarity, sets, brightness, catch state machine
+  data/      SQLite schema (Drizzle), repositories, migrations, bundled snapshot, pass cache
+  sync/      outbox push and pull, CelesTrak refresh, triggers
+  environment/  injected clock and location
+  demo/      demo pass and the app session that swaps in demo mode
+  features/  tonight, sky, catch, collection, satellite, settings
+  stores/    Zustand for UI and session state, persisted to MMKV
+  i18n/      i18next with typed keys, English and Spanish
+server/      Hono Worker with D1, the sync API
+```
+
+- **SQLite is the single source of truth.** Screens read with Drizzle live queries, so a catch, a sync or a new pass list shows up everywhere without any state passed around. Zustand only holds UI state such as the selected satellite or the catch in progress.
+- **Orbit maths is pure and injected.** Everything in `domain/` takes the time and the observer as arguments, and the app gets them from a `ClockProvider` and a location provider. That is what makes the tests deterministic and lets demo mode swap in a fixed evening without touching any screen.
+- **Passes are computed once and cached.** The pass cache works out 48 hours of passes for the whole catalogue in chunks that yield to the UI (one night takes about 1.2 s under Hermes) and stores each pass with a track point every 10 seconds. It reruns only when the orbits, the location or the minimum elevation change.
+- **The Sky view never re-renders while it moves.** Time, zoom and heading are Reanimated shared values, and the dome is drawn with Skia from worklets that interpolate the stored tracks, so scrubbing stays smooth.
+- **The database comes from an app session.** The root layout reads the session (the database, its repositories and the pass cache runner, plus the demo clock and location in demo mode) and remounts the app when it changes.
+
+### Finding passes
+
+`findPasses` scans each satellite's orbit (SGP4, via satellite.js) at a coarse step, refines the peak with a golden-section search and the rise and set times by bisection, and skips ahead while the satellite is too far round the Earth to be seen. A pass counts as visible while the satellite is sunlit, above the minimum elevation and the sky is dark. Brightness is estimated from the satellite's radar cross-section, distance and sun angle.
 
 ## Sync
 
@@ -71,3 +112,28 @@ python3 -m venv tools/fixtures/.venv
 tools/fixtures/.venv/bin/pip install -r tools/fixtures/requirements.txt
 npm run fixtures:passes
 ```
+
+## Testing
+
+- **Jest** covers the domain maths, repositories (against in-memory SQLite with the real migrations), stores, sync, formatting, translations and the presentational views. Run `npm test`.
+- **Pass predictions** are checked against Skyfield for every satellite in the snapshot, to within 2 seconds.
+- **Sync** tests run two simulated phones against the real Worker app, including a crash after the server saved a push and a replayed pull.
+- **Maestro** flows in `.maestro/` drive the demo evening, the demo toggle and the language switch on a simulator. Install the [Maestro CLI](https://docs.maestro.dev/getting-started/installing-maestro) (it needs Java 17 or later), start the app with `npm run ios`, then run `npm run e2e`. Maestro can't hold a drag in place, so the aim-and-hold catch itself is covered by the catch state machine's tests and by hand.
+
+## Trade-offs
+
+- **Skyfield instead of N2YO for reference passes**, as explained above.
+- **Brightness is an estimate.** Magnitudes come from radar cross-section, which is only a rough proxy for how much sunlight a satellite reflects, so they are good to about one magnitude. The constants are calibrated on the ISS and Hubble.
+- **Rarity and sets are rules, not a curated list.** Rarity follows a pyramid (few legendary, many common) from launch date, object type and whether it's a station or constellation member. Sets are mostly rules with two short named lists. That keeps a snapshot refresh from needing manual work, at the cost of the odd surprising choice.
+- **A bundled snapshot plus a cautious refresh.** The app ships with orbit data so the first launch works offline, and refreshes each CelesTrak group at most every 2 hours.
+- **No login.** Each install has an anonymous account ID, which keeps sync simple, but a lost phone means a lost collection.
+- **Last write wins for notes.** Notes are the only thing that changes after a sighting is logged, so a full merge strategy wasn't worth it.
+- **Expo with development builds, not ejected.** Native code (MMKV, Skia, sensors) comes in through config plugins, so `ios/` and `android/` are generated and never edited.
+
+## Next steps
+
+- Check the compass and tilt sign conventions on a real phone, and test on Android.
+- Calibrate brightness against real observations.
+- Group docked station modules (the ISS currently appears as ZARYA, NAUKA and POISK).
+- Let people move their collection to a new phone, for example with a transfer code for the account ID.
+- Deploy the Worker, and add Arabic with right-to-left layout.
