@@ -1,39 +1,55 @@
-import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, spacing, typography } from '@/ui/theme';
 
-import { db } from './client';
-import migrations from './migrations/migrations';
+import { prepareDatabase } from './prepareDatabase';
 
 type DatabaseGateProps = {
   children: ReactNode;
 };
 
+type PreparationState =
+  { status: 'pending' } | { status: 'ready' } | { status: 'failed'; error: Error };
+
 export function DatabaseGate({ children }: DatabaseGateProps) {
   const { t } = useTranslation();
-  const { success, error } = useMigrations(db, migrations);
-  const settled = success || error !== undefined;
+  const [state, setState] = useState<PreparationState>({ status: 'pending' });
 
   useEffect(() => {
-    if (settled) {
+    let active = true;
+    prepareDatabase().then(
+      () => active && setState({ status: 'ready' }),
+      (cause: unknown) =>
+        active &&
+        setState({
+          status: 'failed',
+          error: cause instanceof Error ? cause : new Error(String(cause)),
+        }),
+    );
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (state.status !== 'pending') {
       SplashScreen.hideAsync();
     }
-  }, [settled]);
+  }, [state.status]);
 
-  if (error) {
+  if (state.status === 'failed') {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>{t('errors.databaseTitle')}</Text>
-        <Text style={styles.message}>{error.message}</Text>
+        <Text style={styles.message}>{state.error.message}</Text>
       </View>
     );
   }
 
-  if (!success) {
+  if (state.status === 'pending') {
     return null;
   }
 

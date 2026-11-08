@@ -98,7 +98,8 @@ There is no collection table. The collection is derived from verified sightings.
 
 - CelesTrak only, for two groups (`visual`, `stations`) and SATCAT. Never fetch the full active catalogue.
 - Wait at least 2 hours between fetches per group, because CelesTrak returns HTTP 403 when you download too soon. Back off exponentially on errors and never retry immediately.
-- Ship a bundled snapshot of both groups and the catalogue, so the first launch works offline.
+- A bundled snapshot of both groups and their SATCAT records lives in `src/data/snapshot/*.json`, so the first launch works offline. `prepareDatabase()` runs the migrations and then `importSnapshot` on every launch. The import is idempotent: it loads the catalogue only when the snapshot is newer than the last import, and a group's orbits only when the snapshot is newer than the stored ones. Refresh it with `npm run snapshot:update` (one request per endpoint, so it respects CelesTrak's limits), then commit the JSON.
+- Rarity is computed from catalogue data on import (`src/domain/catalogue.ts`). The plan's "visible fewer than 2 nights a week" rule for Rare isn't implemented yet, because it depends on the user's location and pass data.
 - Show a staleness banner when orbit data is several days old.
 - Writing a sighting and its outbox entry happens in one transaction. Push is idempotent (the server inserts or ignores by ID). Delete outbox entries only after the server confirms them.
 - Identity is an anonymous account ID generated on the device. There is no login.
