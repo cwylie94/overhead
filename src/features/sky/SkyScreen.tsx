@@ -8,6 +8,7 @@ import { db } from '@/data/client';
 import { skyPassesQuery } from '@/data/queries';
 import { useClock, useNow } from '@/environment/clock';
 import { useSkyStore } from '@/stores/skyStore';
+import { ALWAYS_ANIMATE } from '@/ui/motion';
 import { Screen } from '@/ui/Screen';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
@@ -46,7 +47,9 @@ export function SkyScreen() {
   const clockStyle = useMemo(() => clockStyleFor(i18n.language), [i18n.language]);
 
   useEffect(() => {
-    base.set(withTiming(now + 1_000, { duration: 1_000, easing: Easing.linear }));
+    base.set(
+      withTiming(now + 1_000, { duration: 1_000, easing: Easing.linear, ...ALWAYS_ANIMATE }),
+    );
   }, [base, now]);
 
   const labels = {

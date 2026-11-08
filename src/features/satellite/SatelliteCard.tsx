@@ -3,12 +3,12 @@ import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
 
+import { useReduceMotion } from '@/ui/motion';
 import { colors, radius, spacing } from '@/ui/theme';
 
 const MAX_TILT = 15;
@@ -22,7 +22,7 @@ type SatelliteCardProps = {
 };
 
 export function SatelliteCard({ accent, front, back }: SatelliteCardProps) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
   const tiltX = useSharedValue(0);
   const tiltY = useSharedValue(0);
   const flip = useSharedValue(0);

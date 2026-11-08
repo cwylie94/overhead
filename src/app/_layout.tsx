@@ -12,6 +12,7 @@ import { ClockProvider, systemClock } from '@/environment/clock';
 import { DeviceLocationProvider } from '@/environment/location';
 import { configureNotificationHandler } from '@/features/tonight/reminders';
 import { SyncProvider } from '@/sync/SyncProvider';
+import { MotionConfig } from '@/ui/motion';
 import { colors } from '@/ui/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -33,6 +34,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={navigationTheme}>
         <StatusBar style="light" />
+        <MotionConfig />
         <ClockProvider clock={systemClock}>
           <DeviceLocationProvider>
             <DatabaseGate>

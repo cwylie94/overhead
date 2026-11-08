@@ -1,5 +1,4 @@
 import * as Crypto from 'expo-crypto';
-import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { repositories } from '@/data/client';
@@ -8,6 +7,7 @@ import { logSighting } from '@/data/sightings/logSighting';
 import { aimError } from '@/domain/sky';
 import { useClock } from '@/environment/clock';
 import { useCatchStore } from '@/stores/catchStore';
+import { haptics } from '@/ui/haptics';
 
 import { pulseInterval } from './pointing';
 import type { Pointing } from './usePointing';
@@ -51,7 +51,7 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
     const pulse = () => {
       const interval = holding.current ? pulseInterval(latestError.current) : null;
       if (interval !== null) {
-        Haptics.selectionAsync().catch(() => {});
+        haptics.aimPulse();
       }
       timer = setTimeout(pulse, interval ?? 200);
     };
@@ -65,7 +65,7 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
 
   useEffect(() => {
     if (machine.status === 'locked') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+      haptics.locked();
     }
     if (machine.status === 'caught' && loggedCatchAt.current !== machine.caughtAt) {
       loggedCatchAt.current = machine.caughtAt;
@@ -79,7 +79,7 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
         },
         { now: clock.now(), randomBytes: Crypto.getRandomBytes },
       );
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      haptics.caught();
     }
   }, [machine, pass.noradId, clock]);
 

@@ -20,6 +20,7 @@ import { positionOnTrack } from '@/domain/sky';
 import { useClock, useNow } from '@/environment/clock';
 import { Banner } from '@/ui/Banner';
 import { Chip } from '@/ui/Chip';
+import { ALWAYS_ANIMATE } from '@/ui/motion';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 
 import { CatchCanvas, POINTS_PER_DEGREE } from './CatchCanvas';
@@ -74,12 +75,16 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
   const dragStart = useSharedValue({ azimuth: 0, elevation: 0 });
 
   useEffect(() => {
-    time.set(withTiming(now + 1_000, { duration: 1_000, easing: Easing.linear }));
+    time.set(
+      withTiming(now + 1_000, { duration: 1_000, easing: Easing.linear, ...ALWAYS_ANIMATE }),
+    );
   }, [time, now]);
 
   useEffect(() => {
     if (machine.status === 'locked') {
-      progress.set(withTiming(1, { duration: CATCH_HOLD_MS, easing: Easing.linear }));
+      progress.set(
+        withTiming(1, { duration: CATCH_HOLD_MS, easing: Easing.linear, ...ALWAYS_ANIMATE }),
+      );
     } else if (machine.status === 'caught') {
       progress.set(1);
     } else {
