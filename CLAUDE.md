@@ -48,7 +48,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - All orbit maths lives in the pure `domain/` layer and takes a clock and a location as inputs. Never call `Date.now()` or read sensors inside `domain/`.
 - Fast-changing sensor data (compass heading, tilt) stays in Reanimated shared values, never in Zustand.
 - Components subscribe to stores with selectors, e.g. `useSkyStore(s => s.selectedNoradId)`.
-- Stores in `src/stores/` hold UI and session state only. `settingsStore` and `syncStore` (last sync time only) persist to MMKV via `persistStorage`, with `partialize` listing exactly what is saved. Pure logic, such as the catch state machine, lives in `src/domain/`, and its store only dispatches events to it. Actions that change nothing must return the same state, so subscribers aren't notified.
+- Stores in `src/stores/` hold UI and session state only. `settingsStore` and `syncStore` (last sync time and account ID) persist to MMKV via `persistStorage`, with `partialize` listing exactly what is saved. Pure logic, such as the catch state machine, lives in `src/domain/`, and its store only dispatches events to it. Actions that change nothing must return the same state, so subscribers aren't notified.
 - Test stores by calling actions directly, resetting with `useXStore.setState(useXStore.getInitialState())`. Jest swaps MMKV for its in-memory mock in `jest.setup.ts`.
 - Time and place are injected through `src/environment/`: `ClockProvider` / `useClock` / `useNow` and `DeviceLocationProvider` / `FixedLocationProvider` / `useLocation`. Never call `Date.now()` in components or hooks; demo mode swaps these providers. The last location is saved, rounded to about 1 km, in `settingsStore`, so an offline launch still has an observer.
 - Passes are computed into SQLite by the pass cache (`src/data/passCache/`). `refreshPassCache` covers 30 minutes ago to 48 hours ahead, stores only passes with a visible part, and is keyed on the orbit data, rounded location and minimum elevation. The runner lives outside React, cancels runs that have been overtaken and yields to the UI between chunks. `PassCacheProvider` schedules it, and `usePassCache().refresh()` forces a recompute.
@@ -80,6 +80,7 @@ src/
   i18n/      i18next setup, typed keys, locales/{en,es}/*.json
   features/  tonight/, sky/, catch/, collection/, settings/
   ui/        shared components, Skia primitives, haptics
+server/      Hono Worker with D1: the sync API, its migrations and tests
 ```
 
 ## Data model
@@ -124,10 +125,21 @@ There is no collection table. The collection is derived from verified sightings.
 
 - CelesTrak only, for two groups (`visual`, `stations`) and SATCAT. Never fetch the full active catalogue.
 - Wait at least 2 hours between fetches per group, because CelesTrak returns HTTP 403 when you download too soon. Back off exponentially on errors and never retry immediately.
-- A bundled snapshot of both groups and their SATCAT records lives in `src/data/snapshot/*.json`, so the first launch works offline. `prepareDatabase()` runs the migrations and then `importSnapshot` on every launch. The import is idempotent: it reloads the catalogue only when the snapshot or the rarity rules have changed since the last import, and a group's orbits only when the snapshot is newer than the stored ones. Refresh it with `npm run snapshot:update` (one request per endpoint, so it respects CelesTrak's limits), then commit the JSON.- Show a staleness banner when orbit data is several days old.
+- A bundled snapshot of both groups and their SATCAT records lives in `src/data/snapshot/*.json`, so the first launch works offline. `prepareDatabase()` runs the migrations and then `importSnapshot` on every launch. The import is idempotent: it reloads the catalogue only when the snapshot or the rarity rules have changed since the last import, and a group's orbits only when the snapshot is newer than the stored ones. Refresh it with `npm run snapshot:update` (one request per endpoint, so it respects CelesTrak's limits), then commit the JSON.
+- Show a staleness banner when orbit data is several days old.
+- CelesTrak refresh (`src/sync/celestrak.ts`) keeps per-group failure counts and retry times in `sync_meta`. Backoff starts at 5 minutes and doubles up to 6 hours; a 403 waits the full 2 hours. A failed or malformed response never replaces stored orbits.
 - Writing a sighting and its outbox entry happens in one transaction. Push is idempotent (the server inserts or ignores by ID). Delete outbox entries only after the server confirms them.
-- Identity is an anonymous account ID generated on the device. There is no login.
-- N2YO is used only for test fixtures and is never called by the app.
+- Identity is an anonymous account ID (UUIDv7) generated on the device and kept in `syncStore`. Once set it is never replaced. There is no login.
+- Sync (`src/sync/`):
+  - `runSync` pushes the outbox, pulls changes, then refreshes orbits, and refreshes passes if orbits changed. `SyncProvider` runs it on launch, on returning to the foreground, on reconnecting and from Sync now in Settings, one run at a time.
+  - Push sends up to `MAX_PUSH_BATCH` changes and deletes only the entries the server lists in `accepted`. A sighting is marked synced only when none of its changes are still pending.
+  - The server bumps a per-account version for every push and stamps each changed row with it. Pull returns rows above the cursor in version order, `PULL_PAGE_SIZE` at a time; the cursor is stored in `sync_meta` under `sync.pullCursor`.
+  - Only the note can change after a sighting is logged. The last note edit to reach the server wins, and a pull never overwrites a sighting with a pending local change.
+  - The wire types live in `server/src/protocol.ts` and are shared by the app and the Worker. Change them in one place, and keep old clients working.
+- The server (`server/`) is its own npm package. Run `npm install` and `npm run db:migrate:local` there once, then `npm run dev` serves it on port 8787. The app syncs only when `EXPO_PUBLIC_SYNC_URL` is set (in `.env.local`, see `.env.example`). Without it, sightings stay on the device and orbits still refresh. Restart Metro after changing it, because `EXPO_PUBLIC_` values are inlined at bundle time.
+- Server routes take a structural `D1Like` type, so tests run the real app against `fakeD1` (better-sqlite3). The root `tsconfig.json` excludes `server/`, which has its own type check against the Workers types (`npm run typecheck` in `server/`).
+- Deploying needs a Cloudflare account: create the D1 database, put its ID in `server/wrangler.toml` in place of the placeholder, run `npm run db:migrate:remote`, then `npm run deploy`.
+- Pass fixtures come from Skyfield, never a live API. N2YO isn't used.
 
 ## i18n
 
@@ -140,8 +152,8 @@ There is no collection table. The collection is derived from verified sightings.
 
 ## Testing
 
-- Write domain tests first. Pass predictions use a fixed orbit snapshot, a London location and a fixed clock, and must match N2YO fixtures within ±30 s.
-- Sync tests run against in-memory SQLite: push replay is harmless, the cursor advances, a crash mid-sync loses nothing, and the 2-hour rule is enforced.
+- Write domain tests first. Pass predictions use a fixed orbit snapshot, a London location and a fixed clock, and must match the Skyfield fixtures within ±2 s.
+- Sync tests run two simulated devices against the real Worker app over in-memory SQLite (`src/sync/__tests__/sync.test.ts`): push replay is harmless, the cursor advances, a crash mid-sync loses nothing, and note edits reach the other device. CelesTrak tests cover the 2-hour rule and backoff with a fake fetcher and clock.
 - Store tests call actions directly, with no rendering, and cover forbidden state transitions.
 - Translation tests fail if any locale is missing a key.
 
