@@ -10,6 +10,7 @@ const SATCAT_FIELDS = [
   'OBJECT_TYPE',
   'OWNER',
   'LAUNCH_DATE',
+  'RCS',
 ] as const;
 const OUTPUT_DIR = path.resolve(import.meta.dirname, '../src/data/snapshot');
 
@@ -44,7 +45,9 @@ async function main(): Promise<void> {
 
     for (const record of satcat) {
       if (ids.has(record.NORAD_CAT_ID)) {
-        const picked = Object.fromEntries(SATCAT_FIELDS.map((field) => [field, record[field]]));
+        const picked = Object.fromEntries(
+          SATCAT_FIELDS.map((field) => [field, record[field] ?? null]),
+        );
         catalogue.set(record.NORAD_CAT_ID, picked as Record);
       }
     }

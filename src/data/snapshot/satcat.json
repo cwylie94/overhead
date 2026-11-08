@@ -5,7 +5,8 @@
     "NORAD_CAT_ID": 694,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1963-11-27"
+    "LAUNCH_DATE": "1963-11-27",
+    "RCS": 6.388
   },
   {
     "OBJECT_NAME": "THOR AGENA D R/B",
@@ -13,7 +14,8 @@
     "NORAD_CAT_ID": 733,
     "OBJECT_TYPE": "R/B",
     "OWNER": "US",
-    "LAUNCH_DATE": "1964-01-19"
+    "LAUNCH_DATE": "1964-01-19",
+    "RCS": 4.474
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -21,7 +23,8 @@
     "NORAD_CAT_ID": 877,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1964-08-28"
+    "LAUNCH_DATE": "1964-08-28",
+    "RCS": 5.6361
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -29,7 +32,8 @@
     "NORAD_CAT_ID": 2802,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1967-05-15"
+    "LAUNCH_DATE": "1967-05-15",
+    "RCS": 4.3558
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -37,7 +41,8 @@
     "NORAD_CAT_ID": 3230,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1968-05-07"
+    "LAUNCH_DATE": "1968-05-07",
+    "RCS": 4.111
   },
   {
     "OBJECT_NAME": "OAO 2",
@@ -45,7 +50,8 @@
     "NORAD_CAT_ID": 3597,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1968-12-07"
+    "LAUNCH_DATE": "1968-12-07",
+    "RCS": 2.288
   },
   {
     "OBJECT_NAME": "ISIS 1",
@@ -53,7 +59,8 @@
     "NORAD_CAT_ID": 3669,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CA",
-    "LAUNCH_DATE": "1969-01-30"
+    "LAUNCH_DATE": "1969-01-30",
+    "RCS": 1.853
   },
   {
     "OBJECT_NAME": "SERT 2",
@@ -61,7 +68,8 @@
     "NORAD_CAT_ID": 4327,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1970-02-04"
+    "LAUNCH_DATE": "1970-02-04",
+    "RCS": 4.467
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -69,7 +77,8 @@
     "NORAD_CAT_ID": 5118,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1971-04-07"
+    "LAUNCH_DATE": "1971-04-07",
+    "RCS": 6.3096
   },
   {
     "OBJECT_NAME": "ASTEX 1",
@@ -77,7 +86,8 @@
     "NORAD_CAT_ID": 5560,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1971-10-17"
+    "LAUNCH_DATE": "1971-10-17",
+    "RCS": 8.152
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -85,7 +95,8 @@
     "NORAD_CAT_ID": 5730,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1971-12-27"
+    "LAUNCH_DATE": "1971-12-27",
+    "RCS": 5.234
   },
   {
     "OBJECT_NAME": "OAO 3 (COPERNICUS)",
@@ -93,7 +104,8 @@
     "NORAD_CAT_ID": 6153,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1972-08-21"
+    "LAUNCH_DATE": "1972-08-21",
+    "RCS": 6.42
   },
   {
     "OBJECT_NAME": "ATLAS CENTAUR R/B",
@@ -101,7 +113,8 @@
     "NORAD_CAT_ID": 6155,
     "OBJECT_TYPE": "R/B",
     "OWNER": "US",
-    "LAUNCH_DATE": "1972-08-21"
+    "LAUNCH_DATE": "1972-08-21",
+    "RCS": 11.584
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -109,7 +122,8 @@
     "NORAD_CAT_ID": 8459,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1975-11-28"
+    "LAUNCH_DATE": "1975-11-28",
+    "RCS": 4.0731
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -117,7 +131,8 @@
     "NORAD_CAT_ID": 10114,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1977-06-29"
+    "LAUNCH_DATE": "1977-06-29",
+    "RCS": 5.9376
   },
   {
     "OBJECT_NAME": "SEASAT 1",
@@ -125,7 +140,8 @@
     "NORAD_CAT_ID": 10967,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1978-06-27"
+    "LAUNCH_DATE": "1978-06-27",
+    "RCS": 9.412
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -133,7 +149,8 @@
     "NORAD_CAT_ID": 11267,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1979-02-12"
+    "LAUNCH_DATE": "1979-02-12",
+    "RCS": 4.0015
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -141,7 +158,8 @@
     "NORAD_CAT_ID": 11574,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1979-10-11"
+    "LAUNCH_DATE": "1979-10-11",
+    "RCS": 4.6928
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -149,7 +167,8 @@
     "NORAD_CAT_ID": 11672,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1980-01-23"
+    "LAUNCH_DATE": "1980-01-23",
+    "RCS": 3.8825
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -157,7 +176,8 @@
     "NORAD_CAT_ID": 12139,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1981-01-16"
+    "LAUNCH_DATE": "1981-01-16",
+    "RCS": 5.479
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -165,7 +185,8 @@
     "NORAD_CAT_ID": 12465,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1981-05-19"
+    "LAUNCH_DATE": "1981-05-19",
+    "RCS": 5.3152
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -173,7 +194,8 @@
     "NORAD_CAT_ID": 12904,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1981-10-13"
+    "LAUNCH_DATE": "1981-10-13",
+    "RCS": 5.3523
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -181,7 +203,8 @@
     "NORAD_CAT_ID": 13068,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1982-02-19"
+    "LAUNCH_DATE": "1982-02-19",
+    "RCS": 4.512
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -189,7 +212,8 @@
     "NORAD_CAT_ID": 13154,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1982-05-05"
+    "LAUNCH_DATE": "1982-05-05",
+    "RCS": 5.275
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -197,7 +221,8 @@
     "NORAD_CAT_ID": 13403,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1982-08-05"
+    "LAUNCH_DATE": "1982-08-05",
+    "RCS": 5.8217
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -205,7 +230,8 @@
     "NORAD_CAT_ID": 13553,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1982-09-16"
+    "LAUNCH_DATE": "1982-09-16",
+    "RCS": 4.0839
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -213,7 +239,8 @@
     "NORAD_CAT_ID": 13819,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1983-02-16"
+    "LAUNCH_DATE": "1983-02-16",
+    "RCS": 5.4579
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -221,7 +248,8 @@
     "NORAD_CAT_ID": 14208,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1983-07-24"
+    "LAUNCH_DATE": "1983-07-24",
+    "RCS": 6.0788
   },
   {
     "OBJECT_NAME": "COSMOS 1536",
@@ -229,7 +257,8 @@
     "NORAD_CAT_ID": 14699,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1984-02-08"
+    "LAUNCH_DATE": "1984-02-08",
+    "RCS": 6.2222
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -237,7 +266,8 @@
     "NORAD_CAT_ID": 14820,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1984-03-15"
+    "LAUNCH_DATE": "1984-03-15",
+    "RCS": 3.8208
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -245,7 +275,8 @@
     "NORAD_CAT_ID": 15483,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1985-01-17"
+    "LAUNCH_DATE": "1985-01-17",
+    "RCS": 4.5157
   },
   {
     "OBJECT_NAME": "SL-12 R/B(2)",
@@ -253,7 +284,8 @@
     "NORAD_CAT_ID": 15772,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1985-05-30"
+    "LAUNCH_DATE": "1985-05-30",
+    "RCS": 13.142
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -261,7 +293,8 @@
     "NORAD_CAT_ID": 15945,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1985-08-08"
+    "LAUNCH_DATE": "1985-08-08",
+    "RCS": 4.252
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -269,7 +302,8 @@
     "NORAD_CAT_ID": 16182,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1985-10-22"
+    "LAUNCH_DATE": "1985-10-22",
+    "RCS": 10.9102
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -277,7 +311,8 @@
     "NORAD_CAT_ID": 16496,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1986-01-17"
+    "LAUNCH_DATE": "1986-01-17",
+    "RCS": 4.0562
   },
   {
     "OBJECT_NAME": "COSMOS 1743",
@@ -285,7 +320,8 @@
     "NORAD_CAT_ID": 16719,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1986-05-15"
+    "LAUNCH_DATE": "1986-05-15",
+    "RCS": 7.7814
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -293,7 +329,8 @@
     "NORAD_CAT_ID": 16792,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1986-06-12"
+    "LAUNCH_DATE": "1986-06-12",
+    "RCS": 4.4704
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -301,7 +338,8 @@
     "NORAD_CAT_ID": 16882,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1986-07-28"
+    "LAUNCH_DATE": "1986-07-28",
+    "RCS": 4.2918
   },
   {
     "OBJECT_NAME": "AJISAI (EGS)",
@@ -309,7 +347,8 @@
     "NORAD_CAT_ID": 16908,
     "OBJECT_TYPE": "PAY",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "1986-08-12"
+    "LAUNCH_DATE": "1986-08-12",
+    "RCS": 4.228
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -317,7 +356,8 @@
     "NORAD_CAT_ID": 17567,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1987-03-03"
+    "LAUNCH_DATE": "1987-03-03",
+    "RCS": 4.099
   },
   {
     "OBJECT_NAME": "COSMOS 1833",
@@ -325,7 +365,8 @@
     "NORAD_CAT_ID": 17589,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1987-03-18"
+    "LAUNCH_DATE": "1987-03-18",
+    "RCS": 4.1063
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -333,7 +374,8 @@
     "NORAD_CAT_ID": 17590,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1987-03-18"
+    "LAUNCH_DATE": "1987-03-18",
+    "RCS": 8.4627
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -341,7 +383,8 @@
     "NORAD_CAT_ID": 17912,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1987-04-27"
+    "LAUNCH_DATE": "1987-04-27",
+    "RCS": 4.4461
   },
   {
     "OBJECT_NAME": "COSMOS 1844",
@@ -349,7 +392,8 @@
     "NORAD_CAT_ID": 17973,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1987-05-13"
+    "LAUNCH_DATE": "1987-05-13",
+    "RCS": 15.0575
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -357,7 +401,8 @@
     "NORAD_CAT_ID": 18153,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1987-07-01"
+    "LAUNCH_DATE": "1987-07-01",
+    "RCS": 4.3795
   },
   {
     "OBJECT_NAME": "COSMOS 1867",
@@ -365,7 +410,8 @@
     "NORAD_CAT_ID": 18187,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1987-07-10"
+    "LAUNCH_DATE": "1987-07-10",
+    "RCS": 3.293
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -373,7 +419,8 @@
     "NORAD_CAT_ID": 18749,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1988-01-06"
+    "LAUNCH_DATE": "1988-01-06",
+    "RCS": 4.2105
   },
   {
     "OBJECT_NAME": "COSMOS 1933",
@@ -381,7 +428,8 @@
     "NORAD_CAT_ID": 18958,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1988-03-15"
+    "LAUNCH_DATE": "1988-03-15",
+    "RCS": 6.947
   },
   {
     "OBJECT_NAME": "SL-3 R/B",
@@ -389,7 +437,8 @@
     "NORAD_CAT_ID": 19046,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1988-04-20"
+    "LAUNCH_DATE": "1988-04-20",
+    "RCS": 5.6314
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -397,7 +446,8 @@
     "NORAD_CAT_ID": 19120,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1988-05-15"
+    "LAUNCH_DATE": "1988-05-15",
+    "RCS": 10.008
   },
   {
     "OBJECT_NAME": "COSMOS 1953",
@@ -405,7 +455,8 @@
     "NORAD_CAT_ID": 19210,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1988-06-14"
+    "LAUNCH_DATE": "1988-06-14",
+    "RCS": 8.1311
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -413,7 +464,8 @@
     "NORAD_CAT_ID": 19257,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1988-06-21"
+    "LAUNCH_DATE": "1988-06-21",
+    "RCS": 4.161
   },
   {
     "OBJECT_NAME": "COSMOS 1975",
@@ -421,7 +473,8 @@
     "NORAD_CAT_ID": 19573,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1988-10-11"
+    "LAUNCH_DATE": "1988-10-11",
+    "RCS": 5.0143
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -429,7 +482,8 @@
     "NORAD_CAT_ID": 19574,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1988-10-11"
+    "LAUNCH_DATE": "1988-10-11",
+    "RCS": 4.495
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -437,7 +491,8 @@
     "NORAD_CAT_ID": 19650,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1988-11-23"
+    "LAUNCH_DATE": "1988-11-23",
+    "RCS": 11.3883
   },
   {
     "OBJECT_NAME": "INTERCOSMOS 24",
@@ -445,7 +500,8 @@
     "NORAD_CAT_ID": 20261,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1989-09-28"
+    "LAUNCH_DATE": "1989-09-28",
+    "RCS": 7.039
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -453,7 +509,8 @@
     "NORAD_CAT_ID": 20262,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1989-09-28"
+    "LAUNCH_DATE": "1989-09-28",
+    "RCS": 4.4193
   },
   {
     "OBJECT_NAME": "DELTA 1 R/B",
@@ -461,7 +518,8 @@
     "NORAD_CAT_ID": 20323,
     "OBJECT_TYPE": "R/B",
     "OWNER": "US",
-    "LAUNCH_DATE": "1989-11-18"
+    "LAUNCH_DATE": "1989-11-18",
+    "RCS": 8.3925
   },
   {
     "OBJECT_NAME": "ARIANE 40 R/B",
@@ -469,7 +527,8 @@
     "NORAD_CAT_ID": 20443,
     "OBJECT_TYPE": "R/B",
     "OWNER": "FR",
-    "LAUNCH_DATE": "1990-01-22"
+    "LAUNCH_DATE": "1990-01-22",
+    "RCS": 9.736
   },
   {
     "OBJECT_NAME": "COSMOS 2058",
@@ -477,7 +536,8 @@
     "NORAD_CAT_ID": 20465,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1990-01-30"
+    "LAUNCH_DATE": "1990-01-30",
+    "RCS": 8.6028
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -485,7 +545,8 @@
     "NORAD_CAT_ID": 20466,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1990-01-30"
+    "LAUNCH_DATE": "1990-01-30",
+    "RCS": 4.231
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -493,7 +554,8 @@
     "NORAD_CAT_ID": 20511,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1990-02-28"
+    "LAUNCH_DATE": "1990-02-28",
+    "RCS": 4.1323
   },
   {
     "OBJECT_NAME": "HST",
@@ -501,7 +563,8 @@
     "NORAD_CAT_ID": 20580,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1990-04-24"
+    "LAUNCH_DATE": "1990-04-24",
+    "RCS": 28.0799
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -509,7 +572,8 @@
     "NORAD_CAT_ID": 20625,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1990-05-22"
+    "LAUNCH_DATE": "1990-05-22",
+    "RCS": 12.3842
   },
   {
     "OBJECT_NAME": "COSMOS 2084",
@@ -517,7 +581,8 @@
     "NORAD_CAT_ID": 20663,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1990-06-21"
+    "LAUNCH_DATE": "1990-06-21",
+    "RCS": 6.7111
   },
   {
     "OBJECT_NAME": "SL-6 R/B(2)",
@@ -525,7 +590,8 @@
     "NORAD_CAT_ID": 20666,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1990-06-21"
+    "LAUNCH_DATE": "1990-06-21",
+    "RCS": 4.32
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -533,7 +599,8 @@
     "NORAD_CAT_ID": 20775,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1990-08-28"
+    "LAUNCH_DATE": "1990-08-28",
+    "RCS": 5.7465
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -541,7 +608,8 @@
     "NORAD_CAT_ID": 21088,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1991-01-29"
+    "LAUNCH_DATE": "1991-01-29",
+    "RCS": 4.54
   },
   {
     "OBJECT_NAME": "OKEAN-3",
@@ -549,7 +617,8 @@
     "NORAD_CAT_ID": 21397,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1991-06-04"
+    "LAUNCH_DATE": "1991-06-04",
+    "RCS": 8.213
   },
   {
     "OBJECT_NAME": "COSMOS 2151",
@@ -557,7 +626,8 @@
     "NORAD_CAT_ID": 21422,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1991-06-13"
+    "LAUNCH_DATE": "1991-06-13",
+    "RCS": 5.6699
   },
   {
     "OBJECT_NAME": "SL-14 R/B",
@@ -565,7 +635,8 @@
     "NORAD_CAT_ID": 21423,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1991-06-13"
+    "LAUNCH_DATE": "1991-06-13",
+    "RCS": 4.281
   },
   {
     "OBJECT_NAME": "ERS-1",
@@ -573,7 +644,8 @@
     "NORAD_CAT_ID": 21574,
     "OBJECT_TYPE": "PAY",
     "OWNER": "ESA",
-    "LAUNCH_DATE": "1991-07-17"
+    "LAUNCH_DATE": "1991-07-17",
+    "RCS": 10.3234
   },
   {
     "OBJECT_NAME": "ARIANE 40 R/B",
@@ -581,7 +653,8 @@
     "NORAD_CAT_ID": 21610,
     "OBJECT_TYPE": "R/B",
     "OWNER": "FR",
-    "LAUNCH_DATE": "1991-07-17"
+    "LAUNCH_DATE": "1991-07-17",
+    "RCS": 14.2265
   },
   {
     "OBJECT_NAME": "INTERCOSMOS 25",
@@ -589,7 +662,8 @@
     "NORAD_CAT_ID": 21819,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1991-12-18"
+    "LAUNCH_DATE": "1991-12-18",
+    "RCS": 7.324
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -597,7 +671,8 @@
     "NORAD_CAT_ID": 21876,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1992-02-17"
+    "LAUNCH_DATE": "1992-02-17",
+    "RCS": 5.594
   },
   {
     "OBJECT_NAME": "SL-8 R/B",
@@ -605,7 +680,8 @@
     "NORAD_CAT_ID": 21938,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1992-04-15"
+    "LAUNCH_DATE": "1992-04-15",
+    "RCS": 3.9165
   },
   {
     "OBJECT_NAME": "USA 81",
@@ -613,7 +689,8 @@
     "NORAD_CAT_ID": 21949,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1992-04-25"
+    "LAUNCH_DATE": "1992-04-25",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "COSMOS 2219",
@@ -621,7 +698,8 @@
     "NORAD_CAT_ID": 22219,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1992-11-17"
+    "LAUNCH_DATE": "1992-11-17",
+    "RCS": 6.51
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -629,7 +707,8 @@
     "NORAD_CAT_ID": 22220,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1992-11-17"
+    "LAUNCH_DATE": "1992-11-17",
+    "RCS": 12.8027
   },
   {
     "OBJECT_NAME": "COSMOS 2221",
@@ -637,7 +716,8 @@
     "NORAD_CAT_ID": 22236,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1992-11-24"
+    "LAUNCH_DATE": "1992-11-24",
+    "RCS": 6.9758
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -645,7 +725,8 @@
     "NORAD_CAT_ID": 22285,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1992-12-25"
+    "LAUNCH_DATE": "1992-12-25",
+    "RCS": 9.007
   },
   {
     "OBJECT_NAME": "COSMOS 2228",
@@ -653,7 +734,8 @@
     "NORAD_CAT_ID": 22286,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1992-12-25"
+    "LAUNCH_DATE": "1992-12-25",
+    "RCS": 4.607
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -661,7 +743,8 @@
     "NORAD_CAT_ID": 22566,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1993-03-26"
+    "LAUNCH_DATE": "1993-03-26",
+    "RCS": 10.9494
   },
   {
     "OBJECT_NAME": "COSMOS 2242",
@@ -669,7 +752,8 @@
     "NORAD_CAT_ID": 22626,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1993-04-16"
+    "LAUNCH_DATE": "1993-04-16",
+    "RCS": 8.317
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -677,7 +761,8 @@
     "NORAD_CAT_ID": 22803,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1993-09-16"
+    "LAUNCH_DATE": "1993-09-16",
+    "RCS": 9.7827
   },
   {
     "OBJECT_NAME": "ARIANE 40 R/B",
@@ -685,7 +770,8 @@
     "NORAD_CAT_ID": 22830,
     "OBJECT_TYPE": "R/B",
     "OWNER": "FR",
-    "LAUNCH_DATE": "1993-09-26"
+    "LAUNCH_DATE": "1993-09-26",
+    "RCS": 9.264
   },
   {
     "OBJECT_NAME": "COSMOS 2278",
@@ -693,7 +779,8 @@
     "NORAD_CAT_ID": 23087,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1994-04-23"
+    "LAUNCH_DATE": "1994-04-23",
+    "RCS": 12.7967
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -701,7 +788,8 @@
     "NORAD_CAT_ID": 23088,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1994-04-23"
+    "LAUNCH_DATE": "1994-04-23",
+    "RCS": 10.2638
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -709,7 +797,8 @@
     "NORAD_CAT_ID": 23343,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1994-11-04"
+    "LAUNCH_DATE": "1994-11-04",
+    "RCS": 8.232
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -717,7 +806,8 @@
     "NORAD_CAT_ID": 23405,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1994-11-24"
+    "LAUNCH_DATE": "1994-11-24",
+    "RCS": 8.5057
   },
   {
     "OBJECT_NAME": "ARIANE 40+ R/B",
@@ -725,7 +815,8 @@
     "NORAD_CAT_ID": 23561,
     "OBJECT_TYPE": "R/B",
     "OWNER": "FR",
-    "LAUNCH_DATE": "1995-04-21"
+    "LAUNCH_DATE": "1995-04-21",
+    "RCS": 13.892
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -733,7 +824,8 @@
     "NORAD_CAT_ID": 23705,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1995-10-31"
+    "LAUNCH_DATE": "1995-10-31",
+    "RCS": 9.548
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -741,7 +833,8 @@
     "NORAD_CAT_ID": 24298,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1996-09-04"
+    "LAUNCH_DATE": "1996-09-04",
+    "RCS": 8.4888
   },
   {
     "OBJECT_NAME": "ORBVIEW 2 (SEASTAR)",
@@ -749,7 +842,8 @@
     "NORAD_CAT_ID": 24883,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1997-08-01"
+    "LAUNCH_DATE": "1997-08-01",
+    "RCS": 2.6748
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -757,7 +851,8 @@
     "NORAD_CAT_ID": 25400,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1998-07-10"
+    "LAUNCH_DATE": "1998-07-10",
+    "RCS": 9.9528
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -765,7 +860,8 @@
     "NORAD_CAT_ID": 25407,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1998-07-28"
+    "LAUNCH_DATE": "1998-07-28",
+    "RCS": 11.3423
   },
   {
     "OBJECT_NAME": "ISS (ZARYA)",
@@ -773,7 +869,8 @@
     "NORAD_CAT_ID": 25544,
     "OBJECT_TYPE": "PAY",
     "OWNER": "ISS",
-    "LAUNCH_DATE": "1998-11-20"
+    "LAUNCH_DATE": "1998-11-20",
+    "RCS": 399.0524
   },
   {
     "OBJECT_NAME": "CZ-4B R/B",
@@ -781,7 +878,8 @@
     "NORAD_CAT_ID": 25732,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "1999-05-10"
+    "LAUNCH_DATE": "1999-05-10",
+    "RCS": 6.0514
   },
   {
     "OBJECT_NAME": "OKEAN-O",
@@ -789,7 +887,8 @@
     "NORAD_CAT_ID": 25860,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1999-07-17"
+    "LAUNCH_DATE": "1999-07-17",
+    "RCS": 18.374
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -797,7 +896,8 @@
     "NORAD_CAT_ID": 25861,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "1999-07-17"
+    "LAUNCH_DATE": "1999-07-17",
+    "RCS": 12.344
   },
   {
     "OBJECT_NAME": "DELTA 2 R/B",
@@ -805,7 +905,8 @@
     "NORAD_CAT_ID": 25876,
     "OBJECT_TYPE": "R/B",
     "OWNER": "US",
-    "LAUNCH_DATE": "1999-07-25"
+    "LAUNCH_DATE": "1999-07-25",
+    "RCS": 8.6876
   },
   {
     "OBJECT_NAME": "HELIOS 1B",
@@ -813,7 +914,8 @@
     "NORAD_CAT_ID": 25977,
     "OBJECT_TYPE": "PAY",
     "OWNER": "FR",
-    "LAUNCH_DATE": "1999-12-03"
+    "LAUNCH_DATE": "1999-12-03",
+    "RCS": 6.7564
   },
   {
     "OBJECT_NAME": "TERRA",
@@ -821,7 +923,8 @@
     "NORAD_CAT_ID": 25994,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1999-12-18"
+    "LAUNCH_DATE": "1999-12-18",
+    "RCS": 12.444
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -829,7 +932,8 @@
     "NORAD_CAT_ID": 26070,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2000-02-03"
+    "LAUNCH_DATE": "2000-02-03",
+    "RCS": 10.3713
   },
   {
     "OBJECT_NAME": "TITAN 4B R/B",
@@ -837,7 +941,8 @@
     "NORAD_CAT_ID": 26474,
     "OBJECT_TYPE": "R/B",
     "OWNER": "US",
-    "LAUNCH_DATE": "2000-08-17"
+    "LAUNCH_DATE": "2000-08-17",
+    "RCS": 13.7878
   },
   {
     "OBJECT_NAME": "ENVISAT",
@@ -845,7 +950,8 @@
     "NORAD_CAT_ID": 27386,
     "OBJECT_TYPE": "PAY",
     "OWNER": "ESA",
-    "LAUNCH_DATE": "2002-03-01"
+    "LAUNCH_DATE": "2002-03-01",
+    "RCS": 18.597
   },
   {
     "OBJECT_NAME": "IDEFIX & ARIANE 42P R/B",
@@ -853,7 +959,8 @@
     "NORAD_CAT_ID": 27422,
     "OBJECT_TYPE": "PAY",
     "OWNER": "FR",
-    "LAUNCH_DATE": "2002-05-04"
+    "LAUNCH_DATE": "2002-05-04",
+    "RCS": 7.7882
   },
   {
     "OBJECT_NAME": "AQUA",
@@ -861,7 +968,8 @@
     "NORAD_CAT_ID": 27424,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2002-05-04"
+    "LAUNCH_DATE": "2002-05-04",
+    "RCS": 7.8419
   },
   {
     "OBJECT_NAME": "CZ-4B R/B",
@@ -869,7 +977,8 @@
     "NORAD_CAT_ID": 27432,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2002-05-15"
+    "LAUNCH_DATE": "2002-05-15",
+    "RCS": 6.1808
   },
   {
     "OBJECT_NAME": "MIDORI II (ADEOS-II)",
@@ -877,7 +986,8 @@
     "NORAD_CAT_ID": 27597,
     "OBJECT_TYPE": "PAY",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "2002-12-14"
+    "LAUNCH_DATE": "2002-12-14",
+    "RCS": 17.287
   },
   {
     "OBJECT_NAME": "H-2A R/B",
@@ -885,7 +995,8 @@
     "NORAD_CAT_ID": 27601,
     "OBJECT_TYPE": "R/B",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "2002-12-14"
+    "LAUNCH_DATE": "2002-12-14",
+    "RCS": 24.5997
   },
   {
     "OBJECT_NAME": "CZ-4B R/B",
@@ -893,7 +1004,8 @@
     "NORAD_CAT_ID": 28059,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2003-10-21"
+    "LAUNCH_DATE": "2003-10-21",
+    "RCS": 5.8035
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -901,7 +1013,8 @@
     "NORAD_CAT_ID": 28353,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2004-06-10"
+    "LAUNCH_DATE": "2004-06-10",
+    "RCS": 8.3023
   },
   {
     "OBJECT_NAME": "CZ-4B R/B",
@@ -909,7 +1022,8 @@
     "NORAD_CAT_ID": 28415,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2004-09-08"
+    "LAUNCH_DATE": "2004-09-08",
+    "RCS": 4.078
   },
   {
     "OBJECT_NAME": "CZ-2C R/B",
@@ -917,7 +1031,8 @@
     "NORAD_CAT_ID": 28480,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2004-11-18"
+    "LAUNCH_DATE": "2004-11-18",
+    "RCS": 10.0454
   },
   {
     "OBJECT_NAME": "ARIANE 5 R/B",
@@ -925,7 +1040,8 @@
     "NORAD_CAT_ID": 28499,
     "OBJECT_TYPE": "R/B",
     "OWNER": "FR",
-    "LAUNCH_DATE": "2004-12-18"
+    "LAUNCH_DATE": "2004-12-18",
+    "RCS": 16.0376
   },
   {
     "OBJECT_NAME": "CZ-2D R/B",
@@ -933,7 +1049,8 @@
     "NORAD_CAT_ID": 28738,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2005-07-05"
+    "LAUNCH_DATE": "2005-07-05",
+    "RCS": 12.177
   },
   {
     "OBJECT_NAME": "ALOS (DAICHI)",
@@ -941,7 +1058,8 @@
     "NORAD_CAT_ID": 28931,
     "OBJECT_TYPE": "PAY",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "2006-01-24"
+    "LAUNCH_DATE": "2006-01-24",
+    "RCS": 13.593
   },
   {
     "OBJECT_NAME": "H-2A R/B",
@@ -949,7 +1067,8 @@
     "NORAD_CAT_ID": 28932,
     "OBJECT_TYPE": "R/B",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "2006-01-24"
+    "LAUNCH_DATE": "2006-01-24",
+    "RCS": 15.7388
   },
   {
     "OBJECT_NAME": "RESURS-DK 1",
@@ -957,7 +1076,8 @@
     "NORAD_CAT_ID": 29228,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2006-06-15"
+    "LAUNCH_DATE": "2006-06-15",
+    "RCS": 8.7657
   },
   {
     "OBJECT_NAME": "CZ-4B R/B",
@@ -965,7 +1085,8 @@
     "NORAD_CAT_ID": 29507,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2006-10-23"
+    "LAUNCH_DATE": "2006-10-23",
+    "RCS": 3.951
   },
   {
     "OBJECT_NAME": "CZ-2C R/B",
@@ -973,7 +1094,8 @@
     "NORAD_CAT_ID": 31114,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2007-04-11"
+    "LAUNCH_DATE": "2007-04-11",
+    "RCS": 7.807
   },
   {
     "OBJECT_NAME": "COSMO-SKYMED 1",
@@ -981,7 +1103,8 @@
     "NORAD_CAT_ID": 31598,
     "OBJECT_TYPE": "PAY",
     "OWNER": "IT",
-    "LAUNCH_DATE": "2007-06-08"
+    "LAUNCH_DATE": "2007-06-08",
+    "RCS": 4.682
   },
   {
     "OBJECT_NAME": "COSMOS 2428",
@@ -989,7 +1112,8 @@
     "NORAD_CAT_ID": 31792,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2007-06-29"
+    "LAUNCH_DATE": "2007-06-29",
+    "RCS": 6.4839
   },
   {
     "OBJECT_NAME": "SL-16 R/B",
@@ -997,7 +1121,8 @@
     "NORAD_CAT_ID": 31793,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2007-06-29"
+    "LAUNCH_DATE": "2007-06-29",
+    "RCS": 8.6948
   },
   {
     "OBJECT_NAME": "KORONAS-FOTON",
@@ -1005,7 +1130,8 @@
     "NORAD_CAT_ID": 33504,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2009-01-30"
+    "LAUNCH_DATE": "2009-01-30",
+    "RCS": 4.1823
   },
   {
     "OBJECT_NAME": "POISK",
@@ -1013,7 +1139,8 @@
     "NORAD_CAT_ID": 36086,
     "OBJECT_TYPE": "PAY",
     "OWNER": "ISS",
-    "LAUNCH_DATE": "2009-11-10"
+    "LAUNCH_DATE": "2009-11-10",
+    "RCS": 11.1757
   },
   {
     "OBJECT_NAME": "CZ-2C R/B",
@@ -1021,7 +1148,8 @@
     "NORAD_CAT_ID": 37731,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2011-07-06"
+    "LAUNCH_DATE": "2011-07-06",
+    "RCS": 8.4175
   },
   {
     "OBJECT_NAME": "H-2A R/B",
@@ -1029,7 +1157,8 @@
     "NORAD_CAT_ID": 38341,
     "OBJECT_TYPE": "R/B",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "2012-05-17"
+    "LAUNCH_DATE": "2012-05-17",
+    "RCS": 17.152
   },
   {
     "OBJECT_NAME": "SHIJIAN-16 (SJ-16)",
@@ -1037,7 +1166,8 @@
     "NORAD_CAT_ID": 39358,
     "OBJECT_TYPE": "PAY",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2013-10-25"
+    "LAUNCH_DATE": "2013-10-25",
+    "RCS": 8.2723
   },
   {
     "OBJECT_NAME": "SL-4 R/B",
@@ -1045,7 +1175,8 @@
     "NORAD_CAT_ID": 39679,
     "OBJECT_TYPE": "R/B",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2014-04-16"
+    "LAUNCH_DATE": "2014-04-16",
+    "RCS": 10.2641
   },
   {
     "OBJECT_NAME": "ALOS-2",
@@ -1053,7 +1184,8 @@
     "NORAD_CAT_ID": 39766,
     "OBJECT_TYPE": "PAY",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "2014-05-24"
+    "LAUNCH_DATE": "2014-05-24",
+    "RCS": 4.096
   },
   {
     "OBJECT_NAME": "YAOGAN-29",
@@ -1061,7 +1193,8 @@
     "NORAD_CAT_ID": 41038,
     "OBJECT_TYPE": "PAY",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2015-11-26"
+    "LAUNCH_DATE": "2015-11-26",
+    "RCS": 5.0279
   },
   {
     "OBJECT_NAME": "ASTRO-H (HITOMI)",
@@ -1069,7 +1202,8 @@
     "NORAD_CAT_ID": 41337,
     "OBJECT_TYPE": "PAY",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "2016-02-17"
+    "LAUNCH_DATE": "2016-02-17",
+    "RCS": 6.1649
   },
   {
     "OBJECT_NAME": "HXMT (HUIYAN)",
@@ -1077,7 +1211,8 @@
     "NORAD_CAT_ID": 42758,
     "OBJECT_TYPE": "PAY",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2017-06-15"
+    "LAUNCH_DATE": "2017-06-15",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SAOCOM 1A",
@@ -1085,7 +1220,8 @@
     "NORAD_CAT_ID": 43641,
     "OBJECT_TYPE": "PAY",
     "OWNER": "ARGN",
-    "LAUNCH_DATE": "2018-10-08"
+    "LAUNCH_DATE": "2018-10-08",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "H-2A R/B",
@@ -1093,7 +1229,8 @@
     "NORAD_CAT_ID": 43682,
     "OBJECT_TYPE": "R/B",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "2018-10-29"
+    "LAUNCH_DATE": "2018-10-29",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SAOCOM 1B",
@@ -1101,7 +1238,8 @@
     "NORAD_CAT_ID": 46265,
     "OBJECT_TYPE": "PAY",
     "OWNER": "ARGN",
-    "LAUNCH_DATE": "2020-08-30"
+    "LAUNCH_DATE": "2020-08-30",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "CSS (TIANHE)",
@@ -1109,7 +1247,8 @@
     "NORAD_CAT_ID": 48274,
     "OBJECT_TYPE": "PAY",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2021-04-29"
+    "LAUNCH_DATE": "2021-04-29",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "COSMOS 2550",
@@ -1117,7 +1256,8 @@
     "NORAD_CAT_ID": 48865,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2021-06-25"
+    "LAUNCH_DATE": "2021-06-25",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "ISS (NAUKA)",
@@ -1125,7 +1265,8 @@
     "NORAD_CAT_ID": 49044,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2021-07-21"
+    "LAUNCH_DATE": "2021-07-21",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "FREGAT DEB",
@@ -1133,7 +1274,8 @@
     "NORAD_CAT_ID": 49271,
     "OBJECT_TYPE": "DEB",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2011-07-18"
+    "LAUNCH_DATE": "2011-07-18",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "CZ-2C R/B",
@@ -1141,7 +1283,8 @@
     "NORAD_CAT_ID": 52794,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2022-06-02"
+    "LAUNCH_DATE": "2022-06-02",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "CSS (WENTIAN)",
@@ -1149,7 +1292,8 @@
     "NORAD_CAT_ID": 53239,
     "OBJECT_TYPE": "PAY",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2022-07-24"
+    "LAUNCH_DATE": "2022-07-24",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "CZ-2C R/B",
@@ -1157,7 +1301,8 @@
     "NORAD_CAT_ID": 54039,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2022-10-12"
+    "LAUNCH_DATE": "2022-10-12",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "GSLV R/B",
@@ -1165,7 +1310,8 @@
     "NORAD_CAT_ID": 54149,
     "OBJECT_TYPE": "R/B",
     "OWNER": "IND",
-    "LAUNCH_DATE": "2022-10-22"
+    "LAUNCH_DATE": "2022-10-22",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "CSS (MENGTIAN)",
@@ -1173,7 +1319,8 @@
     "NORAD_CAT_ID": 54216,
     "OBJECT_TYPE": "PAY",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2022-10-31"
+    "LAUNCH_DATE": "2022-10-31",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "XRISM",
@@ -1181,7 +1328,8 @@
     "NORAD_CAT_ID": 57800,
     "OBJECT_TYPE": "PAY",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "2023-09-06"
+    "LAUNCH_DATE": "2023-09-06",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "ACS3",
@@ -1189,7 +1337,8 @@
     "NORAD_CAT_ID": 59588,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2024-04-23"
+    "LAUNCH_DATE": "2024-04-23",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SPACEMOBILE-003",
@@ -1197,7 +1346,8 @@
     "NORAD_CAT_ID": 61045,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2024-09-12"
+    "LAUNCH_DATE": "2024-09-12",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SPACEMOBILE-005",
@@ -1205,7 +1355,8 @@
     "NORAD_CAT_ID": 61046,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2024-09-12"
+    "LAUNCH_DATE": "2024-09-12",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SPACEMOBILE-001",
@@ -1213,7 +1364,8 @@
     "NORAD_CAT_ID": 61047,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2024-09-12"
+    "LAUNCH_DATE": "2024-09-12",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SPACEMOBILE-002",
@@ -1221,7 +1373,8 @@
     "NORAD_CAT_ID": 61048,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2024-09-12"
+    "LAUNCH_DATE": "2024-09-12",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SPACEMOBILE-004",
@@ -1229,7 +1382,8 @@
     "NORAD_CAT_ID": 61049,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2024-09-12"
+    "LAUNCH_DATE": "2024-09-12",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "BIOMASS",
@@ -1237,7 +1391,8 @@
     "NORAD_CAT_ID": 63772,
     "OBJECT_TYPE": "PAY",
     "OWNER": "ESA",
-    "LAUNCH_DATE": "2025-04-29"
+    "LAUNCH_DATE": "2025-04-29",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "CZ-8A R/B",
@@ -1245,7 +1400,8 @@
     "NORAD_CAT_ID": 66004,
     "OBJECT_TYPE": "R/B",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2025-10-16"
+    "LAUNCH_DATE": "2025-10-16",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SZ-21 MODULE",
@@ -1253,7 +1409,8 @@
     "NORAD_CAT_ID": 66515,
     "OBJECT_TYPE": "PAY",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2025-10-31"
+    "LAUNCH_DATE": "2025-10-31",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "DUPLEX",
@@ -1261,7 +1418,8 @@
     "NORAD_CAT_ID": 66906,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "1998-11-20"
+    "LAUNCH_DATE": "1998-11-20",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SPACEMOBILE-006",
@@ -1269,7 +1427,8 @@
     "NORAD_CAT_ID": 67232,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2025-12-24"
+    "LAUNCH_DATE": "2025-12-24",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "KNACKSAT-2",
@@ -1277,7 +1436,8 @@
     "NORAD_CAT_ID": 67683,
     "OBJECT_TYPE": "PAY",
     "OWNER": "THAI",
-    "LAUNCH_DATE": "1998-11-20"
+    "LAUNCH_DATE": "1998-11-20",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "GXIBA-1",
@@ -1285,7 +1445,8 @@
     "NORAD_CAT_ID": 67685,
     "OBJECT_TYPE": "PAY",
     "OWNER": "MEX",
-    "LAUNCH_DATE": "1998-11-20"
+    "LAUNCH_DATE": "1998-11-20",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "HMU-SAT2",
@@ -1293,7 +1454,8 @@
     "NORAD_CAT_ID": 67688,
     "OBJECT_TYPE": "PAY",
     "OWNER": "JPN",
-    "LAUNCH_DATE": "1998-11-20"
+    "LAUNCH_DATE": "1998-11-20",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "PROGRESS-MS 34",
@@ -1301,7 +1463,8 @@
     "NORAD_CAT_ID": 68837,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2026-04-25"
+    "LAUNCH_DATE": "2026-04-25",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "TIANZHOU-10",
@@ -1309,7 +1472,8 @@
     "NORAD_CAT_ID": 69049,
     "OBJECT_TYPE": "PAY",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2026-05-11"
+    "LAUNCH_DATE": "2026-05-11",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SHENZHOU-23 (SZ-23)",
@@ -1317,7 +1481,8 @@
     "NORAD_CAT_ID": 69180,
     "OBJECT_TYPE": "PAY",
     "OWNER": "PRC",
-    "LAUNCH_DATE": "2026-05-24"
+    "LAUNCH_DATE": "2026-05-24",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SPACEMOBILE-008",
@@ -1325,7 +1490,8 @@
     "NORAD_CAT_ID": 69589,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2026-06-17"
+    "LAUNCH_DATE": "2026-06-17",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SPACEMOBILE-009",
@@ -1333,7 +1499,8 @@
     "NORAD_CAT_ID": 69590,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2026-06-17"
+    "LAUNCH_DATE": "2026-06-17",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SPACEMOBILE-010",
@@ -1341,7 +1508,8 @@
     "NORAD_CAT_ID": 69591,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2026-06-17"
+    "LAUNCH_DATE": "2026-06-17",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "SOYUZ-MS 29",
@@ -1349,7 +1517,8 @@
     "NORAD_CAT_ID": 100057,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2026-07-14"
+    "LAUNCH_DATE": "2026-07-14",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "PROGRESS-MS 35",
@@ -1357,7 +1526,8 @@
     "NORAD_CAT_ID": 100712,
     "OBJECT_TYPE": "PAY",
     "OWNER": "CIS",
-    "LAUNCH_DATE": "2026-09-16"
+    "LAUNCH_DATE": "2026-09-16",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "CREW DRAGON 13",
@@ -1365,7 +1535,8 @@
     "NORAD_CAT_ID": 100882,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2026-10-02"
+    "LAUNCH_DATE": "2026-10-02",
+    "RCS": null
   },
   {
     "OBJECT_NAME": "DRAGON CRS-35",
@@ -1373,6 +1544,7 @@
     "NORAD_CAT_ID": 101031,
     "OBJECT_TYPE": "PAY",
     "OWNER": "US",
-    "LAUNCH_DATE": "2026-10-13"
+    "LAUNCH_DATE": "2026-10-13",
+    "RCS": null
   }
 ]
