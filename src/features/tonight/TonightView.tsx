@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
-import type { Observer } from '@/domain/observer';
 import type { LocationState } from '@/environment/location';
 import { formatNightDate } from '@/i18n/format';
 import { Banner } from '@/ui/Banner';
@@ -21,11 +20,12 @@ export type TonightViewProps = {
   offline: boolean;
   staleDays: number | null;
   demoStartsAt: number | null;
-  testLocation: Observer | null;
+  chosenLocation: { name: string; country: string } | null;
   reminders: Reminders | null;
   refreshing: boolean;
   onRefresh(): void;
   onAllowLocation(): void;
+  onChooseCity(): void;
   onCatch(pass: UpcomingPass): void;
 };
 
@@ -46,11 +46,12 @@ export function TonightView({
   offline,
   staleDays,
   demoStartsAt,
-  testLocation,
+  chosenLocation,
   reminders,
   refreshing,
   onRefresh,
   onAllowLocation,
+  onChooseCity,
   onCatch,
 }: TonightViewProps) {
   const { t, i18n } = useTranslation(['tonight', 'common']);
@@ -65,12 +66,11 @@ export function TonightView({
           message={t('common:banners.demo', { date: formatNightDate(demoStartsAt, i18n.language) })}
         />
       )}
-      {testLocation && (
+      {chosenLocation && (
         <Banner
-          tone="warning"
-          message={t('common:banners.testLocation', {
-            latitude: testLocation.latitude,
-            longitude: testLocation.longitude,
+          message={t('common:banners.chosenLocation', {
+            name: chosenLocation.name,
+            country: chosenLocation.country,
           })}
         />
       )}
@@ -89,6 +89,9 @@ export function TonightView({
           <Text style={styles.buttonText}>
             {location.canAskAgain ? t('states.allowLocation') : t('states.openSettings')}
           </Text>
+        </Pressable>
+        <Pressable accessibilityRole="button" style={styles.secondaryButton} onPress={onChooseCity}>
+          <Text style={styles.secondaryButtonText}>{t('states.chooseCity')}</Text>
         </Pressable>
       </View>
     );
@@ -187,5 +190,17 @@ const styles = StyleSheet.create({
   buttonText: {
     ...typography.heading,
     color: colors.background,
+  },
+  secondaryButton: {
+    alignSelf: 'flex-start',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+  secondaryButtonText: {
+    ...typography.heading,
+    color: colors.text,
   },
 });

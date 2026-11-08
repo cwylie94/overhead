@@ -35,7 +35,7 @@
     "stale_many": "Los datos orbitales tienen {{count}} días, así que las predicciones pueden desviarse unos minutos.",
     "stale_other": "Los datos orbitales tienen {{count}} días, así que las predicciones pueden desviarse unos minutos.",
     "demo": "Modo demo: {{date}} en Londres. Desactívalo en Ajustes.",
-    "testLocation": "Ubicación de prueba {{latitude}}, {{longitude}} en lugar del GPS. Quita EXPO_PUBLIC_TEST_LOCATION y vuelve a compilar para volver."
+    "chosenLocation": "Usando {{name}}, {{country}} en lugar del GPS. Cámbialo en Ajustes."
   },
   "owners": {
     "US": "Estados Unidos",

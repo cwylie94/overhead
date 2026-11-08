@@ -1,5 +1,13 @@
 import * as Location from 'expo-location';
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import { AppState, Linking } from 'react-native';
 
 import type { Observer } from '@/domain/observer';
@@ -46,7 +54,7 @@ export function locationState(cached: Observer | null, permission: Permission): 
 
 type ProviderProps = { children: ReactNode };
 
-export function DeviceLocationProvider({ children }: ProviderProps) {
+function useDeviceLocation(enabled: boolean): LocationContextValue {
   const cached = useSettingsStore((settings) => settings.lastLocation);
   const rememberLocation = useSettingsStore((settings) => settings.rememberLocation);
   const [permission, setPermission] = useState<Permission>({ status: 'unknown' });
@@ -75,6 +83,9 @@ export function DeviceLocationProvider({ children }: ProviderProps) {
   );
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
     const apply = (askIfUndetermined: boolean) =>
       refresh(askIfUndetermined).then(setPermission, () => {});
     apply(true);
@@ -84,7 +95,7 @@ export function DeviceLocationProvider({ children }: ProviderProps) {
       }
     });
     return () => subscription.remove();
-  }, [refresh]);
+  }, [enabled, refresh]);
 
   const requestPermission = useCallback(async () => {
     const response = await Location.requestForegroundPermissionsAsync();
@@ -95,23 +106,32 @@ export function DeviceLocationProvider({ children }: ProviderProps) {
     setPermission(await refresh(false));
   }, [refresh]);
 
-  return (
-    <LocationContext.Provider
-      value={{ state: locationState(cached, permission), requestPermission }}>
-      {children}
-    </LocationContext.Provider>
+  return useMemo(
+    () => ({ state: locationState(cached, permission), requestPermission }),
+    [cached, permission, requestPermission],
   );
+}
+
+type LocationProviderProps = ProviderProps & { fixed: Observer | null };
+
+const NO_PERMISSION_NEEDED = async () => {};
+
+export function LocationProvider({ fixed, children }: LocationProviderProps) {
+  const device = useDeviceLocation(fixed === null);
+  const value = useMemo<LocationContextValue>(
+    () =>
+      fixed
+        ? { state: { status: 'ready', observer: fixed }, requestPermission: NO_PERMISSION_NEEDED }
+        : device,
+    [fixed, device],
+  );
+  return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>;
 }
 
 type FixedLocationProviderProps = ProviderProps & { observer: Observer };
 
 export function FixedLocationProvider({ observer, children }: FixedLocationProviderProps) {
-  return (
-    <LocationContext.Provider
-      value={{ state: { status: 'ready', observer }, requestPermission: async () => {} }}>
-      {children}
-    </LocationContext.Provider>
-  );
+  return <LocationProvider fixed={observer}>{children}</LocationProvider>;
 }
 
 export function useLocation(): LocationContextValue {

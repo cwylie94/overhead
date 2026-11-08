@@ -17,7 +17,8 @@
     "emptyHint": "Si bajas la elevación mínima en Ajustes, verás más.",
     "locationDenied": "Overhead necesita tu ubicación para saber qué satélites pasan sobre ti.",
     "allowLocation": "Permitir ubicación",
-    "openSettings": "Abrir Ajustes"
+    "openSettings": "Abrir Ajustes",
+    "chooseCity": "Elegir una ciudad"
   },
   "reminder": {
     "add": "Avísame",

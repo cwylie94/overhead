@@ -22,6 +22,7 @@ import { positionOnTrack } from '@/domain/sky';
 import { useClock, useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
 import { formatCountdown } from '@/i18n/format';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { Banner } from '@/ui/Banner';
 import { Chip } from '@/ui/Chip';
 import { ALWAYS_ANIMATE } from '@/ui/motion';
@@ -82,6 +83,7 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
   const session = useCatchSession(pass, pointing);
   const { machine } = session;
   const location = useLocation();
+  const customLocation = useSettingsStore((settings) => settings.customLocation);
   const aim = useCameraAim(
     pointing,
     location.state.status === 'ready' ? location.state.observer : null,
@@ -163,6 +165,14 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
         <Text style={styles.status}>{statusText}</Text>
       </View>
 
+      {customLocation && !demo && (
+        <Banner
+          message={t('common:banners.chosenLocation', {
+            name: customLocation.name,
+            country: customLocation.country,
+          })}
+        />
+      )}
       {pointing.calibrate && !manual && <Banner tone="warning" message={t('calibrate')} />}
 
       <GestureDetector gesture={hold}>

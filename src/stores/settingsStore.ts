@@ -11,6 +11,13 @@ import { persistStorage } from './storage';
 export const MOTION_PREFERENCES = ['system', 'reduce', 'full'] as const;
 export type MotionPreference = (typeof MOTION_PREFERENCES)[number];
 
+export type CustomLocation = {
+  name: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+};
+
 export const MIN_ELEVATION_LIMITS = { min: 0, max: 60 } as const;
 export const DEFAULT_MIN_ELEVATION = 10;
 
@@ -22,6 +29,7 @@ export type SettingsState = {
   motionPreference: MotionPreference;
   hapticsEnabled: boolean;
   demoMode: boolean;
+  customLocation: CustomLocation | null;
   lastLocation: Observer | null;
 };
 
@@ -33,6 +41,7 @@ type SettingsActions = {
   setMotionPreference(preference: MotionPreference): void;
   setHapticsEnabled(enabled: boolean): void;
   setDemoMode(enabled: boolean): void;
+  setCustomLocation(location: CustomLocation | null): void;
   rememberLocation(location: Observer): void;
 };
 
@@ -74,6 +83,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       motionPreference: 'system',
       hapticsEnabled: true,
       demoMode: false,
+      customLocation: null,
       lastLocation: null,
 
       setLanguage: (language) => set({ language }),
@@ -83,6 +93,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       setMotionPreference: (motionPreference) => set({ motionPreference }),
       setHapticsEnabled: (hapticsEnabled) => set({ hapticsEnabled }),
       setDemoMode: (demoMode) => set({ demoMode }),
+      setCustomLocation: (customLocation) => set({ customLocation }),
       rememberLocation: (location) => set({ lastLocation: coarseLocation(location) }),
     }),
     {
@@ -97,6 +108,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
         motionPreference,
         hapticsEnabled,
         demoMode,
+        customLocation,
         lastLocation,
       }) => ({
         language,
@@ -106,6 +118,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
         motionPreference,
         hapticsEnabled,
         demoMode,
+        customLocation,
         lastLocation,
       }),
     },

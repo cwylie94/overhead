@@ -9,7 +9,7 @@ import { orbitFreshnessQuery, upcomingPassesQuery } from '@/data/queries';
 import { useDemo } from '@/demo/session';
 import { useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
-import { TEST_LOCATION } from '@/environment/testLocation';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 import { staleDaysFor } from './staleness';
 import type { TonightViewProps } from './TonightView';
@@ -18,6 +18,7 @@ import { useReminders } from './useReminders';
 export function useTonight(): TonightViewProps {
   const { db } = useAppData();
   const demo = useDemo();
+  const customLocation = useSettingsStore((settings) => settings.customLocation);
   const now = useNow(60_000);
   const location = useLocation();
   const { state: cache, refresh } = usePassCache();
@@ -40,7 +41,7 @@ export function useTonight(): TonightViewProps {
           now,
         ),
     demoStartsAt: demo?.startsAt ?? null,
-    testLocation: demo ? null : TEST_LOCATION,
+    chosenLocation: demo ? null : customLocation,
     reminders,
     refreshing,
     onRefresh: () => {
@@ -50,6 +51,7 @@ export function useTonight(): TonightViewProps {
         .finally(() => setRefreshing(false));
     },
     onCatch: (pass) => router.push(`/catch/${pass.id}`),
+    onChooseCity: () => router.push('/location'),
     onAllowLocation: () => {
       location.requestPermission().catch(() => {});
     },

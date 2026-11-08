@@ -16,7 +16,8 @@
     "emptyHint": "Lowering the minimum elevation in Settings shows more.",
     "locationDenied": "Overhead needs your location to know which satellites pass over you.",
     "allowLocation": "Allow location",
-    "openSettings": "Open Settings"
+    "openSettings": "Open Settings",
+    "chooseCity": "Choose a city instead"
   },
   "reminder": {
     "add": "Remind me",

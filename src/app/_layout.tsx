@@ -3,7 +3,7 @@ import '@/i18n';
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import type { ReactNode } from 'react';
+import { useMemo } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AppDataProvider } from '@/data/AppDataContext';
@@ -11,9 +11,9 @@ import { DatabaseGate } from '@/data/DatabaseGate';
 import { PassCacheProvider } from '@/data/passCache/PassCacheScheduler';
 import { useAppSession, type DemoEnvironment } from '@/demo/session';
 import { ClockProvider, systemClock } from '@/environment/clock';
-import { DeviceLocationProvider, FixedLocationProvider } from '@/environment/location';
-import { TEST_LOCATION } from '@/environment/testLocation';
+import { LocationProvider } from '@/environment/location';
 import { configureNotificationHandler } from '@/features/tonight/reminders';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { SyncProvider } from '@/sync/SyncProvider';
 import { MotionConfig } from '@/ui/motion';
 import { colors } from '@/ui/theme';
@@ -32,23 +32,18 @@ const navigationTheme = {
   },
 };
 
-function LocationProvider({
-  demo,
-  children,
-}: {
-  demo: DemoEnvironment | null;
-  children: ReactNode;
-}) {
-  const fixed = demo?.observer ?? TEST_LOCATION;
-  return fixed ? (
-    <FixedLocationProvider observer={fixed}>{children}</FixedLocationProvider>
-  ) : (
-    <DeviceLocationProvider>{children}</DeviceLocationProvider>
+function useFixedLocation(demo: DemoEnvironment | null) {
+  const custom = useSettingsStore((settings) => settings.customLocation);
+  const chosen = useMemo(
+    () => (custom ? { latitude: custom.latitude, longitude: custom.longitude, altitude: 0 } : null),
+    [custom],
   );
+  return demo?.observer ?? chosen;
 }
 
 export default function RootLayout() {
   const { data, demo } = useAppSession();
+  const fixedLocation = useFixedLocation(demo);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -57,7 +52,7 @@ export default function RootLayout() {
         <MotionConfig />
         <AppDataProvider key={data.key} data={data}>
           <ClockProvider clock={demo?.clock ?? systemClock}>
-            <LocationProvider demo={demo}>
+            <LocationProvider fixed={fixedLocation}>
               <DatabaseGate>
                 <PassCacheProvider runner={data.passCacheRunner}>
                   <SyncProvider enabled={demo === null}>
@@ -67,6 +62,7 @@ export default function RootLayout() {
                         name="catch/[passId]"
                         options={{ presentation: 'fullScreenModal' }}
                       />
+                      <Stack.Screen name="location" options={{ presentation: 'modal' }} />
                       <Stack.Screen
                         name="satellite/[noradId]"
                         options={{ presentation: 'modal' }}

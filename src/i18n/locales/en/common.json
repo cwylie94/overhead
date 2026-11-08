@@ -34,7 +34,7 @@
     "stale_one": "Orbit data is {{count}} day old, so predictions may be off by a few minutes.",
     "stale_other": "Orbit data is {{count}} days old, so predictions may be off by a few minutes.",
     "demo": "Demo mode: {{date}} in London. Turn it off in Settings.",
-    "testLocation": "Test location {{latitude}}, {{longitude}} instead of GPS. Remove EXPO_PUBLIC_TEST_LOCATION and rebuild to go back."
+    "chosenLocation": "Using {{name}}, {{country}} instead of GPS. Change it in Settings."
   },
   "owners": {
     "US": "United States",

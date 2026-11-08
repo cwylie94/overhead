@@ -38,11 +38,12 @@ const defaults: TonightViewProps = {
   offline: false,
   staleDays: null,
   demoStartsAt: null,
-  testLocation: null,
+  chosenLocation: null,
   reminders: null,
   refreshing: false,
   onRefresh: () => {},
   onAllowLocation: () => {},
+  onChooseCity: () => {},
   onCatch: () => {},
 };
 
@@ -135,10 +136,12 @@ describe('TonightView', () => {
     ).toBeOnTheScreen();
   });
 
-  test('warns when a test location stands in for GPS', async () => {
-    await renderView({ testLocation: { latitude: 64.15, longitude: -21.94, altitude: 0 } });
+  test('says when a chosen city stands in for GPS', async () => {
+    await renderView({ chosenLocation: { name: 'Reykjavík', country: 'Iceland' } });
 
-    expect(screen.getByText(/Test location 64.15, -21.94/)).toBeOnTheScreen();
+    expect(
+      screen.getByText('Using Reykjavík, Iceland instead of GPS. Change it in Settings.'),
+    ).toBeOnTheScreen();
   });
 
   test('shows the offline banner and keeps listing passes', async () => {
@@ -163,6 +166,15 @@ describe('TonightView', () => {
     fireEvent.press(screen.getByRole('button', { name: 'Allow location' }));
 
     expect(onAllowLocation).toHaveBeenCalled();
+  });
+
+  test('offers a city instead when location is refused', async () => {
+    const onChooseCity = jest.fn();
+    await renderView({ location: { status: 'denied', canAskAgain: false }, onChooseCity });
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Choose a city instead' }));
+
+    expect(onChooseCity).toHaveBeenCalled();
   });
 
   test('sends the user to Settings when the system will not ask again', async () => {

@@ -28,6 +28,7 @@ describe('settings store', () => {
       motionPreference: 'system',
       hapticsEnabled: true,
       demoMode: false,
+      customLocation: null,
     });
   });
 
@@ -83,6 +84,7 @@ describe('settings store', () => {
         motionPreference: 'system',
         hapticsEnabled: true,
         demoMode: false,
+        customLocation: null,
         lastLocation: null,
       },
     });
@@ -120,5 +122,20 @@ describe('settings store', () => {
 
     expect(changeLanguage.mock.calls.map(([language]) => language)).toEqual(['en', 'en']);
     changeLanguage.mockRestore();
+  });
+
+  test('remembers a chosen city until GPS is chosen again', () => {
+    const reykjavik = {
+      name: 'Reykjavík',
+      country: 'Iceland',
+      latitude: 64.135,
+      longitude: -21.895,
+    };
+    useSettingsStore.getState().setCustomLocation(reykjavik);
+
+    expect(persisted().state.customLocation).toEqual(reykjavik);
+
+    useSettingsStore.getState().setCustomLocation(null);
+    expect(useSettingsStore.getState().customLocation).toBeNull();
   });
 });

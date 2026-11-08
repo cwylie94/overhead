@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
@@ -17,6 +18,7 @@ import { spacing } from '@/ui/theme';
 
 import { AboutSection } from './AboutSection';
 import { DemoSection } from './DemoSection';
+import { LocationSection } from './LocationSection';
 import { PreferencesSections, type PreferenceActions } from './PreferencesSections';
 import { SyncSection } from './SyncSection';
 
@@ -76,10 +78,17 @@ export function SettingsScreen() {
   const { preferences, actions } = usePreferences();
   const demo = useDemo();
   const setDemoMode = useSettingsStore((settings) => settings.setDemoMode);
+  const customLocation = useSettingsStore((settings) => settings.customLocation);
+  const setCustomLocation = useSettingsStore((settings) => settings.setCustomLocation);
 
   return (
     <Screen title={t('tabs.settings')}>
       <ScrollView contentContainerStyle={styles.content}>
+        <LocationSection
+          customLocation={customLocation}
+          onChooseCity={() => router.push('/location')}
+          onUseGps={() => setCustomLocation(null)}
+        />
         <PreferencesSections preferences={preferences} actions={actions} />
         {demo ? (
           <DemoSection startsAt={demo.startsAt} onTurnOff={() => setDemoMode(false)} />
