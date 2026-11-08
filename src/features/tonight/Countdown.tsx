@@ -14,7 +14,10 @@ export function Countdown({ startAt, endAt }: CountdownProps) {
   const { t, i18n } = useTranslation('tonight');
   const now = useNow(1_000);
 
-  if (now >= startAt && now < endAt) {
+  if (now >= endAt) {
+    return <Text style={styles.text}>{t('justEnded')}</Text>;
+  }
+  if (now >= startAt) {
     return <Text style={[styles.text, styles.now]}>{t('visibleNow')}</Text>;
   }
   return <Text style={styles.text}>{formatCountdown(startAt, now, i18n.language)}</Text>;

@@ -6,6 +6,7 @@
     "tomorrow": "Tomorrow night"
   },
   "visibleNow": "Visible now",
+  "justEnded": "Just ended",
   "path": "Appears {{appears}}, disappears {{disappears}}",
   "maxElevation": "Max {{degrees}}°",
   "states": {

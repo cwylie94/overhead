@@ -69,6 +69,13 @@ describe('TonightView', () => {
     expect(screen.getByText('Visible now')).toBeOnTheScreen();
   });
 
+  test('says a pass has just ended rather than counting back from its start', async () => {
+    await renderView({ passes: [makePass({ startAt: NOW - 5 * MINUTE })] });
+
+    expect(screen.getByText('Just ended')).toBeOnTheScreen();
+    expect(screen.queryByText(/ago/)).toBeNull();
+  });
+
   test('groups passes into tonight and tomorrow night, counting only tonight', async () => {
     const tomorrow = new Date(2026, 10, 9, 21, 0).getTime();
 
