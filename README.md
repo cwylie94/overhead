@@ -33,6 +33,16 @@ npm run ios
 
 After the first build, `npm start` is enough for JavaScript changes. Rebuild with `npm run ios` after adding a native dependency or changing `app.json`.
 
+### On a real iPhone
+
+Camera mode needs a real phone. Add your Apple ID in Xcode (Settings → Accounts), turn on Developer Mode on the phone, connect it, and put your team ID in `.env.local` as `APPLE_TEAM_ID` (see `.env.example`). Then build a Release version, which runs without the dev server, so it works outside:
+
+```bash
+npm run ios:device
+```
+
+The first time, Xcode has to create a signing profile, which `expo run:ios` doesn't allow. Run `npx expo prebuild --platform ios`, then build once with `xcodebuild` and `-allowProvisioningUpdates` (or pick the team in Xcode's Signing tab), and `npm run ios:device` works from then on. With a free Apple account, trust the certificate on the phone under Settings → General → VPN & Device Management, and expect to reinstall every 7 days.
+
 ## Scripts
 
 | Script                            | What it does                                |

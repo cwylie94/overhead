@@ -38,6 +38,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - `ios/` and `android/` are generated (Continuous Native Generation) and git-ignored. Configure native behaviour through `app.json` and config plugins, never by editing those folders.
 - The app runs as a development build (`expo-dev-client`), not Expo Go, because MMKV has native code Expo Go doesn't include. `npm run ios` builds and launches it. Rebuild only after adding or changing a native dependency or `app.json`. For JS-only changes, `npm start` is enough.
 - CocoaPods is pinned per project in `Gemfile` and installed into `vendor/bundle`. It needs Ruby 3.3 or later, and this Mac's is Homebrew's keg-only Ruby at `/opt/homebrew/opt/ruby/bin`. Put that first on `PATH` for iOS builds. Never upgrade the global `pod` or system Ruby.
+- Real-iPhone builds: `npm run ios:device` (Release, no dev server). The team ID comes from `APPLE_TEAM_ID` in `.env.local` through `app.config.ts`, so it stays out of git. Build with `EXPO_PUBLIC_SYNC_URL=` empty, because the local Worker's `127.0.0.1` means the phone itself. A new profile needs `xcodebuild … -allowProvisioningUpdates` once, which `expo run:ios` doesn't pass.
 - Routes live in `src/app/` and stay thin: each route file re-exports a screen from `src/features/`.
 - Run `npm run lint`, `npm run typecheck` and the tests before calling a task done.
 
