@@ -41,12 +41,14 @@ export function formatOffset(offset: number): string {
   return hours > 0 ? `+${hours}h ${String(minutes).padStart(2, '0')}m` : `+${minutes}m`;
 }
 
+const PERIOD_NOISE = /[\d\s\u200e\u202f:]/g;
+
 export function clockStyleFor(language: string): ClockStyle {
-  const formatter = new Intl.DateTimeFormat(language, { hour: 'numeric' });
-  const hour12 = formatter.resolvedOptions().hour12 ?? false;
-  const period = (hour: number) =>
-    new Intl.DateTimeFormat(language, { hour: 'numeric', hour12: true })
-      .formatToParts(new Date(2000, 0, 1, hour))
-      .find((part) => part.type === 'dayPeriod')?.value ?? '';
-  return { hour12, am: period(9), pm: period(21) };
+  const evening = new Date(2000, 0, 1, 21);
+  const hour12 = !new Intl.DateTimeFormat(language, { hour: 'numeric' })
+    .format(evening)
+    .includes('21');
+  const twelveHour = new Intl.DateTimeFormat(language, { hour: 'numeric', hour12: true });
+  const period = (date: Date) => twelveHour.format(date).replace(PERIOD_NOISE, '');
+  return { hour12, am: period(new Date(2000, 0, 1, 9)), pm: period(evening) };
 }

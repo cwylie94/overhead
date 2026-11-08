@@ -1,0 +1,10 @@
+{
+  "now": "Now",
+  "compass": "Compass",
+  "compassOn": "Compass on",
+  "empty": "No visible passes in the next 12 hours.",
+  "hint": "Tap a satellite to see where to look. Drag the timeline to look ahead.",
+  "lookAt": "{{degrees}}° up, look {{direction}}",
+  "visibleBetween": "Visible {{start}} to {{end}}",
+  "notUp": "Not visible at this time"
+}
