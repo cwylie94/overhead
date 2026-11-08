@@ -1,9 +1,9 @@
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAppData } from '@/data/AppDataContext';
+import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import {
   collectableSatellitesQuery,
   orbitElementsQuery,

@@ -1,10 +1,10 @@
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import { Easing, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { useAppData } from '@/data/AppDataContext';
+import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import { skyPassesQuery } from '@/data/queries';
 import { useClock, useNow } from '@/environment/clock';
 import { useSkyStore } from '@/stores/skyStore';

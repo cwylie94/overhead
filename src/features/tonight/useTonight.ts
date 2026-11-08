@@ -1,9 +1,9 @@
 import { useNetInfo } from '@react-native-community/netinfo';
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { router } from 'expo-router';
 import { useState } from 'react';
 
 import { useAppData } from '@/data/AppDataContext';
+import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import { usePassCache } from '@/data/passCache/PassCacheScheduler';
 import { orbitFreshnessQuery, upcomingPassesQuery } from '@/data/queries';
 import { useDemo } from '@/demo/session';

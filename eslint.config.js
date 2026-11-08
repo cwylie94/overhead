@@ -34,6 +34,19 @@ module.exports = defineConfig([
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'drizzle-orm/expo-sqlite',
+              importNames: ['useLiveQuery'],
+              message:
+                "Use useLiveQuery from '@/data/liveQuery/useLiveQuery', which batches row changes into one reload.",
+            },
+          ],
+        },
+      ],
     },
   },
 ]);

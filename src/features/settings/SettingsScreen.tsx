@@ -1,4 +1,3 @@
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +5,7 @@ import { ScrollView, StyleSheet } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
 import { useAppData } from '@/data/AppDataContext';
+import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import { pendingChangesQuery } from '@/data/queries';
 import { useDemo } from '@/demo/session';
 import { useNow } from '@/environment/clock';
