@@ -15,9 +15,10 @@ npm start
 
 ## Scripts
 
-| Script | What it does |
-|---|---|
-| `npm start` | Start the Expo dev server |
+| Script                            | What it does                              |
+| --------------------------------- | ----------------------------------------- |
+| `npm start`                       | Start the Expo dev server                 |
 | `npm run ios` / `npm run android` | Start and open on a simulator or emulator |
-| `npm run lint` | Lint with ESLint |
-| `npm run typecheck` | Type-check with TypeScript |
+| `npm run lint`                    | Lint with ESLint                          |
+| `npm run format`                  | Format with Prettier                      |
+| `npm run typecheck`               | Type-check with TypeScript                |

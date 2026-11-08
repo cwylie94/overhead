@@ -65,14 +65,14 @@ src/
 
 ## Data model
 
-| Table | Purpose |
-|---|---|
-| `satellites` | NORAD ID, name, type, owner, launch date and rarity, from the bundled catalogue |
-| `orbits` | One OMM JSON row per satellite, replaced on refresh |
-| `passes` | Cached predictions with track points, recalculated when orbit data or location changes |
-| `sightings` | UUIDv7 ID, verified flag, angle error and note. Never edited except the note |
-| `outbox` | Changes waiting to sync |
-| `sync_meta` | Pull cursor and last fetch time per CelesTrak group |
+| Table        | Purpose                                                                                |
+| ------------ | -------------------------------------------------------------------------------------- |
+| `satellites` | NORAD ID, name, type, owner, launch date and rarity, from the bundled catalogue        |
+| `orbits`     | One OMM JSON row per satellite, replaced on refresh                                    |
+| `passes`     | Cached predictions with track points, recalculated when orbit data or location changes |
+| `sightings`  | UUIDv7 ID, verified flag, angle error and note. Never edited except the note           |
+| `outbox`     | Changes waiting to sync                                                                |
+| `sync_meta`  | Pull cursor and last fetch time per CelesTrak group                                    |
 
 There is no collection table. The collection is derived from verified sightings.
 
