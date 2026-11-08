@@ -95,7 +95,9 @@ There is no collection table. The collection is derived from verified sightings.
   - Uncommon: a rocket body launched 1980–1999
   - Common: everything else, including modern rocket bodies, stations, crew and cargo craft, constellation members and debris
 - How often a satellite is visible from the user's location is a card stat, never part of rarity, because it varies by place and over time.
-- After changing the rarity rules, bump `RARITY_RULES_VERSION` in `src/domain/catalogue.ts` so existing installs re-rate their catalogue. A bundled-snapshot test fails if a refresh breaks the pyramid.
+- **Collection sets** (`src/domain/collectionSets.ts`): each satellite is in exactly one set, decided in this order. Space stations (the CelesTrak stations group), Observatories and Earth watchers (NORAD ID lists with names), Cold War veterans (launched before 1992), Spent stages (later rocket bodies), Constellations (commercial constellations only), and Spies & secrets for the rest. The set is stored on `satellites` at import, like rarity. A test fails if a listed ID's name no longer matches the bundled catalogue.
+- **The collection** is derived, never stored (`deriveCollection`): a satellite is caught at its earliest verified sighting.
+- After changing the rarity or set rules, bump `CATALOGUE_RULES_VERSION` in `src/domain/catalogue.ts` so existing installs re-sort their catalogue. A bundled-snapshot test fails if a refresh breaks the rarity pyramid or leaves a set empty.
 
 ## Network and sync
 
