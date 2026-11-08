@@ -1,4 +1,7 @@
+import { startsWithAny } from './collectionSets';
 import type { OmmRecord } from './types';
+
+const STATION_NAME_PREFIXES = ['ISS', 'CSS', 'TIANGONG'] as const;
 
 function elementsKey(omm: OmmRecord): string {
   return [
@@ -33,4 +36,17 @@ export function dockingHosts(omms: readonly OmmRecord[]): Map<number, number> {
     }
   }
   return hosts;
+}
+
+export function stationMembers(omms: readonly OmmRecord[]): Set<number> {
+  const members = new Set<number>();
+  for (const [docked, host] of dockingHosts(omms)) {
+    members.add(docked).add(host);
+  }
+  for (const omm of omms) {
+    if (startsWithAny(omm.OBJECT_NAME, STATION_NAME_PREFIXES)) {
+      members.add(omm.NORAD_CAT_ID);
+    }
+  }
+  return members;
 }

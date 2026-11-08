@@ -39,6 +39,7 @@ describe('collectionSetFor', () => {
       { objectType: 'rocket_body', launchDate: '1992-01-01' },
       'spentStages',
     ],
+    ['a piece of debris after 1992', { objectType: 'debris', name: 'FREGAT DEB' }, 'spentStages'],
     ['a commercial constellation member', { name: 'SPACEMOBILE-003' }, 'constellations'],
     ['a military COSMOS satellite', { name: 'COSMOS 2550' }, 'spiesAndSecrets'],
     ['a Yaogan satellite', { name: 'YAOGAN-29' }, 'spiesAndSecrets'],

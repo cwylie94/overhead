@@ -4,6 +4,7 @@ import {
   CATALOGUE_RULES_VERSION,
   type SatcatRecord,
 } from '@/domain/catalogue';
+import { stationMembers } from '@/domain/docking';
 import { CELESTRAK_GROUPS, type CelestrakGroup, type OmmRecord } from '@/domain/types';
 
 import type { Repositories } from '../repositories';
@@ -31,7 +32,7 @@ export function importSnapshot(
   catalogueRulesVersion: number = CATALOGUE_RULES_VERSION,
 ): SnapshotImportResult {
   const { satellites, orbits, syncMeta } = repositories;
-  const stationIds = new Set(snapshot.groups.stations.map((omm) => omm.NORAD_CAT_ID));
+  const stationIds = stationMembers(snapshot.groups.stations);
 
   const version = catalogueVersion(snapshot, catalogueRulesVersion);
   const catalogue = syncMeta.get(CATALOGUE_VERSION_KEY) !== version;

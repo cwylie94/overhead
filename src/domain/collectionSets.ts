@@ -97,7 +97,7 @@ export function collectionSetFor({
   if (launchYear < COLD_WAR_ENDS_YEAR) {
     return 'coldWarVeterans';
   }
-  if (objectType === 'rocket_body') {
+  if (objectType === 'rocket_body' || objectType === 'debris') {
     return 'spentStages';
   }
   if (startsWithAny(name, COMMERCIAL_CONSTELLATION_PREFIXES)) {

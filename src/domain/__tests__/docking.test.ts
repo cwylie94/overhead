@@ -1,6 +1,6 @@
 import { bundledSnapshot } from '@/data/snapshot';
 
-import { dockingHosts } from '../docking';
+import { dockingHosts, stationMembers } from '../docking';
 import type { OmmRecord } from '../types';
 
 const ISS = 25544;
@@ -46,5 +46,30 @@ describe('dockingHosts', () => {
     const module = { ...station, NORAD_CAT_ID: 49044 };
 
     expect(dockingHosts([module, station]).get(49044)).toBe(ISS);
+  });
+});
+
+describe('stationMembers', () => {
+  const members = stationMembers(bundledSnapshot.groups.stations);
+
+  test('includes both stations and everything docked to them', () => {
+    for (const id of [ISS, CSS, 36086, 49044, 100882, 53239, 69180]) {
+      expect(members.has(id)).toBe(true);
+    }
+  });
+
+  test('leaves out CubeSats released from the ISS, loose modules and debris', () => {
+    for (const id of [66906, 67683, 67685, 67688, 66515, 49271]) {
+      expect(members.has(id)).toBe(false);
+    }
+  });
+
+  test('recognises a station by name when nothing is docked to it', () => {
+    const tianhe = bundledSnapshot.groups.stations.find((omm) => omm.NORAD_CAT_ID === CSS)!;
+
+    expect(stationMembers([tianhe]).has(CSS)).toBe(true);
+    expect(stationMembers([{ ...tianhe, OBJECT_NAME: 'TIANGONG 3', NORAD_CAT_ID: 1 }]).has(1)).toBe(
+      true,
+    );
   });
 });

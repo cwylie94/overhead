@@ -132,15 +132,23 @@ describe('bundled snapshot', () => {
 });
 
 describe('bundled collection sets', () => {
-  test('every set has members and space stations hold the whole stations group', () => {
+  test('every set has members', () => {
     importSnapshot(repositories, bundledSnapshot);
 
-    const counts = new Map<string, number>();
-    for (const { collectionSet } of repositories.satellites.listAll()) {
-      counts.set(collectionSet, (counts.get(collectionSet) ?? 0) + 1);
-    }
+    const sets = new Set(repositories.satellites.listAll().map((s) => s.collectionSet));
 
-    expect([...counts.keys()].sort()).toEqual([...COLLECTION_SETS].sort());
-    expect(counts.get('spaceStations')).toBe(bundledSnapshot.groups.stations.length);
+    expect([...sets].sort()).toEqual([...COLLECTION_SETS].sort());
+  });
+
+  test('space stations hold the stations and what is docked to them, not CubeSats or debris', () => {
+    importSnapshot(repositories, bundledSnapshot);
+    const setOf = (noradId: number) => repositories.satellites.getById(noradId)?.collectionSet;
+
+    for (const station of [25544, 48274, 49044, 36086, 53239, 100882, 69180]) {
+      expect(setOf(station)).toBe('spaceStations');
+    }
+    for (const other of [66906, 67683, 67685, 67688, 49271, 66515]) {
+      expect(setOf(other)).not.toBe('spaceStations');
+    }
   });
 });
