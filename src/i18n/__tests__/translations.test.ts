@@ -1,3 +1,4 @@
+import { COLLECTION_SETS } from '@/domain/collectionSets';
 import { COMPASS_POINTS } from '@/domain/compass';
 import i18n from '@/i18n';
 
@@ -63,6 +64,12 @@ describe('domain words', () => {
   test('every compass point has a translation', () => {
     for (const point of COMPASS_POINTS) {
       expect(i18n.t(`compass.${point}`)).not.toBe(`compass.${point}`);
+    }
+  });
+
+  test('every collection set has a name', () => {
+    for (const set of COLLECTION_SETS) {
+      expect(i18n.t(`collection:sets.${set}`)).not.toBe(`sets.${set}`);
     }
   });
 });

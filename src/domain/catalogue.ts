@@ -1,3 +1,4 @@
+import { collectionSetFor, startsWithAny, type CollectionSet } from './collectionSets';
 import type { ObjectType, Rarity } from './types';
 
 export type SatcatRecord = {
@@ -16,9 +17,10 @@ export type CatalogueEntry = {
   owner: string;
   launchDate: string | null;
   rarity: Rarity;
+  collectionSet: CollectionSet;
 };
 
-export const RARITY_RULES_VERSION = 2;
+export const CATALOGUE_RULES_VERSION = 3;
 export const LEGENDARY_BEFORE_YEAR = 1980;
 export const MODERN_ROCKET_BODY_FROM_YEAR = 2000;
 
@@ -47,11 +49,7 @@ export function objectTypeFromSatcat(code: string): ObjectType {
 }
 
 export function isConstellationMember(name: string): boolean {
-  const upper = name.toUpperCase();
-  return CONSTELLATION_PREFIXES.some(
-    (prefix) =>
-      upper === prefix || upper.startsWith(`${prefix} `) || upper.startsWith(`${prefix}-`),
-  );
+  return startsWithAny(name, CONSTELLATION_PREFIXES);
 }
 
 export type RarityInput = {
@@ -79,6 +77,13 @@ export function rarityFor({ name, objectType, launchDate, isStation }: RarityInp
 export function catalogueEntryFromSatcat(record: SatcatRecord, isStation: boolean): CatalogueEntry {
   const objectType = objectTypeFromSatcat(record.OBJECT_TYPE);
   const launchDate = record.LAUNCH_DATE || null;
+  const facts = {
+    noradId: record.NORAD_CAT_ID,
+    name: record.OBJECT_NAME,
+    objectType,
+    launchDate,
+    isStation,
+  };
 
   return {
     noradId: record.NORAD_CAT_ID,
@@ -86,7 +91,8 @@ export function catalogueEntryFromSatcat(record: SatcatRecord, isStation: boolea
     objectType,
     owner: record.OWNER,
     launchDate,
-    rarity: rarityFor({ name: record.OBJECT_NAME, objectType, launchDate, isStation }),
+    rarity: rarityFor(facts),
+    collectionSet: collectionSetFor(facts),
   };
 }
 

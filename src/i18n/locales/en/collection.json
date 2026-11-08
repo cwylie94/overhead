@@ -1,0 +1,12 @@
+{
+  "sets": {
+    "spaceStations": "Space stations",
+    "observatories": "Observatories",
+    "earthWatchers": "Earth watchers",
+    "coldWarVeterans": "Cold War veterans",
+    "constellations": "Constellations",
+    "spentStages": "Spent stages",
+    "spiesAndSecrets": "Spies & secrets"
+  },
+  "progress": "{{caught}} of {{total}} caught"
+}

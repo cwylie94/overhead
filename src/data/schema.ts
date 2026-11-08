@@ -1,5 +1,6 @@
 import { index, integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
+import { COLLECTION_SETS } from '@/domain/collectionSets';
 import {
   CELESTRAK_GROUPS,
   OBJECT_TYPES,
@@ -16,6 +17,9 @@ export const satellites = sqliteTable('satellites', {
   owner: text('owner').notNull(),
   launchDate: text('launch_date'),
   rarity: text('rarity', { enum: RARITIES }).notNull(),
+  collectionSet: text('collection_set', { enum: COLLECTION_SETS })
+    .notNull()
+    .default('spiesAndSecrets'),
 });
 
 export const orbits = sqliteTable('orbits', {

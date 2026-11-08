@@ -90,6 +90,7 @@ describe('catalogueEntryFromSatcat', () => {
       owner: 'US',
       launchDate: '1963-11-27',
       rarity: 'legendary',
+      collectionSet: 'coldWarVeterans',
     });
   });
 

@@ -1,0 +1,1 @@
+ALTER TABLE `satellites` ADD `collection_set` text DEFAULT 'spiesAndSecrets' NOT NULL;

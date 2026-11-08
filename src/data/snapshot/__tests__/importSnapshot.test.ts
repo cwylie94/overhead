@@ -1,4 +1,5 @@
 import { ommEpochToMillis } from '@/domain/catalogue';
+import { COLLECTION_SETS } from '@/domain/collectionSets';
 import { RARITIES } from '@/domain/types';
 
 import type { Database } from '../../database';
@@ -127,5 +128,19 @@ describe('bundled snapshot', () => {
     expect(counts.rare).toBeGreaterThan(counts.legendary!);
     expect(counts.uncommon).toBeGreaterThan(counts.rare!);
     expect(counts.common).toBeGreaterThan(counts.uncommon!);
+  });
+});
+
+describe('bundled collection sets', () => {
+  test('every set has members and space stations hold the whole stations group', () => {
+    importSnapshot(repositories, bundledSnapshot);
+
+    const counts = new Map<string, number>();
+    for (const { collectionSet } of repositories.satellites.listAll()) {
+      counts.set(collectionSet, (counts.get(collectionSet) ?? 0) + 1);
+    }
+
+    expect([...counts.keys()].sort()).toEqual([...COLLECTION_SETS].sort());
+    expect(counts.get('spaceStations')).toBe(bundledSnapshot.groups.stations.length);
   });
 });

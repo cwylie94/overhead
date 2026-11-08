@@ -20,6 +20,7 @@ export function createSatelliteRepository(db: Database): SatelliteRepository {
                 owner: excluded(satellites.owner),
                 launchDate: excluded(satellites.launchDate),
                 rarity: excluded(satellites.rarity),
+                collectionSet: excluded(satellites.collectionSet),
               },
             })
             .run();
