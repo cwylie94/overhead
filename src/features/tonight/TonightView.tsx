@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
+import type { Observer } from '@/domain/observer';
 import type { LocationState } from '@/environment/location';
 import { formatNightDate } from '@/i18n/format';
 import { Banner } from '@/ui/Banner';
@@ -20,6 +21,7 @@ export type TonightViewProps = {
   offline: boolean;
   staleDays: number | null;
   demoStartsAt: number | null;
+  testLocation: Observer | null;
   reminders: Reminders | null;
   refreshing: boolean;
   onRefresh(): void;
@@ -44,6 +46,7 @@ export function TonightView({
   offline,
   staleDays,
   demoStartsAt,
+  testLocation,
   reminders,
   refreshing,
   onRefresh,
@@ -60,6 +63,15 @@ export function TonightView({
       {demoStartsAt !== null && (
         <Banner
           message={t('common:banners.demo', { date: formatNightDate(demoStartsAt, i18n.language) })}
+        />
+      )}
+      {testLocation && (
+        <Banner
+          tone="warning"
+          message={t('common:banners.testLocation', {
+            latitude: testLocation.latitude,
+            longitude: testLocation.longitude,
+          })}
         />
       )}
       {offline && <Banner message={t('common:banners.offline')} />}

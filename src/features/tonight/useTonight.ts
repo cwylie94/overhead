@@ -9,6 +9,7 @@ import { orbitFreshnessQuery, upcomingPassesQuery } from '@/data/queries';
 import { useDemo } from '@/demo/session';
 import { useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
+import { TEST_LOCATION } from '@/environment/testLocation';
 
 import { staleDaysFor } from './staleness';
 import type { TonightViewProps } from './TonightView';
@@ -39,6 +40,7 @@ export function useTonight(): TonightViewProps {
           now,
         ),
     demoStartsAt: demo?.startsAt ?? null,
+    testLocation: demo ? null : TEST_LOCATION,
     reminders,
     refreshing,
     onRefresh: () => {

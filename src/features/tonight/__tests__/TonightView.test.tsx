@@ -38,6 +38,7 @@ const defaults: TonightViewProps = {
   offline: false,
   staleDays: null,
   demoStartsAt: null,
+  testLocation: null,
   reminders: null,
   refreshing: false,
   onRefresh: () => {},
@@ -132,6 +133,12 @@ describe('TonightView', () => {
     expect(
       screen.getByText('Demo mode: Sunday, November 8 in London. Turn it off in Settings.'),
     ).toBeOnTheScreen();
+  });
+
+  test('warns when a test location stands in for GPS', async () => {
+    await renderView({ testLocation: { latitude: 64.15, longitude: -21.94, altitude: 0 } });
+
+    expect(screen.getByText(/Test location 64.15, -21.94/)).toBeOnTheScreen();
   });
 
   test('shows the offline banner and keeps listing passes', async () => {

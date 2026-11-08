@@ -12,6 +12,7 @@ import { PassCacheProvider } from '@/data/passCache/PassCacheScheduler';
 import { useAppSession, type DemoEnvironment } from '@/demo/session';
 import { ClockProvider, systemClock } from '@/environment/clock';
 import { DeviceLocationProvider, FixedLocationProvider } from '@/environment/location';
+import { TEST_LOCATION } from '@/environment/testLocation';
 import { configureNotificationHandler } from '@/features/tonight/reminders';
 import { SyncProvider } from '@/sync/SyncProvider';
 import { MotionConfig } from '@/ui/motion';
@@ -38,8 +39,9 @@ function LocationProvider({
   demo: DemoEnvironment | null;
   children: ReactNode;
 }) {
-  return demo ? (
-    <FixedLocationProvider observer={demo.observer}>{children}</FixedLocationProvider>
+  const fixed = demo?.observer ?? TEST_LOCATION;
+  return fixed ? (
+    <FixedLocationProvider observer={fixed}>{children}</FixedLocationProvider>
   ) : (
     <DeviceLocationProvider>{children}</DeviceLocationProvider>
   );
