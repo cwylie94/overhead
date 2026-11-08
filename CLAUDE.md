@@ -51,6 +51,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Stores in `src/stores/` hold UI and session state only. `settingsStore` and `syncStore` (last sync time only) persist to MMKV via `persistStorage`, with `partialize` listing exactly what is saved. Pure logic, such as the catch state machine, lives in `src/domain/`, and its store only dispatches events to it. Actions that change nothing must return the same state, so subscribers aren't notified.
 - Test stores by calling actions directly, resetting with `useXStore.setState(useXStore.getInitialState())`. Jest swaps MMKV for its in-memory mock in `jest.setup.ts`.
 - Compute pass tracks once, as a point every 10 s stored in `passes`. Worklets interpolate between points, so no orbit maths runs per frame.
+- The pass finder (`src/domain/passFinder.ts`) is checked against Skyfield fixtures across all 172 satellites: rise, set and visible boundaries within 2 s. Keep those tolerances. If a change breaks them, fix the change, not the test. It skips ahead while a satellite is out of reach, so one night for the whole catalogue costs about 117k SGP4 propagations: 1.6 s in Node, 1.2 s under Hermes on the simulator. Check `npm run bench` after touching it.
 - The database sits behind repository interfaces, so the same code runs on the device and in Node tests.
 
 ## Folder structure

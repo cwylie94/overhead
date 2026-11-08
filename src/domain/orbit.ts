@@ -8,10 +8,19 @@ export type Orbit = {
   satrec: SatRec;
   inclination: number;
   apogeeKm: number;
+  maxAngularRate: number;
 };
 
 const EARTH_GM_KM3_S2 = 398_600.4418;
 const SECONDS_PER_DAY = 86_400;
+const MS_PER_MINUTE = 60_000;
+const EARTH_ROTATION_DEG_PER_MINUTE = 360 / 1436.0686;
+
+export function maxAngularRateDegPerMinute(meanMotion: number, eccentricity: number): number {
+  const meanRate = (meanMotion * 360) / 1440;
+  const perigeeRate = (meanRate * (1 + eccentricity) ** 2) / (1 - eccentricity ** 2) ** 1.5;
+  return perigeeRate + EARTH_ROTATION_DEG_PER_MINUTE;
+}
 
 export function apogeeAltitudeKm(meanMotion: number, eccentricity: number): number {
   const radiansPerSecond = (meanMotion * 2 * Math.PI) / SECONDS_PER_DAY;
@@ -34,6 +43,7 @@ export function orbitFromOmm(omm: OmmRecord): Orbit {
     }),
     inclination: omm.INCLINATION,
     apogeeKm: apogeeAltitudeKm(omm.MEAN_MOTION, omm.ECCENTRICITY),
+    maxAngularRate: maxAngularRateDegPerMinute(omm.MEAN_MOTION, omm.ECCENTRICITY) / MS_PER_MINUTE,
   };
 }
 
