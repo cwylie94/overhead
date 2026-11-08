@@ -12,11 +12,15 @@ const TRANSFORMED_PACKAGES = [
   'native-base',
   'standard-navigation',
   '@formatjs',
+  'satellite.js',
 ];
 
 module.exports = {
   preset: 'jest-expo',
   setupFiles: ['./jest.setup.ts'],
+  moduleNameMapper: {
+    '^satellite\\.js$': '<rootDir>/node_modules/satellite.js/dist/index.js',
+  },
   transformIgnorePatterns: [
     `/node_modules/(?!(${TRANSFORMED_PACKAGES.join('|')}))`,
     '/node_modules/react-native-reanimated/plugin/',
