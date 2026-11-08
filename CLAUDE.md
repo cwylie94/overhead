@@ -58,6 +58,13 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Read and write shared values with `.get()` / `.set()`, not `.value`. The React Compiler lint treats `.value =` in gesture callbacks as mutation.
 - Skia 2 paths are built with `Skia.PathBuilder.Make()…build()`. A `Group` applies `transform` before `clip`, so to clip zoomed content, put the clip on an outer group and the transform on an inner one.
 - If the device reports a function as undefined right after you've added it, Metro's cache is probably stale. Restart it with `npx expo start --dev-client --clear` before debugging further.
+- Catch mode (`src/features/catch/`):
+  - Pointing is the compass heading from `expo-location` plus the camera's elevation from `DeviceMotion` gravity, in shared values (`usePointing`).
+  - With no sensor data within 2.5 s (as on the simulator), it falls back to drag-to-aim. Demo mode can force that.
+  - A 50 ms JS ticker feeds the catch machine, with readings that count only while a finger is down.
+  - Log sightings through `logSighting` (UUIDv7 IDs), and guard against duplicates with something stable such as the catch time, never a flag an effect resets.
+  - The device sign conventions for gravity and heading are untested on real hardware. Check them on a phone before the demo.
+- Routes outside the tabs: `catch/[passId]` (full-screen modal) and `satellite/[noradId]` (modal), both declared in the root `Stack`.
 - Compute pass tracks once, as a point every 10 s stored in `passes`. Worklets interpolate between points, so no orbit maths runs per frame.
 - The pass finder (`src/domain/passFinder.ts`) is checked against Skyfield fixtures across all 172 satellites: rise, set and visible boundaries within 2 s. Keep those tolerances. If a change breaks them, fix the change, not the test. It skips ahead while a satellite is out of reach, so one night for the whole catalogue costs about 117k SGP4 propagations: 1.6 s in Node, 1.2 s under Hermes on the simulator. Check `npm run bench` after touching it.
 - The database sits behind repository interfaces, so the same code runs on the device and in Node tests.
