@@ -59,7 +59,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Sky view (`src/features/sky/`): time, paths, dots, zoom and heading all live in Reanimated shared values. Their maths is worklets (`projection.ts`, `timeline.ts`, `domeDots.ts`, `domeGeometry.ts`) that take the precomputed tracks, so nothing re-renders while scrubbing. Keep anything that imports Skia out of the files tests need, because Skia's native module doesn't load in Jest.
 - Read and write shared values with `.get()` / `.set()`, not `.value`. The React Compiler lint treats `.value =` in gesture callbacks as mutation.
 - Skia 2 paths are built with `Skia.PathBuilder.Make()…build()`. A `Group` applies `transform` before `clip`, so to clip zoomed content, put the clip on an outer group and the transform on an inner one.
-- If the device reports a function as undefined right after you've added it, Metro's cache is probably stale. Restart it with `npx expo start --dev-client --clear` before debugging further.
+- If the device reports a function as undefined right after you've added it, Metro's cache is probably stale. Restart it with `npx expo start --dev-client --clear` before debugging further. After editing a module the root layout loads at start-up (`src/demo/session.ts`, `src/i18n/`, the translation files), relaunch the app rather than trusting Fast Refresh, which can leave the screen frozen and ignoring taps.
 - Catch mode (`src/features/catch/`):
   - Pointing is the compass heading from `expo-location` plus the camera's elevation from `DeviceMotion` gravity, in shared values (`usePointing`).
   - With no sensor data within 2.5 s (as on the simulator), it falls back to drag-to-aim. Demo mode can force that.
