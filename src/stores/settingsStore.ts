@@ -20,6 +20,8 @@ export type SettingsState = {
   minElevation: number;
   notificationsEnabled: boolean;
   motionPreference: MotionPreference;
+  hapticsEnabled: boolean;
+  demoMode: boolean;
   lastLocation: Observer | null;
 };
 
@@ -29,6 +31,8 @@ type SettingsActions = {
   setMinElevation(degrees: number): void;
   setNotificationsEnabled(enabled: boolean): void;
   setMotionPreference(preference: MotionPreference): void;
+  setHapticsEnabled(enabled: boolean): void;
+  setDemoMode(enabled: boolean): void;
   rememberLocation(location: Observer): void;
 };
 
@@ -68,6 +72,8 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       minElevation: DEFAULT_MIN_ELEVATION,
       notificationsEnabled: true,
       motionPreference: 'system',
+      hapticsEnabled: true,
+      demoMode: false,
       lastLocation: null,
 
       setLanguage: (language) => set({ language }),
@@ -75,6 +81,8 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       setMinElevation: (degrees) => set({ minElevation: clampElevation(degrees) }),
       setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
       setMotionPreference: (motionPreference) => set({ motionPreference }),
+      setHapticsEnabled: (hapticsEnabled) => set({ hapticsEnabled }),
+      setDemoMode: (demoMode) => set({ demoMode }),
       rememberLocation: (location) => set({ lastLocation: coarseLocation(location) }),
     }),
     {
@@ -87,6 +95,8 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
         minElevation,
         notificationsEnabled,
         motionPreference,
+        hapticsEnabled,
+        demoMode,
         lastLocation,
       }) => ({
         language,
@@ -94,6 +104,8 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
         minElevation,
         notificationsEnabled,
         motionPreference,
+        hapticsEnabled,
+        demoMode,
         lastLocation,
       }),
     },

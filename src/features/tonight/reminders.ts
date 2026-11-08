@@ -62,3 +62,8 @@ export async function setReminder(pass: ReminderPass, content: ReminderContent):
 export async function cancelReminder(pass: ReminderPass): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(reminderId(pass));
 }
+
+export async function cancelAllReminders(): Promise<void> {
+  const ids = await scheduledReminderIds();
+  await Promise.all([...ids].map((id) => Notifications.cancelScheduledNotificationAsync(id)));
+}

@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 
 import {
   canRemind,
+  cancelAllReminders,
   cancelReminder,
   REMINDER_LEAD,
   reminderId,
@@ -83,5 +84,17 @@ describe('cancelReminder and scheduledReminderIds', () => {
 
     expect(mocked.cancelScheduledNotificationAsync).toHaveBeenCalledWith(reminderId(pass));
     expect(await scheduledReminderIds()).toEqual(new Set([reminderId(pass)]));
+  });
+
+  test('cancelling all leaves notifications that are not pass reminders', async () => {
+    mocked.getAllScheduledNotificationsAsync.mockResolvedValue([
+      { identifier: reminderId(pass) },
+      { identifier: 'something-else' },
+    ] as Notifications.NotificationRequest[]);
+    mocked.cancelScheduledNotificationAsync.mockClear();
+
+    await cancelAllReminders();
+
+    expect(mocked.cancelScheduledNotificationAsync.mock.calls).toEqual([[reminderId(pass)]]);
   });
 });

@@ -26,6 +26,8 @@ describe('settings store', () => {
       minElevation: DEFAULT_MIN_ELEVATION,
       notificationsEnabled: true,
       motionPreference: 'system',
+      hapticsEnabled: true,
+      demoMode: false,
     });
   });
 
@@ -45,12 +47,16 @@ describe('settings store', () => {
     store.setUnits('imperial');
     store.setNotificationsEnabled(false);
     store.setMotionPreference('reduce');
+    store.setHapticsEnabled(false);
+    store.setDemoMode(true);
 
     expect(useSettingsStore.getState()).toMatchObject({
       language: 'en',
       units: 'imperial',
       notificationsEnabled: false,
       motionPreference: 'reduce',
+      hapticsEnabled: false,
+      demoMode: true,
     });
   });
 
@@ -75,6 +81,8 @@ describe('settings store', () => {
         minElevation: DEFAULT_MIN_ELEVATION,
         notificationsEnabled: true,
         motionPreference: 'system',
+        hapticsEnabled: true,
+        demoMode: false,
         lastLocation: null,
       },
     });
