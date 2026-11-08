@@ -1,0 +1,4 @@
+{
+  "passCount_one": "{{count}} pass tonight",
+  "passCount_other": "{{count}} passes tonight"
+}

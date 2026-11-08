@@ -1,0 +1,11 @@
+{
+  "tabs": {
+    "tonight": "Tonight",
+    "sky": "Sky",
+    "collection": "Collection",
+    "settings": "Settings"
+  },
+  "errors": {
+    "databaseTitle": "Couldn't open the database"
+  }
+}
