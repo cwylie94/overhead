@@ -5,8 +5,11 @@ import { Platform } from 'react-native';
 import { useSharedValue, type SharedValue } from 'react-native-reanimated';
 
 import type { SkyPosition } from '@/domain/sky';
+import { useCalibrationStore } from '@/stores/calibrationStore';
 
-import { elevationFromGravity } from './pointing';
+import { applyOffset, NO_OFFSET } from './calibration';
+import { rollFromGravity } from './cameraProjection';
+import { elevationFromGravity, smoothVector, type Vector } from './pointing';
 
 export type PointingMode = 'sensors' | 'manual';
 
@@ -14,6 +17,7 @@ const MOTION_INTERVAL_MS = 33;
 const SENSOR_TIMEOUT_MS = 2_500;
 const IOS_CALIBRATION_THRESHOLD = 25;
 const ANDROID_GOOD_ACCURACY = 2;
+const GRAVITY_SMOOTHING = 0.25;
 
 export function needsCalibration(accuracy: number): boolean {
   return Platform.OS === 'ios'
@@ -24,7 +28,9 @@ export function needsCalibration(accuracy: number): boolean {
 export type Pointing = {
   azimuth: SharedValue<number>;
   elevation: SharedValue<number>;
+  roll: SharedValue<number>;
   latest: { current: SkyPosition };
+  raw: { current: SkyPosition };
   mode: PointingMode;
   calibrate: boolean;
   setManual(position: SkyPosition): void;
@@ -33,7 +39,9 @@ export type Pointing = {
 export function usePointing(initial: SkyPosition, forceManual = false): Pointing {
   const azimuth = useSharedValue(initial.azimuth);
   const elevation = useSharedValue(initial.elevation);
+  const roll = useSharedValue(0);
   const latest = useRef<SkyPosition>(initial);
+  const raw = useRef<SkyPosition>(initial);
   const [mode, setMode] = useState<PointingMode>(forceManual ? 'manual' : 'sensors');
   const [calibrate, setCalibrate] = useState(false);
 
@@ -45,6 +53,18 @@ export function usePointing(initial: SkyPosition, forceManual = false): Pointing
     let receivedHeading = false;
     let heading: Location.LocationSubscription | null = null;
     let motion: { remove(): void } | null = null;
+    let gravity: Vector | null = null;
+
+    const publish = () => {
+      const corrected = applyOffset(
+        raw.current,
+        useCalibrationStore.getState().offset ?? NO_OFFSET,
+      );
+      azimuth.set(corrected.azimuth);
+      elevation.set(corrected.elevation);
+      latest.current = corrected;
+    };
+    const calibration = useCalibrationStore.subscribe(publish);
 
     const fallback = setTimeout(() => {
       if (!receivedHeading) {
@@ -63,9 +83,14 @@ export function usePointing(initial: SkyPosition, forceManual = false): Pointing
         }
         DeviceMotion.setUpdateInterval(MOTION_INTERVAL_MS);
         motion = DeviceMotion.addListener((measurement) => {
-          const value = elevationFromGravity(measurement.accelerationIncludingGravity);
-          elevation.set(value);
-          latest.current = { ...latest.current, elevation: value };
+          gravity = smoothVector(
+            gravity,
+            measurement.accelerationIncludingGravity,
+            GRAVITY_SMOOTHING,
+          );
+          raw.current = { ...raw.current, elevation: elevationFromGravity(gravity) };
+          roll.set(rollFromGravity(gravity));
+          publish();
         });
       })
       .catch(() => setMode('manual'));
@@ -73,8 +98,8 @@ export function usePointing(initial: SkyPosition, forceManual = false): Pointing
     Location.watchHeadingAsync((reading) => {
       receivedHeading = true;
       const value = reading.trueHeading >= 0 ? reading.trueHeading : reading.magHeading;
-      azimuth.set(value);
-      latest.current = { ...latest.current, azimuth: value };
+      raw.current = { ...raw.current, azimuth: value };
+      publish();
       setCalibrate(needsCalibration(reading.accuracy));
     })
       .then((subscription) => {
@@ -89,14 +114,15 @@ export function usePointing(initial: SkyPosition, forceManual = false): Pointing
     return () => {
       active = false;
       clearTimeout(fallback);
+      calibration();
       heading?.remove();
       motion?.remove();
     };
-  }, [mode, azimuth, elevation]);
+  }, [mode, azimuth, elevation, roll]);
 
   const setManual = useCallback((position: SkyPosition) => {
     latest.current = position;
   }, []);
 
-  return { azimuth, elevation, latest, mode, calibrate, setManual };
+  return { azimuth, elevation, roll, latest, raw, mode, calibrate, setManual };
 }

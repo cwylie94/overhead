@@ -4,6 +4,7 @@ import {
   manualPointing,
   offsetToTarget,
   pulseInterval,
+  smoothVector,
   wrapDegrees,
 } from '../pointing';
 
@@ -95,5 +96,19 @@ describe('pulseInterval', () => {
     [2, 120],
   ])('an aim error of %s pulses every %s ms', (error, expected) => {
     expect(pulseInterval(error)).toBe(expected);
+  });
+});
+
+describe('smoothVector', () => {
+  test('takes the first reading as it is', () => {
+    expect(smoothVector(null, { x: 1, y: 2, z: 3 }, 0.25)).toEqual({ x: 1, y: 2, z: 3 });
+  });
+
+  test('moves part of the way towards each new reading', () => {
+    expect(smoothVector({ x: 0, y: -8, z: 0 }, { x: 4, y: -4, z: 8 }, 0.25)).toEqual({
+      x: 1,
+      y: -7,
+      z: 2,
+    });
   });
 });

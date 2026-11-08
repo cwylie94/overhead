@@ -13,6 +13,18 @@ export function elevationFromGravity({ x, y, z }: Vector): number {
   return Math.asin(Math.max(-1, Math.min(1, z / magnitude))) / DEG;
 }
 
+export function smoothVector(previous: Vector | null, next: Vector, weight: number): Vector {
+  'worklet';
+  if (!previous) {
+    return next;
+  }
+  return {
+    x: previous.x + (next.x - previous.x) * weight,
+    y: previous.y + (next.y - previous.y) * weight,
+    z: previous.z + (next.z - previous.z) * weight,
+  };
+}
+
 export function wrapDegrees(delta: number): number {
   'worklet';
   return ((((delta + 180) % 360) + 360) % 360) - 180;
