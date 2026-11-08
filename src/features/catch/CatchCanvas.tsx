@@ -11,23 +11,33 @@ import { guideAngle, offsetToTarget } from './pointing';
 export const POINTS_PER_DEGREE = 6;
 const TARGET_RADIUS = 9;
 const EDGE_INSET = 18;
+const WAITING_OPACITY = 0.45;
 
 type CatchCanvasProps = {
   size: number;
   track: TrackPoint[];
+  startAt: number;
   time: SharedValue<number>;
   azimuth: SharedValue<number>;
   elevation: SharedValue<number>;
   progress: SharedValue<number>;
 };
 
-export function CatchCanvas({ size, track, time, azimuth, elevation, progress }: CatchCanvasProps) {
+export function CatchCanvas({
+  size,
+  track,
+  startAt,
+  time,
+  azimuth,
+  elevation,
+  progress,
+}: CatchCanvasProps) {
   const center = size / 2;
   const edge = center - EDGE_INSET;
   const toleranceRadius = CATCH_TOLERANCE_DEGREES * POINTS_PER_DEGREE;
 
   const target = useDerivedValue(() => {
-    const position = positionOnTrack(track, time.get());
+    const position = positionOnTrack(track, Math.max(time.get(), startAt));
     if (!position) {
       return null;
     }
@@ -48,7 +58,10 @@ export function CatchCanvas({ size, track, time, azimuth, elevation, progress }:
   const targetY = useDerivedValue(() => target.get()?.y ?? -100);
   const targetOpacity = useDerivedValue(() => {
     const value = target.get();
-    return value && !value.offscreen ? 1 : 0;
+    if (!value || value.offscreen) {
+      return 0;
+    }
+    return time.get() < startAt ? WAITING_OPACITY : 1;
   });
 
   const arrow = useDerivedValue(() => {

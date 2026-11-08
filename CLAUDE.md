@@ -66,7 +66,8 @@ It is an interview showcase project, so code quality, tests and a working demo m
   - Moon calibration stores the offset between the raw reading and the Moon (`src/domain/moon.ts`, within 0.4° of Skyfield) in `calibrationStore`, in memory only. `usePointing` applies it to every reading, and `pointing.raw` keeps the uncorrected one for calibrating. Offsets over 45° are rejected as aimed at the wrong thing.
   - Camera mode (`CameraCatchView`, VisionCamera 5) is offered only with sensors and a back camera, so never on the simulator or in demo mode. The overlay projects the sky with `cameraProjection.ts`: the field of view comes from the lens's 35 mm-equivalent focal length, assuming the 4:3 photo frame fills the view (`resizeMode="cover"`). The catch logic is the same in both modes; only the drawing changes.
   - With no sensor data within 2.5 s (as on the simulator), it falls back to drag-to-aim. Demo mode can force that.
-  - A 50 ms JS ticker feeds the catch machine, with readings that count only while a finger is down.
+  - A 50 ms JS ticker feeds the catch machine, with readings that count only while a finger is down and the pass has started.
+  - Catch mode opens up to 10 minutes early (`catchWindow` in `src/domain/catchWindow.ts`): Tonight shows Get ready, the marker waits dimmed where the satellite will appear, and nothing can be caught or logged as seen until it does.
   - Log sightings through `logSighting` (UUIDv7 IDs), and guard against duplicates with something stable such as the catch time, never a flag an effect resets.
   - Untested on real hardware: whether the iOS heading follows the back camera when the phone is upright, and how accurate the field of view is. Check both on a phone, using the Moon marker, before the demo.
 - Routes outside the tabs: `catch/[passId]` (full-screen modal) and `satellite/[noradId]` (modal), both declared in the root `Stack`.

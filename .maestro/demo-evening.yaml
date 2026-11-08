@@ -22,6 +22,10 @@ name: Demo evening, from the Tonight list to the collection
     id: catch-25544
 - assertVisible: "Catch ISS \\(ZARYA\\)"
 - assertVisible: 'Drag to aim. Keep your finger down to hold.'
+- assertVisible: 'Appears in .*'
+- extendedWaitUntil:
+    visible: I saw it
+    timeout: 90000
 - tapOn: I saw it
 - assertVisible: 'Logged as seen.*'
 - tapOn: Done

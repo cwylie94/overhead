@@ -16,10 +16,12 @@ import { useAppData } from '@/data/AppDataContext';
 import { passWithSatelliteQuery, type UpcomingPass } from '@/data/queries';
 import { useDemo } from '@/demo/session';
 import { CATCH_HOLD_MS } from '@/domain/catchMachine';
+import { catchWindow } from '@/domain/catchWindow';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useClock, useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
+import { formatCountdown } from '@/i18n/format';
 import { Banner } from '@/ui/Banner';
 import { Chip } from '@/ui/Chip';
 import { ALWAYS_ANIMATE } from '@/ui/motion';
@@ -60,7 +62,7 @@ function DoneButton() {
 }
 
 function CatchSession({ pass }: { pass: UpcomingPass }) {
-  const { t } = useTranslation(['catch', 'common']);
+  const { t, i18n } = useTranslation(['catch', 'common']);
   const clock = useClock();
   const now = useNow(1_000);
   const [size, setSize] = useState(0);
@@ -136,9 +138,13 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
       runOnJS(setHolding)(false);
     });
 
-  const current = positionOnTrack(pass.track, now);
+  const waiting = catchWindow(pass, now) === 'ready';
+  const current = positionOnTrack(pass.track, Math.max(now, pass.startAt));
   const status =
     machine.status === 'idle' ? 'notUp' : machine.status === 'aiming' ? 'aiming' : machine.status;
+  const statusText = waiting
+    ? t('status.waiting', { countdown: formatCountdown(pass.startAt, now, i18n.language) })
+    : t(`status.${status}`);
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -154,7 +160,7 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
             })}
           </Text>
         )}
-        <Text style={styles.status}>{t(`status.${status}`)}</Text>
+        <Text style={styles.status}>{statusText}</Text>
       </View>
 
       {pointing.calibrate && !manual && <Banner tone="warning" message={t('calibrate')} />}
@@ -165,6 +171,7 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
             <CameraCatchView
               device={aim.device}
               track={pass.track}
+              startAt={pass.startAt}
               time={time}
               azimuth={pointing.azimuth}
               elevation={pointing.elevation}
@@ -182,6 +189,7 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
               <CatchCanvas
                 size={size}
                 track={pass.track}
+                startAt={pass.startAt}
                 time={time}
                 azimuth={pointing.azimuth}
                 elevation={pointing.elevation}
@@ -228,7 +236,8 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
       {session.sawIt ? (
         <Text style={styles.hint}>{t('sawItLogged')}</Text>
       ) : (
-        machine.status !== 'caught' && (
+        machine.status !== 'caught' &&
+        !waiting && (
           <Pressable accessibilityRole="button" style={styles.secondary} onPress={session.logSawIt}>
             <Text style={styles.secondaryText}>{t('sawIt')}</Text>
           </Pressable>

@@ -40,12 +40,13 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
         passEnded();
         return;
       }
-      const error = aimError(pointing.latest.current, pass.track, now);
+      const error = aimError(pointing.latest.current, pass.track, Math.max(now, pass.startAt));
       latestError.current = error;
-      aim(holding.current && error !== null ? error : Number.POSITIVE_INFINITY, now);
+      const counts = holding.current && error !== null && now >= pass.startAt;
+      aim(counts ? error : Number.POSITIVE_INFINITY, now);
     }, AIM_TICK_MS);
     return () => clearInterval(timer);
-  }, [pass.endAt, pass.track, pointing.latest, aim, passEnded, clock]);
+  }, [pass.startAt, pass.endAt, pass.track, pointing.latest, aim, passEnded, clock]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;

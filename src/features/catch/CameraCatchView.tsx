@@ -32,6 +32,7 @@ const DEFAULT_FOCAL_LENGTH = 26;
 const EDGE_INSET = 28;
 const TARGET_RADIUS = 10;
 const MOON_RADIUS = 18;
+const WAITING_OPACITY = 0.45;
 
 const font = matchFont({
   fontFamily: Platform.select({ ios: 'Helvetica', default: 'sans-serif' }),
@@ -42,6 +43,7 @@ const font = matchFont({
 type CameraCatchViewProps = {
   device: CameraDevice;
   track: TrackPoint[];
+  startAt: number;
   time: SharedValue<number>;
   azimuth: SharedValue<number>;
   elevation: SharedValue<number>;
@@ -71,6 +73,7 @@ type OverlayProps = CameraCatchViewProps & { width: number; height: number };
 function Overlay({
   device,
   track,
+  startAt,
   time,
   azimuth,
   elevation,
@@ -94,7 +97,7 @@ function Overlay({
   }));
 
   const target = useDerivedValue(() => {
-    const position = positionOnTrack(track, time.get());
+    const position = positionOnTrack(track, Math.max(time.get(), startAt));
     return position ? projectToCamera(position, pose.get(), viewport) : null;
   });
 
@@ -110,7 +113,12 @@ function Overlay({
 
   const targetX = useDerivedValue(() => target.get()?.x ?? -100);
   const targetY = useDerivedValue(() => target.get()?.y ?? -100);
-  const targetOpacity = useDerivedValue(() => (target.get()?.onScreen ? 1 : 0));
+  const targetOpacity = useDerivedValue(() => {
+    if (!target.get()?.onScreen) {
+      return 0;
+    }
+    return time.get() < startAt ? WAITING_OPACITY : 1;
+  });
 
   const arrow = useDerivedValue(() => {
     const value = target.get();
