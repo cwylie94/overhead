@@ -61,7 +61,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "snapshot:update": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/fetch-snapshot.ts"
   },
   "private": true,
   "engines": {

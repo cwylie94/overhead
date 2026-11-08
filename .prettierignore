@@ -6,3 +6,4 @@ android
 package-lock.json
 src/data/migrations
 vendor
+src/data/snapshot
