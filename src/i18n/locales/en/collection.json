@@ -20,7 +20,7 @@
     "launched": "Launched",
     "owner": "Owner",
     "orbit": "Orbit",
-    "orbitValue": "{{perigee}}–{{apogee}} km, {{inclination}}°",
+    "orbitValue": "{{perigee}} to {{apogee}} up, tilted {{inclination}}°",
     "period": "Period",
     "periodValue": "{{minutes}} minutes",
     "set": "Set",

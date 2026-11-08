@@ -9,7 +9,8 @@ import { db, repositories } from '@/data/client';
 import { satelliteSightingsQuery } from '@/data/queries';
 import { perigeeAltitudeKm, apogeeAltitudeKm, periodMinutes } from '@/domain/orbit';
 import { useNow } from '@/environment/clock';
-import { formatCalendarDate, formatNightDate, formatPassTime } from '@/i18n/format';
+import { formatCalendarDate, formatDistance, formatNightDate, formatPassTime } from '@/i18n/format';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { Chip } from '@/ui/Chip';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 
@@ -49,6 +50,7 @@ export function SatelliteScreen() {
   const { noradId } = useLocalSearchParams<{ noradId: string }>();
   const id = Number(noradId);
   const { t, i18n } = useTranslation(['collection', 'common']);
+  const units = useSettingsStore((settings) => settings.units);
   const now = useNow(60_000);
   const satellite = useMemo(() => repositories.satellites.getById(id), [id]);
   const orbit = useMemo(() => repositories.orbits.getById(id), [id]);
@@ -101,8 +103,16 @@ export function SatelliteScreen() {
           <Fact
             label={t('detail.orbit')}
             value={t('detail.orbitValue', {
-              perigee: Math.round(perigeeAltitudeKm(orbit.omm.MEAN_MOTION, orbit.omm.ECCENTRICITY)),
-              apogee: Math.round(apogeeAltitudeKm(orbit.omm.MEAN_MOTION, orbit.omm.ECCENTRICITY)),
+              perigee: formatDistance(
+                perigeeAltitudeKm(orbit.omm.MEAN_MOTION, orbit.omm.ECCENTRICITY),
+                units,
+                i18n.language,
+              ),
+              apogee: formatDistance(
+                apogeeAltitudeKm(orbit.omm.MEAN_MOTION, orbit.omm.ECCENTRICITY),
+                units,
+                i18n.language,
+              ),
               inclination: orbit.omm.INCLINATION.toFixed(1),
             })}
           />
