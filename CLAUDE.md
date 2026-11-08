@@ -52,7 +52,9 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Test stores by calling actions directly, resetting with `useXStore.setState(useXStore.getInitialState())`. Jest swaps MMKV for its in-memory mock in `jest.setup.ts`.
 - Time and place are injected through `src/environment/`: `ClockProvider` / `useClock` / `useNow` and `DeviceLocationProvider` / `FixedLocationProvider` / `useLocation`. Never call `Date.now()` in components or hooks; demo mode swaps these providers. The last location is saved, rounded to about 1 km, in `settingsStore`, so an offline launch still has an observer.
 - Passes are computed into SQLite by the pass cache (`src/data/passCache/`). `refreshPassCache` covers 30 minutes ago to 48 hours ahead, stores only passes with a visible part, and is keyed on the orbit data, rounded location and minimum elevation. The runner lives outside React, cancels runs that have been overtaken and yields to the UI between chunks. `PassCacheProvider` schedules it, and `usePassCache().refresh()` forces a recompute.
-- Screens read through query builders in `src/data/queries.ts` with `useLiveQuery`. A screen is a thin data hook plus a presentational view that takes plain props, and tests render the view directly. Anything a test needs from a hook file (such as `staleDaysFor`) lives in its own module, because importing `src/data/client.ts` opens the real database.
+- Screens read through query builders in `src/data/queries.ts` with `useLiveQuery`. A screen is a thin data hook plus a presentational view that takes plain props, and tests render the view directly. Anything a test needs from a hook file (such as `staleDaysFor`) lives in its own module, because hook files import native modules (expo-sqlite, Reanimated) that don't load in Jest.
+- Screens get the database from `useAppData()` (`src/data/AppDataContext.tsx`), never by importing it. `src/demo/session.ts` owns the app session (the `AppData` for the device or demo database, plus the demo clock and location) and the root layout remounts everything under `AppDataProvider` when it changes.
+- Haptics go through `src/ui/haptics.ts`, which checks the setting; never call `expo-haptics` directly. The motion preference sets Reanimated's global reduce-motion mode (`MotionConfig`), so plain animations follow it automatically. Animations that carry information, such as the clock driving the dots or the catch progress, pass `ALWAYS_ANIMATE`. Use `useReduceMotion()` for anything that isn't a Reanimated animation, such as disabling the card tilt.
 - Reminders are local notifications with stable IDs (`pass-<noradId>-<startMinute>`). The scheduled notifications are the source of truth, so nothing else stores them.
 - Sky view (`src/features/sky/`): time, paths, dots, zoom and heading all live in Reanimated shared values. Their maths is worklets (`projection.ts`, `timeline.ts`, `domeDots.ts`, `domeGeometry.ts`) that take the precomputed tracks, so nothing re-renders while scrubbing. Keep anything that imports Skia out of the files tests need, because Skia's native module doesn't load in Jest.
 - Read and write shared values with `.get()` / `.set()`, not `.value`. The React Compiler lint treats `.value =` in gesture callbacks as mutation.
@@ -155,11 +157,15 @@ There is no collection table. The collection is derived from verified sightings.
 - Write domain tests first. Pass predictions use a fixed orbit snapshot, a London location and a fixed clock, and must match the Skyfield fixtures within ±2 s.
 - Sync tests run two simulated devices against the real Worker app over in-memory SQLite (`src/sync/__tests__/sync.test.ts`): push replay is harmless, the cursor advances, a crash mid-sync loses nothing, and note edits reach the other device. CelesTrak tests cover the 2-hour rule and backoff with a fake fetcher and clock.
 - Store tests call actions directly, with no rendering, and cover forbidden state transitions.
-- Translation tests fail if any locale is missing a key.
+- Translation tests fail if any locale is missing a key or a plural form its language needs (Spanish needs `_many` as well as `_one` and `_other`).
+- Maestro flows live in `.maestro/` and run with `npm run e2e` against a running build. They start from `clearState` and use the `overhead://demo` link for a known evening. Give elements a flow needs a `testID` (such as `catch-<noradId>`) rather than matching on text that changes. Maestro can't hold a drag in place, so it can't complete an aimed catch.
 
 ## Demo mode
 
-Demo mode injects a fixed clock and location ("tonight 21:12, London") and the bundled snapshot, and replays a recorded ISS pass. A drag on the screen stands in for the compass. To turn it on, tap the version number in Settings five times. A demo flag is available for Maestro.
+- Turn it on by tapping the version in Settings five times, or with the `overhead://demo` link (`?enabled=0` turns it off). The flag is `demoMode` in `settingsStore`, so it survives a relaunch.
+- The demo pass is the first ISS pass over London after the snapshot was taken that peaks at 40° or higher and magnitude −2 or brighter (`src/demo/scenario.ts`). The clock starts a minute before it appears and then runs in real time. It's derived from the snapshot, so it still works after `npm run snapshot:update`; the tests fail if a refresh leaves no such pass.
+- Each start deletes and recreates `overhead-demo.db` and imports the bundled snapshot, so demo catches never touch the real collection.
+- In demo mode, sync, the CelesTrak refresh, reminders, the staleness banner and the pending-changes badge are off, and Catch mode forces drag-to-aim.
 
 ## Build phases
 
