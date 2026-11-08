@@ -1,0 +1,37 @@
+appId: com.craigwylie.overhead
+name: Demo evening, from the Tonight list to the collection
+---
+- launchApp:
+    clearState: true
+    permissions:
+      location: allow
+      notifications: deny
+- openLink: overhead://demo
+- tapOn:
+    text: Open
+    optional: true
+- assertVisible: 'Demo mode: .* in London. Turn it off in Settings.'
+- extendedWaitUntil:
+    visible: "ISS \\(ZARYA\\)"
+    timeout: 60000
+- extendedWaitUntil:
+    visible:
+      id: catch-25544
+    timeout: 120000
+- tapOn:
+    id: catch-25544
+- assertVisible: "Catch ISS \\(ZARYA\\)"
+- assertVisible: 'Drag to aim. Keep your finger down to hold.'
+- tapOn: I saw it
+- assertVisible: 'Logged as seen.*'
+- tapOn: Done
+- tapOn: Sky
+- assertVisible: 'Tap a satellite to see where to look.*'
+- tapOn: Collection
+- assertVisible: Space stations
+- tapOn: Settings
+- scrollUntilVisible:
+    element: Turn off demo mode
+- tapOn: Turn off demo mode
+- tapOn: Tonight
+- assertNotVisible: 'Demo mode: .*'

@@ -27,6 +27,7 @@ function CatchButton({ pass, onCatch }: { pass: UpcomingPass; onCatch(): void })
   return (
     <Pressable
       accessibilityRole="button"
+      testID={`catch-${pass.noradId}`}
       hitSlop={spacing.sm}
       onPress={onCatch}
       style={[styles.remind, styles.remindSet]}>

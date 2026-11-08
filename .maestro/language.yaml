@@ -1,0 +1,14 @@
+appId: com.craigwylie.overhead
+name: Switching the language to Spanish and back
+---
+- launchApp:
+    clearState: true
+    permissions:
+      location: allow
+      notifications: deny
+- tapOn: Settings
+- tapOn: Español
+- assertVisible: Ajustes
+- assertVisible: Esta noche
+- tapOn: English
+- assertVisible: Settings

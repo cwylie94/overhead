@@ -1,0 +1,28 @@
+appId: com.craigwylie.overhead
+name: Five taps on the version turn demo mode on and off
+---
+- launchApp:
+    clearState: true
+    permissions:
+      location: allow
+      notifications: deny
+- tapOn: Settings
+- scrollUntilVisible:
+    element:
+      id: app-version
+- tapOn:
+    id: app-version
+    repeat: 5
+    delay: 150
+- tapOn: Tonight
+- assertVisible: 'Demo mode: .*'
+- tapOn: Settings
+- scrollUntilVisible:
+    element:
+      id: app-version
+- tapOn:
+    id: app-version
+    repeat: 5
+    delay: 150
+- tapOn: Tonight
+- assertNotVisible: 'Demo mode: .*'
