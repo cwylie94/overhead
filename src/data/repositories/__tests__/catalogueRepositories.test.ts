@@ -59,6 +59,20 @@ describe('orbit repository', () => {
     expect(orbits.getById(ISS_NORAD_ID)?.group).toBe('stations');
   });
 
+  test('reports the latest fetch time per group', () => {
+    const orbits = createOrbitRepository(db);
+    expect(orbits.latestFetchedAt('visual')).toBeUndefined();
+
+    orbits.replaceGroup('visual', [
+      makeOrbit({ noradId: 1, group: 'visual', fetchedAt: 100 }),
+      makeOrbit({ noradId: 2, group: 'visual', fetchedAt: 300 }),
+    ]);
+    orbits.replaceGroup('stations', [makeOrbit({ fetchedAt: 900 })]);
+
+    expect(orbits.latestFetchedAt('visual')).toBe(300);
+    expect(orbits.latestFetchedAt('stations')).toBe(900);
+  });
+
   test('round-trips the OMM JSON', () => {
     const orbits = createOrbitRepository(db);
     const orbit = makeOrbit();

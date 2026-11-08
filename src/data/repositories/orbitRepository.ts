@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, max } from 'drizzle-orm';
 
 import type { Database } from '../database';
 import { orbits } from '../schema';
@@ -33,6 +33,15 @@ export function createOrbitRepository(db: Database): OrbitRepository {
 
     listAll() {
       return db.select().from(orbits).all();
+    },
+
+    latestFetchedAt(group) {
+      const row = db
+        .select({ value: max(orbits.fetchedAt) })
+        .from(orbits)
+        .where(eq(orbits.group, group))
+        .get();
+      return row?.value ?? undefined;
     },
   };
 }

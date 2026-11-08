@@ -22,6 +22,7 @@ export type OrbitRepository = {
   replaceGroup(group: CelestrakGroup, rows: NewOrbit[]): void;
   getById(noradId: number): Orbit | undefined;
   listAll(): Orbit[];
+  latestFetchedAt(group: CelestrakGroup): number | undefined;
 };
 
 export type PassRepository = {
