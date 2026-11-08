@@ -1,5 +1,6 @@
+import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { SkyPass } from '@/data/queries';
 import { compassPoint } from '@/domain/compass';
@@ -12,10 +13,11 @@ type SelectedSatelliteProps = {
   passes: SkyPass[];
   selectedId: number | null;
   time: number;
+  live: boolean;
 };
 
-export function SelectedSatellite({ passes, selectedId, time }: SelectedSatelliteProps) {
-  const { t, i18n } = useTranslation(['sky', 'common']);
+export function SelectedSatellite({ passes, selectedId, time, live }: SelectedSatelliteProps) {
+  const { t, i18n } = useTranslation(['sky', 'common', 'catch']);
   const pass =
     passes.find((p) => p.noradId === selectedId && time >= p.startAt && time <= p.endAt) ??
     passes.find((p) => p.noradId === selectedId && p.endAt >= time);
@@ -41,6 +43,14 @@ export function SelectedSatellite({ passes, selectedId, time }: SelectedSatellit
             })
           : t('notUp')}
       </Text>
+      {live && position && (
+        <Pressable
+          accessibilityRole="button"
+          style={styles.catch}
+          onPress={() => router.push(`/catch/${pass.id}`)}>
+          <Text style={styles.catchText}>{t('catch:catch')}</Text>
+        </Pressable>
+      )}
       <Text style={styles.detail}>
         {t('visibleBetween', {
           start: formatPassTime(pass.startAt, i18n.language),
@@ -74,5 +84,17 @@ const styles = StyleSheet.create({
   hint: {
     ...typography.caption,
     color: colors.textMuted,
+  },
+  catch: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.accent,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    marginVertical: spacing.xs,
+  },
+  catchText: {
+    ...typography.label,
+    color: colors.background,
   },
 });

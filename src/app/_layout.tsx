@@ -38,6 +38,10 @@ export default function RootLayout() {
               <PassCacheProvider runner={passCacheRunner}>
                 <Stack screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="(tabs)" />
+                  <Stack.Screen
+                    name="catch/[passId]"
+                    options={{ presentation: 'fullScreenModal' }}
+                  />
                 </Stack>
               </PassCacheProvider>
             </DatabaseGate>

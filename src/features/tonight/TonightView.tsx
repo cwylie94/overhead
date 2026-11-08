@@ -23,6 +23,7 @@ export type TonightViewProps = {
   refreshing: boolean;
   onRefresh(): void;
   onAllowLocation(): void;
+  onCatch(pass: UpcomingPass): void;
 };
 
 function Message({ text, hint }: { text: string; hint?: string }) {
@@ -45,6 +46,7 @@ export function TonightView({
   refreshing,
   onRefresh,
   onAllowLocation,
+  onCatch,
 }: TonightViewProps) {
   const { t, i18n } = useTranslation(['tonight', 'common']);
 
@@ -87,6 +89,7 @@ export function TonightView({
       renderItem={({ item }) => (
         <PassRow
           pass={item}
+          onCatch={() => onCatch(item)}
           reminder={
             reminders && (reminders.isSet(item) || canRemind(item, now))
               ? { isSet: reminders.isSet(item), onToggle: () => reminders.toggle(item) }

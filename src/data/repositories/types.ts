@@ -27,6 +27,7 @@ export type OrbitRepository = {
 
 export type PassRepository = {
   replaceAll(rows: NewPass[]): void;
+  getById(id: number): Pass | undefined;
   listBetween(from: number, to: number): Pass[];
   nextForSatellite(noradId: number, after: number): Pass | undefined;
 };

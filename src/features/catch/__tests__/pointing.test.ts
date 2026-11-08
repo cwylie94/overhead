@@ -62,17 +62,26 @@ describe('offsetToTarget and guideAngle', () => {
 
 describe('manualPointing', () => {
   test('dragging right turns left and dragging down looks up, like moving the sky', () => {
-    const start = { azimuth: 10, elevation: 30 };
+    const start = { azimuth: 10, elevation: 0 };
 
-    expect(manualPointing(start, 40, 0, 4)).toEqual({ azimuth: 0, elevation: 30 });
-    expect(manualPointing(start, 0, 40, 4)).toEqual({ azimuth: 10, elevation: 40 });
+    expect(manualPointing(start, 40, 0, 4)).toEqual({ azimuth: 0, elevation: 0 });
+    expect(manualPointing(start, 0, 40, 4)).toEqual({ azimuth: 10, elevation: 10 });
+  });
+
+  test('moves the target with the finger at any elevation', () => {
+    const start = { azimuth: 100, elevation: 60 };
+    const target = { azimuth: 90, elevation: 60 };
+    const dragX = offsetToTarget(start, target).right * -4;
+
+    const aimed = manualPointing(start, dragX, 0, 4);
+
+    expect(Math.abs(offsetToTarget(aimed, target).right)).toBeLessThan(0.01);
   });
 
   test('wraps the azimuth and keeps the elevation in range', () => {
-    expect(manualPointing({ azimuth: 5, elevation: 85 }, 40, 400, 4)).toEqual({
-      azimuth: 355,
-      elevation: 90,
-    });
+    const aimed = manualPointing({ azimuth: 5, elevation: 0 }, 40, 400, 4);
+
+    expect(aimed).toEqual({ azimuth: 355, elevation: 90 });
   });
 });
 

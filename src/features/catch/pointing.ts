@@ -41,7 +41,8 @@ export function manualPointing(
   pointsPerDegree: number,
 ): SkyPosition {
   'worklet';
-  const azimuth = (((start.azimuth - dragX / pointsPerDegree) % 360) + 360) % 360;
+  const horizontal = Math.max(0.2, Math.cos(start.elevation * DEG));
+  const azimuth = (((start.azimuth - dragX / pointsPerDegree / horizontal) % 360) + 360) % 360;
   const elevation = Math.max(-10, Math.min(90, start.elevation + dragY / pointsPerDegree));
   return { azimuth, elevation };
 }

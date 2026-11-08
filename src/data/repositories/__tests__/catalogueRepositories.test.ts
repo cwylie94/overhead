@@ -101,6 +101,15 @@ describe('pass repository', () => {
     expect(tonight[1]?.track).toHaveLength(3);
   });
 
+  test('reads a pass back by its id', () => {
+    const passes = createPassRepository(db);
+    passes.replaceAll([makePass()]);
+    const [stored] = passes.listBetween(evening, morning);
+
+    expect(passes.getById(stored!.id)?.noradId).toBe(ISS_NORAD_ID);
+    expect(passes.getById(-1)).toBeUndefined();
+  });
+
   test('replaceAll drops previously cached passes', () => {
     const passes = createPassRepository(db);
     passes.replaceAll([makePass(), makePass({ startAt: Date.UTC(2026, 10, 8, 23) })]);

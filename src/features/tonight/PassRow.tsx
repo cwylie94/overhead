@@ -5,6 +5,7 @@ import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
+import { useNow } from '@/environment/clock';
 import { formatPassTime } from '@/i18n/format';
 import { Chip } from '@/ui/Chip';
 import { brightnessColors, colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
@@ -14,9 +15,27 @@ import { Countdown } from './Countdown';
 type PassRowProps = {
   pass: UpcomingPass;
   reminder: { isSet: boolean; onToggle(): void } | null;
+  onCatch(): void;
 };
 
-export function PassRow({ pass, reminder }: PassRowProps) {
+function CatchButton({ pass, onCatch }: { pass: UpcomingPass; onCatch(): void }) {
+  const { t } = useTranslation('catch');
+  const now = useNow(1_000);
+  if (now < pass.startAt || now >= pass.endAt) {
+    return null;
+  }
+  return (
+    <Pressable
+      accessibilityRole="button"
+      hitSlop={spacing.sm}
+      onPress={onCatch}
+      style={[styles.remind, styles.remindSet]}>
+      <Text style={[styles.remindText, styles.remindTextSet]}>{t('catch')}</Text>
+    </Pressable>
+  );
+}
+
+export function PassRow({ pass, reminder, onCatch }: PassRowProps) {
   const { t, i18n } = useTranslation(['tonight', 'common']);
   const start = positionOnTrack(pass.track, pass.startAt);
   const end = positionOnTrack(pass.track, pass.endAt);
@@ -46,6 +65,7 @@ export function PassRow({ pass, reminder }: PassRowProps) {
       )}
       <View style={styles.footer}>
         <Chip label={t(`common:rarity.${pass.rarity}`)} color={rarityColors[pass.rarity]} />
+        <CatchButton pass={pass} onCatch={onCatch} />
         {reminder && (
           <Pressable
             accessibilityRole="switch"

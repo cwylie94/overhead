@@ -1,5 +1,6 @@
 import { useNetInfo } from '@react-native-community/netinfo';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import { router } from 'expo-router';
 import { useState } from 'react';
 
 import { db } from '@/data/client';
@@ -40,6 +41,7 @@ export function useTonight(): TonightViewProps {
         .catch(() => {})
         .finally(() => setRefreshing(false));
     },
+    onCatch: (pass) => router.push(`/catch/${pass.id}`),
     onAllowLocation: () => {
       location.requestPermission().catch(() => {});
     },

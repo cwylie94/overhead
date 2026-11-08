@@ -16,6 +16,10 @@ export function createPassRepository(db: Database): PassRepository {
       });
     },
 
+    getById(id) {
+      return db.select().from(passes).where(eq(passes.id, id)).get();
+    },
+
     listBetween(from, to) {
       return db
         .select()

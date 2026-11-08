@@ -60,3 +60,22 @@ export function skyPassesQuery(db: Database, from: number, to: number) {
 }
 
 export type SkyPass = Awaited<ReturnType<typeof skyPassesQuery>>[number];
+
+export function passWithSatelliteQuery(db: Database, id: number) {
+  return db
+    .select({
+      id: passes.id,
+      noradId: passes.noradId,
+      startAt: passes.startAt,
+      peakAt: passes.peakAt,
+      endAt: passes.endAt,
+      maxElevation: passes.maxElevation,
+      peakMagnitude: passes.peakMagnitude,
+      track: passes.track,
+      name: satellites.name,
+      rarity: satellites.rarity,
+    })
+    .from(passes)
+    .innerJoin(satellites, eq(passes.noradId, satellites.noradId))
+    .where(eq(passes.id, id));
+}

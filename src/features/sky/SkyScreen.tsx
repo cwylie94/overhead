@@ -108,6 +108,7 @@ export function SkyScreen() {
                 passes={passes}
                 selectedId={selectedId}
                 time={now + committedOffset}
+                live={committedOffset === 0}
               />
             )}
           </>

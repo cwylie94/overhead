@@ -41,6 +41,7 @@ const defaults: TonightViewProps = {
   refreshing: false,
   onRefresh: () => {},
   onAllowLocation: () => {},
+  onCatch: () => {},
 };
 
 async function renderView(props: Partial<TonightViewProps> = {}) {
@@ -63,10 +64,19 @@ describe('TonightView', () => {
     expect(screen.getByText('Uncommon')).toBeOnTheScreen();
   });
 
-  test('marks a pass that is already under way as visible now', async () => {
-    await renderView({ passes: [makePass({ startAt: NOW - MINUTE })] });
+  test('marks a pass that is already under way as visible now and offers to catch it', async () => {
+    const onCatch = jest.fn();
+    await renderView({ passes: [makePass({ startAt: NOW - MINUTE })], onCatch });
 
     expect(screen.getByText('Visible now')).toBeOnTheScreen();
+    fireEvent.press(screen.getByRole('button', { name: 'Catch' }));
+    expect(onCatch).toHaveBeenCalledWith(expect.objectContaining({ name: 'SL-16 R/B' }));
+  });
+
+  test('offers no catch before the pass is visible', async () => {
+    await renderView();
+
+    expect(screen.queryByRole('button', { name: 'Catch' })).toBeNull();
   });
 
   test('says a pass has just ended rather than counting back from its start', async () => {

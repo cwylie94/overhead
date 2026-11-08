@@ -1,0 +1,19 @@
+{
+  "title": "Catch {{name}}",
+  "look": "Look {{direction}}, {{degrees}}° up",
+  "hold": "Hold to catch",
+  "holdManual": "Drag to aim. Keep your finger down to hold.",
+  "status": {
+    "aiming": "Line up the crosshair with the satellite",
+    "locked": "Hold steady…",
+    "caught": "Caught!",
+    "failed": "The pass has ended",
+    "notUp": "This pass isn't visible right now"
+  },
+  "calibrate": "Your compass needs calibrating. Move your phone in a figure of eight.",
+  "sawIt": "I saw it",
+  "sawItLogged": "Logged as seen. Catch it with the crosshair to add it to your collection.",
+  "caughtBody": "{{name}} is in your collection.",
+  "done": "Done",
+  "catch": "Catch"
+}
