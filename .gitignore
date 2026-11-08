@@ -44,3 +44,8 @@ example
 
 # Ruby / CocoaPods
 /vendor/bundle
+
+# Fixture tooling
+/tools/fixtures/.venv
+/tools/fixtures/.cache
+__pycache__/

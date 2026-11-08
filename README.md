@@ -30,3 +30,16 @@ After the first build, `npm start` is enough for JavaScript changes. Rebuild wit
 | `npm test`                        | Run the Jest test suite                     |
 | `npm run db:generate`             | Generate a migration from the schema        |
 | `npm run snapshot:update`         | Refresh the bundled CelesTrak snapshot      |
+| `npm run fixtures:passes`         | Regenerate the Skyfield reference passes    |
+
+## Reference pass fixtures
+
+The pass finder is tested against [Skyfield](https://rhodesmill.org/skyfield/), an independent astronomy library, run on the same bundled snapshot. The plan called for N2YO, but N2YO predicts from its own copy of the orbit data, so differences could come from either the data or our maths. Skyfield uses identical input, so any disagreement is a bug in our code, and the tolerance can be a few seconds instead of 30.
+
+The fixtures are committed in `src/domain/__fixtures__/`. Regenerating them needs Python 3.9 or later, and only after refreshing the snapshot:
+
+```bash
+python3 -m venv tools/fixtures/.venv
+tools/fixtures/.venv/bin/pip install -r tools/fixtures/requirements.txt
+npm run fixtures:passes
+```

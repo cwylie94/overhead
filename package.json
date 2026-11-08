@@ -62,7 +62,8 @@
     "format:check": "prettier --check .",
     "test": "jest",
     "db:generate": "drizzle-kit generate",
-    "snapshot:update": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/fetch-snapshot.ts"
+    "snapshot:update": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/fetch-snapshot.ts",
+    "fixtures:passes": "tools/fixtures/.venv/bin/python tools/fixtures/generate_pass_fixtures.py"
   },
   "private": true,
   "engines": {
