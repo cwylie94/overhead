@@ -41,6 +41,17 @@ export type SightingRepository = {
   listAll(): Sighting[];
   listForSatellite(noradId: number): Sighting[];
   markSynced(ids: string[]): void;
+  applyRemote(rows: RemoteSighting[]): number;
+};
+
+export type RemoteSighting = {
+  id: string;
+  noradId: number;
+  observedAt: number;
+  verified: boolean;
+  angleError: number | null;
+  note: string | null;
+  updatedAt: number;
 };
 
 export type OutboxRepository = {

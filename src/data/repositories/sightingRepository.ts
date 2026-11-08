@@ -70,6 +70,28 @@ export function createSightingRepository(db: Database): SightingRepository {
         .all();
     },
 
+    applyRemote(rows) {
+      return db.transaction((tx) => {
+        let applied = 0;
+        for (const row of rows) {
+          const existing = tx.select().from(sightings).where(eq(sightings.id, row.id)).get();
+          if (!existing) {
+            tx.insert(sightings)
+              .values({ ...row, syncStatus: 'synced' })
+              .run();
+            applied += 1;
+          } else if (existing.syncStatus !== 'pending' && existing.note !== row.note) {
+            tx.update(sightings)
+              .set({ note: row.note, updatedAt: row.updatedAt })
+              .where(eq(sightings.id, row.id))
+              .run();
+            applied += 1;
+          }
+        }
+        return applied;
+      });
+    },
+
     markSynced(ids) {
       if (ids.length === 0) {
         return;

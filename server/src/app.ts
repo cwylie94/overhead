@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 
+import type { D1Like } from './d1';
 import {
   ACCOUNT_HEADER,
   MAX_PUSH_BATCH,
@@ -10,7 +11,7 @@ import {
   type ServerSighting,
 } from './protocol';
 
-export type Env = { Bindings: { DB: D1Database }; Variables: { accountId: string } };
+export type Env = { Bindings: { DB: D1Like }; Variables: { accountId: string } };
 
 const ACCOUNT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 

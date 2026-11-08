@@ -3,11 +3,13 @@ import path from 'node:path';
 
 import BetterSqlite3 from 'better-sqlite3';
 
+import type { D1Like } from '../d1';
+
 const MIGRATION = readFileSync(path.resolve(__dirname, '../../migrations/0001_init.sql'), 'utf8');
 
 type Params = (string | number | null)[];
 
-export function createFakeD1(): D1Database {
+export function createFakeD1(): D1Like {
   const sqlite = new BetterSqlite3(':memory:');
   sqlite.exec(MIGRATION);
 
@@ -45,5 +47,5 @@ export function createFakeD1(): D1Database {
     batch: async (statements: Statement[]) =>
       sqlite.transaction(() => statements.map((statement) => statement.execute()))(),
   };
-  return database as unknown as D1Database;
+  return database as unknown as D1Like;
 }
