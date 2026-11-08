@@ -47,6 +47,12 @@
         {
           "enableRemoteNotifications": false
         }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Overhead uses motion to work out which part of the sky your phone is pointing at."
+        }
       ]
     ],
     "experiments": {
