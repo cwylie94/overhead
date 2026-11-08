@@ -104,9 +104,11 @@ There is no collection table. The collection is derived from verified sightings.
 ## i18n
 
 - English and Spanish, with Arabic and right-to-left layout as a stretch goal.
-- Use typed keys, so a missing key fails at compile time. Namespaces: `common`, `sky`, `collection`, `achievements`.
-- Format dates, times, numbers and relative times with `Intl`. Never build them by hand. Satellite names stay untranslated.
-- Check Hermes `Intl` support (PluralRules, RelativeTimeFormat) on both platforms. Add `@formatjs` polyfills if needed.
+- Strings live in `src/i18n/locales/<language>/<namespace>.json`: `common` for shared UI, plus one namespace per feature, added when that feature first needs strings. Register new namespaces and languages in `src/i18n/resources.ts`.
+- Keys are typed, so a missing or misspelt key fails `npm run typecheck`. Plurals use i18next's `_one` / `_other` suffixes with `count`.
+- Format times, countdowns and distances with the helpers in `src/i18n/format.ts`. Never build them by hand. Satellite names stay untranslated.
+- Hermes on iOS has no `Intl.PluralRules`, `Intl.RelativeTimeFormat` or `Intl.Locale`, and its `Intl.NumberFormat` silently converts units to the device region's system. `src/i18n/polyfills.ts` loads the `@formatjs` polyfills (forcing NumberFormat) and must stay the first import. When adding a language, add its locale data there too.
+- Node has full `Intl`, so passing tests don't prove device behaviour. Check new formatting on a simulator.
 
 ## Testing
 
