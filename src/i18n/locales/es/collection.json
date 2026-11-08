@@ -1,0 +1,41 @@
+{
+  "sets": {
+    "spaceStations": "Estaciones espaciales",
+    "observatories": "Observatorios",
+    "earthWatchers": "Vigías de la Tierra",
+    "coldWarVeterans": "Veteranos de la Guerra Fría",
+    "constellations": "Constelaciones",
+    "spentStages": "Etapas agotadas",
+    "spiesAndSecrets": "Espías y secretos"
+  },
+  "progress": "{{caught}} de {{total}} atrapados",
+  "summary": "{{caught}} de {{total}} atrapados",
+  "filters": {
+    "all": "Todos"
+  },
+  "unknown": "Aún sin atrapar",
+  "empty": "Ningún satélite coincide con estos filtros.",
+  "detail": {
+    "notCaught": "Aún sin atrapar",
+    "launched": "Lanzamiento",
+    "owner": "Propietario",
+    "orbit": "Órbita",
+    "orbitValue": "Entre {{perigee}} y {{apogee}} de altura, inclinada {{inclination}}°",
+    "period": "Periodo",
+    "periodValue": "{{minutes}} minutos",
+    "set": "Serie",
+    "unknownDate": "Desconocido",
+    "yourSightings": "Tus avistamientos",
+    "sightings_one": "{{count}} avistamiento, verificados: {{verified}}",
+    "sightings_many": "{{count}} avistamientos, {{verified}} verificados",
+    "sightings_other": "{{count}} avistamientos, {{verified}} verificados",
+    "noSightings": "Todavía no has visto este.",
+    "firstCaught": "Atrapado por primera vez el {{date}}",
+    "bestAim": "Mejor puntería: {{degrees}}° de desvío",
+    "nextPass": "Próximo paso visible",
+    "nextPassValue": "{{day}}, {{time}}",
+    "noPass": "Ningún paso visible en las próximas dos noches",
+    "flipHint": "Toca para girar",
+    "close": "Cerrar"
+  }
+}

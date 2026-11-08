@@ -52,6 +52,20 @@ describe('plurals', () => {
   ])('English pass count for %i', (count, expected) => {
     expect(i18n.t('tonight:passCount', { lng: 'en', count })).toBe(expected);
   });
+
+  test.each([
+    [1, '1 paso esta noche'],
+    [3, '3 pasos esta noche'],
+    [1_000_000, '1000000 pasos esta noche'],
+  ])('Spanish pass count for %i', (count, expected) => {
+    expect(i18n.t('tonight:passCount', { lng: 'es', count })).toBe(expected);
+  });
+
+  test('switches language when the setting changes', async () => {
+    await i18n.changeLanguage('es');
+    expect(i18n.t('tabs.tonight')).toBe('Esta noche');
+    await i18n.changeLanguage('en');
+  });
 });
 
 describe('typed keys', () => {

@@ -1,0 +1,10 @@
+{
+  "now": "Ahora",
+  "compass": "Brújula",
+  "compassOn": "Brújula activada",
+  "empty": "Ningún paso visible en las próximas 12 horas.",
+  "hint": "Toca un satélite para ver hacia dónde mirar. Arrastra la línea de tiempo para ver más adelante.",
+  "lookAt": "{{degrees}}° de altura, mira al {{direction}}",
+  "visibleBetween": "Visible de {{start}} a {{end}}",
+  "notUp": "No visible a esta hora"
+}

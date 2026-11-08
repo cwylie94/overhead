@@ -1,0 +1,19 @@
+{
+  "title": "Atrapa {{name}}",
+  "look": "Mira al {{direction}}, {{degrees}}° de altura",
+  "hold": "Mantén para atraparlo",
+  "holdManual": "Arrastra para apuntar. Mantén el dedo para sostener.",
+  "status": {
+    "aiming": "Alinea la mira con el satélite",
+    "locked": "Mantén el pulso…",
+    "caught": "¡Atrapado!",
+    "failed": "El paso ha terminado",
+    "notUp": "Este paso no es visible ahora"
+  },
+  "calibrate": "La brújula necesita calibrarse. Mueve el teléfono dibujando un ocho.",
+  "sawIt": "Lo he visto",
+  "sawItLogged": "Anotado como visto. Atrápalo con la mira para añadirlo a tu colección.",
+  "caughtBody": "{{name}} ya está en tu colección.",
+  "done": "Listo",
+  "catch": "Atrapar"
+}

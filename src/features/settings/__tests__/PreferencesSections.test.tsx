@@ -74,12 +74,13 @@ describe('PreferencesSections', () => {
   });
 
   test('maps the phone language choice to no preference', async () => {
-    const spies = await renderSections({ language: 'en' });
+    const spies = await renderSections({ language: 'es' });
 
-    expect(screen.getByRole('radio', { name: 'English' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Español' })).toBeChecked();
     await fireEvent.press(screen.getAllByRole('radio', { name: 'Phone setting' })[0]!);
+    await fireEvent.press(screen.getByRole('radio', { name: 'English' }));
 
-    expect(spies.setLanguage).toHaveBeenCalledWith(null);
+    expect(spies.setLanguage.mock.calls).toEqual([[null], ['en']]);
   });
 
   test('switches reminders and haptics', async () => {

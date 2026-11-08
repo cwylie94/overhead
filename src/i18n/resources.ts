@@ -4,6 +4,12 @@ import commonEn from './locales/en/common.json';
 import settingsEn from './locales/en/settings.json';
 import skyEn from './locales/en/sky.json';
 import tonightEn from './locales/en/tonight.json';
+import catchEs from './locales/es/catch.json';
+import collectionEs from './locales/es/collection.json';
+import commonEs from './locales/es/common.json';
+import settingsEs from './locales/es/settings.json';
+import skyEs from './locales/es/sky.json';
+import tonightEs from './locales/es/tonight.json';
 
 export const resources = {
   en: {
@@ -14,10 +20,18 @@ export const resources = {
     settings: settingsEn,
     tonight: tonightEn,
   },
+  es: {
+    common: commonEs,
+    catch: catchEs,
+    collection: collectionEs,
+    sky: skyEs,
+    settings: settingsEs,
+    tonight: tonightEs,
+  },
 } as const;
 
 export const defaultNS = 'common';
 
-export const SUPPORTED_LANGUAGES = ['en'] as const;
+export const SUPPORTED_LANGUAGES = ['en', 'es'] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 export const FALLBACK_LANGUAGE: Language = 'en';

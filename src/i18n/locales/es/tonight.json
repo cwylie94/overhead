@@ -1,0 +1,28 @@
+{
+  "passCount_one": "{{count}} paso esta noche",
+  "passCount_many": "{{count}} pasos esta noche",
+  "passCount_other": "{{count}} pasos esta noche",
+  "nights": {
+    "tonight": "Esta noche",
+    "tomorrow": "Mañana por la noche"
+  },
+  "visibleNow": "Visible ahora",
+  "justEnded": "Acaba de terminar",
+  "path": "Aparece por el {{appears}}, desaparece por el {{disappears}}",
+  "maxElevation": "Máx. {{degrees}}°",
+  "states": {
+    "locating": "Buscando tu ubicación…",
+    "computing": "Calculando los pasos sobre ti…",
+    "empty": "Ningún paso visible en las próximas dos noches.",
+    "emptyHint": "Si bajas la elevación mínima en Ajustes, verás más.",
+    "locationDenied": "Overhead necesita tu ubicación para saber qué satélites pasan sobre ti.",
+    "allowLocation": "Permitir ubicación",
+    "openSettings": "Abrir Ajustes"
+  },
+  "reminder": {
+    "add": "Avísame",
+    "set": "Aviso activado",
+    "title": "{{name}} en {{minutes}} minutos",
+    "body": "Mira al {{direction}}. Sube hasta {{degrees}}°."
+  }
+}

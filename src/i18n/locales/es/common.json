@@ -1,0 +1,54 @@
+{
+  "tabs": {
+    "tonight": "Esta noche",
+    "sky": "Cielo",
+    "collection": "Colección",
+    "settings": "Ajustes"
+  },
+  "errors": {
+    "databaseTitle": "No se pudo abrir la base de datos"
+  },
+  "compass": {
+    "N": "N",
+    "NE": "NE",
+    "E": "E",
+    "SE": "SE",
+    "S": "S",
+    "SW": "SO",
+    "W": "O",
+    "NW": "NO"
+  },
+  "brightness": {
+    "brilliant": "Brillantísimo",
+    "bright": "Brillante",
+    "faint": "Tenue"
+  },
+  "rarity": {
+    "legendary": "Legendario",
+    "rare": "Raro",
+    "uncommon": "Poco común",
+    "common": "Común"
+  },
+  "banners": {
+    "offline": "Estás sin conexión. Los pasos se calculan en este teléfono, así que la lista sigue funcionando.",
+    "stale_one": "Los datos orbitales tienen {{count}} día, así que las predicciones pueden desviarse unos minutos.",
+    "stale_many": "Los datos orbitales tienen {{count}} días, así que las predicciones pueden desviarse unos minutos.",
+    "stale_other": "Los datos orbitales tienen {{count}} días, así que las predicciones pueden desviarse unos minutos.",
+    "demo": "Modo demo: {{date}} en Londres. Desactívalo en Ajustes."
+  },
+  "owners": {
+    "US": "Estados Unidos",
+    "CIS": "Unión Soviética / Rusia",
+    "PRC": "China",
+    "JPN": "Japón",
+    "ESA": "Agencia Espacial Europea",
+    "FR": "Francia",
+    "IT": "Italia",
+    "CA": "Canadá",
+    "ISS": "Socios de la ISS",
+    "ARGN": "Argentina",
+    "IND": "India",
+    "THAI": "Tailandia",
+    "MEX": "México"
+  }
+}
