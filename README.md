@@ -4,7 +4,7 @@ Overhead finds the satellites passing over you tonight, guides you to them in th
 
 The loop is **Plan → Point → Catch → Collect**:
 
-- **Tonight** lists every visible pass for the next two nights, with when and where to look, how bright it will be and how rare it is. You can ask for a reminder 5 minutes before.
+- **Tonight** lists every visible pass for the next two nights, with when and where to look, how bright it will be and how rare it is. You can ask for a reminder 5 minutes before. It uses GPS, or a city you choose in Settings, which also works if you'd rather not share your location.
 - **Sky** shows the dome overhead with each satellite's path. Drag the timeline to see the sky later tonight, pinch to zoom, or turn on Compass to match the dome to the way you're facing.
 - **Catch** points you at a satellite during its pass, and opens up to 10 minutes early so you can get ready. Hold the crosshair on it for 2 seconds, guided by haptic pulses, to catch it. On a phone you can show the camera behind the crosshair, with the satellite's path drawn over the real sky, and line up the Moon to correct the compass.
 - **Collection** groups everything you've caught into themed sets, with a card for each satellite.
@@ -55,6 +55,7 @@ The first time, Xcode has to create a signing profile, which `expo run:ios` does
 | `npm test`                        | Run the Jest test suite                     |
 | `npm run db:generate`             | Generate a migration from the schema        |
 | `npm run snapshot:update`         | Refresh the bundled CelesTrak snapshot      |
+| `npm run cities:update`           | Refresh the bundled GeoNames city list      |
 | `npm run fixtures:passes`         | Regenerate the Skyfield reference passes    |
 | `npm run bench`                   | Time pass finding for the whole catalogue   |
 | `npm run e2e`                     | Run the Maestro flows on a running build    |
@@ -132,6 +133,8 @@ npm run fixtures:passes
 
 ## Trade-offs
 
+- **A chosen city can't be verified.** Catches made with a city set in place of GPS still count, so the setting suits planning and people who'd rather not share their location, but nothing stops someone catching another city's satellites. Times stay in the phone's time zone, which can confuse when planning a trip.
+
 - **Skyfield instead of N2YO for reference passes**, as explained above.
 - **Brightness is an estimate.** Magnitudes come from radar cross-section, which is only a rough proxy for how much sunlight a satellite reflects, so they are good to about one magnitude. The constants are calibrated on the ISS and Hubble.
 - **Rarity and sets are rules, not a curated list.** Rarity follows a pyramid (few legendary, many common) from launch date, object type and whether it's a station or constellation member. Sets are mostly rules with two short named lists. That keeps a snapshot refresh from needing manual work, at the cost of the odd surprising choice.
@@ -148,4 +151,5 @@ npm run fixtures:passes
 - Calibrate brightness against real observations.
 - Group docked station modules (the ISS currently appears as ZARYA, NAUKA and POISK).
 - Let people move their collection to a new phone, for example with a transfer code for the account ID.
+- Show times in a chosen city's own time zone, and accept local-language city names (Londres, Edimburgo).
 - Deploy the Worker, and add Arabic with right-to-left layout.
