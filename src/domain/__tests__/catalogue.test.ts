@@ -14,6 +14,13 @@ const payload: RarityInput = {
   isStation: false,
 };
 
+const rocketBody: RarityInput = {
+  name: 'SL-16 R/B',
+  objectType: 'rocket_body',
+  launchDate: '1990-01-01',
+  isStation: false,
+};
+
 describe('rarityFor', () => {
   test.each<[string, RarityInput, string]>([
     ['launched before 1980', { ...payload, launchDate: '1963-11-27' }, 'legendary'],
@@ -22,14 +29,16 @@ describe('rarityFor', () => {
       { ...payload, objectType: 'rocket_body', launchDate: '1975-01-01' },
       'legendary',
     ],
-    ['launched on 1 January 1980', { ...payload, launchDate: '1980-01-01' }, 'uncommon'],
-    ['a rocket body', { ...payload, name: 'SL-16 R/B', objectType: 'rocket_body' }, 'rare'],
-    ['a named mission', payload, 'uncommon'],
+    ['launched on 1 January 1980', { ...payload, launchDate: '1980-01-01' }, 'rare'],
+    ['a named mission', payload, 'rare'],
+    ['a named mission with an unknown launch date', { ...payload, launchDate: null }, 'rare'],
+    ['a Cold War-era rocket body', { ...rocketBody, launchDate: '1999-12-31' }, 'uncommon'],
+    ['a modern rocket body', { ...rocketBody, launchDate: '2000-01-01' }, 'common'],
+    ['a rocket body with an unknown launch date', { ...rocketBody, launchDate: null }, 'common'],
     ['a constellation member', { ...payload, name: 'SPACEMOBILE-003' }, 'common'],
     ['a numbered COSMOS satellite', { ...payload, name: 'COSMOS 2550' }, 'common'],
     ['a space station', { ...payload, name: 'ISS (ZARYA)', isStation: true }, 'common'],
     ['debris', { ...payload, name: 'FREGAT DEB', objectType: 'debris' }, 'common'],
-    ['an unknown launch date', { ...payload, launchDate: null }, 'uncommon'],
   ])('%s is %s', (_, input, expected) => {
     expect(rarityFor(input)).toBe(expected);
   });

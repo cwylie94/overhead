@@ -1,4 +1,9 @@
-import { catalogueEntryFromSatcat, ommEpochToMillis, type SatcatRecord } from '@/domain/catalogue';
+import {
+  catalogueEntryFromSatcat,
+  ommEpochToMillis,
+  RARITY_RULES_VERSION,
+  type SatcatRecord,
+} from '@/domain/catalogue';
 import { CELESTRAK_GROUPS, type CelestrakGroup, type OmmRecord } from '@/domain/types';
 
 import type { Repositories } from '../repositories';
@@ -14,24 +19,29 @@ export type SnapshotImportResult = {
   groups: CelestrakGroup[];
 };
 
-export const CATALOGUE_IMPORTED_AT_KEY = 'snapshot.catalogueImportedAt';
+export const CATALOGUE_VERSION_KEY = 'snapshot.catalogueVersion';
+
+export function catalogueVersion(snapshot: Snapshot, rarityRulesVersion: number): string {
+  return `${snapshot.fetchedAt}/rarity-${rarityRulesVersion}`;
+}
 
 export function importSnapshot(
   repositories: Pick<Repositories, 'satellites' | 'orbits' | 'syncMeta'>,
   snapshot: Snapshot,
+  rarityRulesVersion: number = RARITY_RULES_VERSION,
 ): SnapshotImportResult {
   const { satellites, orbits, syncMeta } = repositories;
   const stationIds = new Set(snapshot.groups.stations.map((omm) => omm.NORAD_CAT_ID));
 
-  const catalogueImportedAt = Number(syncMeta.get(CATALOGUE_IMPORTED_AT_KEY) ?? 0);
-  const catalogue = catalogueImportedAt < snapshot.fetchedAt;
+  const version = catalogueVersion(snapshot, rarityRulesVersion);
+  const catalogue = syncMeta.get(CATALOGUE_VERSION_KEY) !== version;
   if (catalogue) {
     satellites.upsertMany(
       snapshot.satcat.map((record) =>
         catalogueEntryFromSatcat(record, stationIds.has(record.NORAD_CAT_ID)),
       ),
     );
-    syncMeta.set(CATALOGUE_IMPORTED_AT_KEY, String(snapshot.fetchedAt));
+    syncMeta.set(CATALOGUE_VERSION_KEY, version);
   }
 
   const groups = CELESTRAK_GROUPS.filter(

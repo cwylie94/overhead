@@ -1,4 +1,5 @@
 import { ommEpochToMillis } from '@/domain/catalogue';
+import { RARITIES } from '@/domain/types';
 
 import type { Database } from '../../database';
 import { createRepositories, type Repositories } from '../../repositories';
@@ -50,7 +51,7 @@ describe('importSnapshot', () => {
     const result = importSnapshot(repositories, snapshot);
 
     expect(result).toEqual({ catalogue: true, groups: ['visual', 'stations'] });
-    expect(repositories.satellites.getById(HUBBLE_NORAD_ID)?.rarity).toBe('uncommon');
+    expect(repositories.satellites.getById(HUBBLE_NORAD_ID)?.rarity).toBe('rare');
     expect(repositories.satellites.getById(ISS_NORAD_ID)?.rarity).toBe('common');
     expect(repositories.orbits.listAll()).toHaveLength(2);
     expect(repositories.orbits.getById(HUBBLE_NORAD_ID)).toMatchObject({
@@ -81,6 +82,13 @@ describe('importSnapshot', () => {
     expect(repositories.satellites.getById(HUBBLE_NORAD_ID)?.name).toBe('HST*');
   });
 
+  test('a change to the rarity rules re-imports the catalogue but not the orbits', () => {
+    importSnapshot(repositories, snapshot, 1);
+
+    expect(importSnapshot(repositories, snapshot, 2)).toEqual({ catalogue: true, groups: [] });
+    expect(importSnapshot(repositories, snapshot, 2).catalogue).toBe(false);
+  });
+
   test('never replaces orbits that were downloaded after the snapshot', () => {
     repositories.orbits.replaceGroup('stations', [
       makeOrbit({ group: 'stations', epoch: 42, fetchedAt: FETCHED_AT + 60_000 }),
@@ -107,11 +115,17 @@ describe('bundled snapshot', () => {
     expect(repositories.satellites.getById(ISS_NORAD_ID)?.rarity).toBe('common');
   });
 
-  test('has every rarity represented', () => {
+  test('rarities form a pyramid, each tier larger than the one above', () => {
     importSnapshot(repositories, bundledSnapshot);
 
-    const rarities = new Set(repositories.satellites.listAll().map((s) => s.rarity));
+    const counts = Object.fromEntries(RARITIES.map((rarity) => [rarity, 0]));
+    for (const { rarity } of repositories.satellites.listAll()) {
+      counts[rarity]! += 1;
+    }
 
-    expect([...rarities].sort()).toEqual(['common', 'legendary', 'rare', 'uncommon']);
+    expect(counts.legendary).toBeGreaterThan(0);
+    expect(counts.rare).toBeGreaterThan(counts.legendary!);
+    expect(counts.uncommon).toBeGreaterThan(counts.rare!);
+    expect(counts.common).toBeGreaterThan(counts.uncommon!);
   });
 });

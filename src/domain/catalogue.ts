@@ -18,7 +18,9 @@ export type CatalogueEntry = {
   rarity: Rarity;
 };
 
+export const RARITY_RULES_VERSION = 2;
 export const LEGENDARY_BEFORE_YEAR = 1980;
+export const MODERN_ROCKET_BODY_FROM_YEAR = 2000;
 
 export const CONSTELLATION_PREFIXES = [
   'COSMOS',
@@ -65,10 +67,10 @@ export function rarityFor({ name, objectType, launchDate, isStation }: RarityInp
   if (launchYear < LEGENDARY_BEFORE_YEAR) {
     return 'legendary';
   }
-  if (objectType === 'rocket_body') {
+  if (objectType === 'payload' && !isStation && !isConstellationMember(name)) {
     return 'rare';
   }
-  if (objectType === 'payload' && !isStation && !isConstellationMember(name)) {
+  if (objectType === 'rocket_body' && launchYear < MODERN_ROCKET_BODY_FROM_YEAR) {
     return 'uncommon';
   }
   return 'common';

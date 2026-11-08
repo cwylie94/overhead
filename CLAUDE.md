@@ -88,19 +88,19 @@ There is no collection table. The collection is derived from verified sightings.
 - **Catch:** only inside a predicted visible pass window, with the aim (heading plus tilt) within about 10° of the predicted position for 2 s. "I saw it" logs an unverified sighting. Only verified sightings add to the collection.
 - **Catch state machine** (in `catchStore`): idle → aiming → locked → caught / failed.
 - **Visibility:** the sun is more than 6° below the horizon, the satellite is in sunlight, and the elevation is above the user's minimum.
-- **Rarity** is a fixed function of catalogue data:
+- **Rarity** is a fixed function of catalogue data, so every device agrees. It forms a pyramid, each tier larger than the one above (18 / 28 / 57 / 69 in the current snapshot):
   - Legendary: launched before 1980
-  - Rare: visible fewer than 2 nights a week, or a rocket body
-  - Uncommon: a named mission outside the big constellations
-  - Common: everything else
+  - Rare: a named mission (a payload that isn't a station or constellation member)
+  - Uncommon: a rocket body launched 1980–1999
+  - Common: everything else, including modern rocket bodies, stations, crew and cargo craft, constellation members and debris
+- How often a satellite is visible from the user's location is a card stat, never part of rarity, because it varies by place and over time.
+- After changing the rarity rules, bump `RARITY_RULES_VERSION` in `src/domain/catalogue.ts` so existing installs re-rate their catalogue. A bundled-snapshot test fails if a refresh breaks the pyramid.
 
 ## Network and sync
 
 - CelesTrak only, for two groups (`visual`, `stations`) and SATCAT. Never fetch the full active catalogue.
 - Wait at least 2 hours between fetches per group, because CelesTrak returns HTTP 403 when you download too soon. Back off exponentially on errors and never retry immediately.
-- A bundled snapshot of both groups and their SATCAT records lives in `src/data/snapshot/*.json`, so the first launch works offline. `prepareDatabase()` runs the migrations and then `importSnapshot` on every launch. The import is idempotent: it loads the catalogue only when the snapshot is newer than the last import, and a group's orbits only when the snapshot is newer than the stored ones. Refresh it with `npm run snapshot:update` (one request per endpoint, so it respects CelesTrak's limits), then commit the JSON.
-- Rarity is computed from catalogue data on import (`src/domain/catalogue.ts`). The plan's "visible fewer than 2 nights a week" rule for Rare isn't implemented yet, because it depends on the user's location and pass data.
-- Show a staleness banner when orbit data is several days old.
+- A bundled snapshot of both groups and their SATCAT records lives in `src/data/snapshot/*.json`, so the first launch works offline. `prepareDatabase()` runs the migrations and then `importSnapshot` on every launch. The import is idempotent: it reloads the catalogue only when the snapshot or the rarity rules have changed since the last import, and a group's orbits only when the snapshot is newer than the stored ones. Refresh it with `npm run snapshot:update` (one request per endpoint, so it respects CelesTrak's limits), then commit the JSON.- Show a staleness banner when orbit data is several days old.
 - Writing a sighting and its outbox entry happens in one transaction. Push is idempotent (the server inserts or ignores by ID). Delete outbox entries only after the server confirms them.
 - Identity is an anonymous account ID generated on the device. There is no login.
 - N2YO is used only for test fixtures and is never called by the app.
