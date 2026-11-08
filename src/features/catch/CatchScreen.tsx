@@ -12,7 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { db } from '@/data/client';
+import { useAppData } from '@/data/AppDataContext';
 import { passWithSatelliteQuery, type UpcomingPass } from '@/data/queries';
 import { CATCH_HOLD_MS } from '@/domain/catchMachine';
 import { compassPoint } from '@/domain/compass';
@@ -30,7 +30,8 @@ import { usePointing } from './usePointing';
 
 export function CatchScreen() {
   const { passId } = useLocalSearchParams<{ passId: string }>();
-  const pass = useMemo(() => passWithSatelliteQuery(db, Number(passId)).get(), [passId]);
+  const { db } = useAppData();
+  const pass = useMemo(() => passWithSatelliteQuery(db, Number(passId)).get(), [db, passId]);
   const { t } = useTranslation('catch');
 
   if (!pass) {

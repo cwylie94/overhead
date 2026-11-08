@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { db } from '@/data/client';
+import { useAppData } from '@/data/AppDataContext';
 import { collectableSatellitesQuery, sightingRecordsQuery } from '@/data/queries';
 import { deriveCollection } from '@/domain/collection';
 import { Screen } from '@/ui/Screen';
@@ -13,6 +13,7 @@ import type { CollectionFilters } from './filterCollection';
 
 export function CollectionScreen() {
   const { t } = useTranslation();
+  const { db } = useAppData();
   const { data: satellites } = useLiveQuery(collectableSatellitesQuery(db));
   const { data: sightings } = useLiveQuery(sightingRecordsQuery(db));
   const [filters, setFilters] = useState<CollectionFilters>({ set: null, rarity: null });

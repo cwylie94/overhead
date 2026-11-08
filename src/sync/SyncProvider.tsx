@@ -3,7 +3,7 @@ import * as Crypto from 'expo-crypto';
 import { createContext, useCallback, useContext, useEffect, useRef, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 
-import { repositories } from '@/data/client';
+import { useAppData } from '@/data/AppDataContext';
 import { usePassCache } from '@/data/passCache/PassCacheScheduler';
 import { UUID_RANDOM_BYTES, uuidv7 } from '@/domain/uuid';
 import { useClock } from '@/environment/clock';
@@ -25,12 +25,18 @@ const SyncContext = createContext<SyncContextValue>({
 const transport = SYNC_URL ? httpTransport(SYNC_URL) : null;
 const fetchOrbits = httpOrbitFetcher();
 
-export function SyncProvider({ children }: { children: ReactNode }) {
+type SyncProviderProps = { enabled: boolean; children: ReactNode };
+
+export function SyncProvider({ enabled, children }: SyncProviderProps) {
+  const { repositories } = useAppData();
   const clock = useClock();
   const { refresh: refreshPasses } = usePassCache();
   const inFlight = useRef<Promise<void> | null>(null);
 
   const syncNow = useCallback(() => {
+    if (!enabled) {
+      return Promise.resolve();
+    }
     if (inFlight.current) {
       return inFlight.current;
     }
@@ -61,9 +67,12 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       });
     inFlight.current = run;
     return run;
-  }, [clock, refreshPasses]);
+  }, [enabled, repositories, clock, refreshPasses]);
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
     syncNow();
     let wasConnected: boolean | null = null;
     const network = NetInfo.addEventListener((state) => {
@@ -81,10 +90,10 @@ export function SyncProvider({ children }: { children: ReactNode }) {
       network();
       appState.remove();
     };
-  }, [syncNow]);
+  }, [enabled, syncNow]);
 
   return (
-    <SyncContext.Provider value={{ syncNow, configured: transport !== null }}>
+    <SyncContext.Provider value={{ syncNow, configured: enabled && transport !== null }}>
       {children}
     </SyncContext.Provider>
   );

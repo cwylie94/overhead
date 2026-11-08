@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, spacing, typography } from '@/ui/theme';
 
+import { useAppData } from './AppDataContext';
 import { prepareDatabase } from './prepareDatabase';
 
 type DatabaseGateProps = {
@@ -16,11 +17,12 @@ type PreparationState =
 
 export function DatabaseGate({ children }: DatabaseGateProps) {
   const { t } = useTranslation();
+  const data = useAppData();
   const [state, setState] = useState<PreparationState>({ status: 'pending' });
 
   useEffect(() => {
     let active = true;
-    prepareDatabase().then(
+    prepareDatabase(data).then(
       () => active && setState({ status: 'ready' }),
       (cause: unknown) =>
         active &&
@@ -32,7 +34,7 @@ export function DatabaseGate({ children }: DatabaseGateProps) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [data]);
 
   useEffect(() => {
     if (state.status !== 'pending') {

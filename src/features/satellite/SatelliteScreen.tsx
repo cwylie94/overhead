@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { db, repositories } from '@/data/client';
+import { useAppData } from '@/data/AppDataContext';
 import { satelliteSightingsQuery } from '@/data/queries';
 import { perigeeAltitudeKm, apogeeAltitudeKm, periodMinutes } from '@/domain/orbit';
 import { useNow } from '@/environment/clock';
@@ -52,9 +52,13 @@ export function SatelliteScreen() {
   const { t, i18n } = useTranslation(['collection', 'common']);
   const units = useSettingsStore((settings) => settings.units);
   const now = useNow(60_000);
-  const satellite = useMemo(() => repositories.satellites.getById(id), [id]);
-  const orbit = useMemo(() => repositories.orbits.getById(id), [id]);
-  const nextPass = useMemo(() => repositories.passes.nextForSatellite(id, now), [id, now]);
+  const { db, repositories } = useAppData();
+  const satellite = useMemo(() => repositories.satellites.getById(id), [repositories, id]);
+  const orbit = useMemo(() => repositories.orbits.getById(id), [repositories, id]);
+  const nextPass = useMemo(
+    () => repositories.passes.nextForSatellite(id, now),
+    [repositories, id, now],
+  );
   const { data: sightings } = useLiveQuery(satelliteSightingsQuery(db, id), [id]);
 
   if (!satellite) {

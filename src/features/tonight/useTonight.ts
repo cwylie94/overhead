@@ -3,7 +3,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { router } from 'expo-router';
 import { useState } from 'react';
 
-import { db } from '@/data/client';
+import { useAppData } from '@/data/AppDataContext';
 import { usePassCache } from '@/data/passCache/PassCacheScheduler';
 import { orbitFreshnessQuery, upcomingPassesQuery } from '@/data/queries';
 import { useNow } from '@/environment/clock';
@@ -14,6 +14,7 @@ import type { TonightViewProps } from './TonightView';
 import { useReminders } from './useReminders';
 
 export function useTonight(): TonightViewProps {
+  const { db } = useAppData();
   const now = useNow(60_000);
   const location = useLocation();
   const { state: cache, refresh } = usePassCache();

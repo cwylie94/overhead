@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import { Easing, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { db } from '@/data/client';
+import { useAppData } from '@/data/AppDataContext';
 import { skyPassesQuery } from '@/data/queries';
 import { useClock, useNow } from '@/environment/clock';
 import { useSkyStore } from '@/stores/skyStore';
@@ -29,6 +29,7 @@ export function SkyScreen() {
   const [width, setWidth] = useState(0);
   const [compass, setCompass] = useState(false);
 
+  const { db } = useAppData();
   const selectedId = useSkyStore((sky) => sky.selectedNoradId);
   const selectSatellite = useSkyStore((sky) => sky.selectSatellite);
   const clearSelection = useSkyStore((sky) => sky.clearSelection);

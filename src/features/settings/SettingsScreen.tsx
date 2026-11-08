@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet } from 'react-native';
 import { useShallow } from 'zustand/react/shallow';
 
-import { db } from '@/data/client';
+import { useAppData } from '@/data/AppDataContext';
 import { pendingChangesQuery } from '@/data/queries';
 import { useNow } from '@/environment/clock';
 import { cancelAllReminders } from '@/features/tonight/reminders';
@@ -21,6 +21,7 @@ import { SyncSection } from './SyncSection';
 const APP_VERSION = Constants.expoConfig?.version ?? '–';
 
 export function usePendingChanges(): number {
+  const { db } = useAppData();
   const { data } = useLiveQuery(pendingChangesQuery(db));
   return data[0]?.value ?? 0;
 }

@@ -1,7 +1,7 @@
 import * as Crypto from 'expo-crypto';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { repositories } from '@/data/client';
+import { useAppData } from '@/data/AppDataContext';
 import type { UpcomingPass } from '@/data/queries';
 import { logSighting } from '@/data/sightings/logSighting';
 import { aimError } from '@/domain/sky';
@@ -15,6 +15,7 @@ import type { Pointing } from './usePointing';
 const AIM_TICK_MS = 50;
 
 export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
+  const { repositories } = useAppData();
   const clock = useClock();
   const machine = useCatchStore((state) => state.machine);
   const start = useCatchStore((state) => state.start);
@@ -81,7 +82,7 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
       );
       haptics.caught();
     }
-  }, [machine, pass.noradId, clock]);
+  }, [machine, pass.noradId, clock, repositories]);
 
   const logSawIt = useCallback(() => {
     if (loggedSawIt.current || loggedCatchAt.current !== null) {
@@ -95,7 +96,7 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
       { now, randomBytes: Crypto.getRandomBytes },
     );
     setSawIt(true);
-  }, [pass.noradId, clock]);
+  }, [pass.noradId, clock, repositories]);
 
   return {
     machine,
