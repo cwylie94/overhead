@@ -23,12 +23,12 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
   const reset = useCatchStore((state) => state.reset);
   const holding = useRef(false);
   const latestError = useRef<number | null>(null);
-  const logged = useRef(false);
+  const loggedCatchAt = useRef<number | null>(null);
+  const loggedSawIt = useRef(false);
   const [sawIt, setSawIt] = useState(false);
 
   useEffect(() => {
     start({ noradId: pass.noradId, passEndAt: pass.endAt }, clock.now());
-    logged.current = false;
     return () => reset();
   }, [pass.noradId, pass.endAt, start, reset, clock]);
 
@@ -67,8 +67,8 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
     if (machine.status === 'locked') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     }
-    if (machine.status === 'caught' && !logged.current) {
-      logged.current = true;
+    if (machine.status === 'caught' && loggedCatchAt.current !== machine.caughtAt) {
+      loggedCatchAt.current = machine.caughtAt;
       logSighting(
         repositories,
         {
@@ -84,10 +84,10 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
   }, [machine, pass.noradId, clock]);
 
   const logSawIt = useCallback(() => {
-    if (logged.current) {
+    if (loggedSawIt.current || loggedCatchAt.current !== null) {
       return;
     }
-    logged.current = true;
+    loggedSawIt.current = true;
     const now = clock.now();
     logSighting(
       repositories,
