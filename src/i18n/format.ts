@@ -61,3 +61,11 @@ export function formatDistance(kilometres: number, units: UnitSystem, language: 
   );
   return formatter.format(value);
 }
+
+export function formatNightDate(time: number, language: string): string {
+  const formatter = cached(
+    `night:${language}`,
+    () => new Intl.DateTimeFormat(language, { weekday: 'long', day: 'numeric', month: 'long' }),
+  );
+  return formatter.format(time);
+}

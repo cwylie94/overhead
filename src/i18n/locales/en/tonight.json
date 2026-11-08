@@ -1,4 +1,20 @@
 {
   "passCount_one": "{{count}} pass tonight",
-  "passCount_other": "{{count}} passes tonight"
+  "passCount_other": "{{count}} passes tonight",
+  "nights": {
+    "tonight": "Tonight",
+    "tomorrow": "Tomorrow night"
+  },
+  "visibleNow": "Visible now",
+  "path": "Appears {{appears}}, disappears {{disappears}}",
+  "maxElevation": "Max {{degrees}}°",
+  "states": {
+    "locating": "Finding your location…",
+    "computing": "Working out the passes over you…",
+    "empty": "No visible passes in the next two nights.",
+    "emptyHint": "Lowering the minimum elevation in Settings shows more.",
+    "locationDenied": "Overhead needs your location to know which satellites pass over you.",
+    "allowLocation": "Allow location",
+    "openSettings": "Open Settings"
+  }
 }
