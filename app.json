@@ -10,7 +10,10 @@
     "platforms": ["ios", "android"],
     "ios": {
       "bundleIdentifier": "com.craigwylie.overhead",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Overhead shows the camera behind the crosshair in Catch mode, so you can see the satellite and the Moon on screen."
+      }
     },
     "android": {
       "package": "com.craigwylie.overhead",
@@ -20,7 +23,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.CAMERA"]
     },
     "plugins": [
       "expo-router",
