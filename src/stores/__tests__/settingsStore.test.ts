@@ -75,7 +75,20 @@ describe('settings store', () => {
         minElevation: DEFAULT_MIN_ELEVATION,
         notificationsEnabled: true,
         motionPreference: 'system',
+        lastLocation: null,
       },
+    });
+  });
+
+  test('remembers the last location rounded to about a kilometre', () => {
+    useSettingsStore
+      .getState()
+      .rememberLocation({ latitude: 51.507218, longitude: -0.127586, altitude: 0.0114 });
+
+    expect(useSettingsStore.getState().lastLocation).toEqual({
+      latitude: 51.51,
+      longitude: -0.13,
+      altitude: 0,
     });
   });
 

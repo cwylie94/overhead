@@ -2,6 +2,7 @@ import { getLocales } from 'expo-localization';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import type { Observer } from '@/domain/observer';
 import type { UnitSystem } from '@/domain/types';
 import type { Language } from '@/i18n/resources';
 
@@ -19,6 +20,7 @@ export type SettingsState = {
   minElevation: number;
   notificationsEnabled: boolean;
   motionPreference: MotionPreference;
+  lastLocation: Observer | null;
 };
 
 type SettingsActions = {
@@ -27,7 +29,23 @@ type SettingsActions = {
   setMinElevation(degrees: number): void;
   setNotificationsEnabled(enabled: boolean): void;
   setMotionPreference(preference: MotionPreference): void;
+  rememberLocation(location: Observer): void;
 };
+
+const LOCATION_DECIMALS = 2;
+
+function roundTo(value: number, decimals: number): number {
+  const factor = 10 ** decimals;
+  return Math.round(value * factor) / factor;
+}
+
+export function coarseLocation({ latitude, longitude, altitude }: Observer): Observer {
+  return {
+    latitude: roundTo(latitude, LOCATION_DECIMALS),
+    longitude: roundTo(longitude, LOCATION_DECIMALS),
+    altitude: roundTo(altitude, 1),
+  };
+}
 
 export function unitSystemFor(measurementSystem: string | null | undefined): UnitSystem {
   return measurementSystem === 'us' ? 'imperial' : 'metric';
@@ -50,23 +68,33 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       minElevation: DEFAULT_MIN_ELEVATION,
       notificationsEnabled: true,
       motionPreference: 'system',
+      lastLocation: null,
 
       setLanguage: (language) => set({ language }),
       setUnits: (units) => set({ units }),
       setMinElevation: (degrees) => set({ minElevation: clampElevation(degrees) }),
       setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
       setMotionPreference: (motionPreference) => set({ motionPreference }),
+      rememberLocation: (location) => set({ lastLocation: coarseLocation(location) }),
     }),
     {
       name: 'settings',
       version: 1,
       storage: persistStorage,
-      partialize: ({ language, units, minElevation, notificationsEnabled, motionPreference }) => ({
+      partialize: ({
         language,
         units,
         minElevation,
         notificationsEnabled,
         motionPreference,
+        lastLocation,
+      }) => ({
+        language,
+        units,
+        minElevation,
+        notificationsEnabled,
+        motionPreference,
+        lastLocation,
       }),
     },
   ),
