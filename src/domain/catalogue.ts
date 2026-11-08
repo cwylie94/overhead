@@ -23,7 +23,7 @@ export type CatalogueEntry = {
   standardMagnitude: number;
 };
 
-export const CATALOGUE_RULES_VERSION = 4;
+export const CATALOGUE_RULES_VERSION = 5;
 export const LEGENDARY_BEFORE_YEAR = 1980;
 export const MODERN_ROCKET_BODY_FROM_YEAR = 2000;
 
