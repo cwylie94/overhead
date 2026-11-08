@@ -15,5 +15,21 @@
   "sawItLogged": "Logged as seen. Catch it with the crosshair to add it to your collection.",
   "caughtBody": "{{name}} is in your collection.",
   "done": "Done",
-  "catch": "Catch"
+  "catch": "Catch",
+  "camera": {
+    "show": "Show camera",
+    "hide": "Hide camera",
+    "denied": "Camera access is off for Overhead. Turn it on in Settings to see the sky behind the crosshair.",
+    "openSettings": "Open Settings"
+  },
+  "moon": {
+    "label": "Moon",
+    "start": "Calibrate on the Moon",
+    "instructions": "Put the Moon in the crosshair, then tap Set.",
+    "set": "Set",
+    "cancel": "Cancel",
+    "calibrated": "Calibrated on the Moon {{time}}",
+    "down": "Calibration needs the Moon, which is below the horizon.",
+    "tooFar": "That’s more than 45° from the Moon. Check the Moon is in the crosshair and try again."
+  }
 }

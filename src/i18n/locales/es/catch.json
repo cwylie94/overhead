@@ -15,5 +15,21 @@
   "sawItLogged": "Anotado como visto. Atrápalo con la mira para añadirlo a tu colección.",
   "caughtBody": "{{name}} ya está en tu colección.",
   "done": "Listo",
-  "catch": "Atrapar"
+  "catch": "Atrapar",
+  "camera": {
+    "show": "Mostrar cámara",
+    "hide": "Ocultar cámara",
+    "denied": "El acceso a la cámara está desactivado para Overhead. Actívalo en Ajustes para ver el cielo detrás de la mira.",
+    "openSettings": "Abrir Ajustes"
+  },
+  "moon": {
+    "label": "Luna",
+    "start": "Calibrar con la Luna",
+    "instructions": "Pon la Luna en la mira y toca Fijar.",
+    "set": "Fijar",
+    "cancel": "Cancelar",
+    "calibrated": "Calibrado con la Luna {{time}}",
+    "down": "La calibración necesita la Luna, que está bajo el horizonte.",
+    "tooFar": "Eso está a más de 45° de la Luna. Comprueba que la Luna esté en la mira e inténtalo de nuevo."
+  }
 }

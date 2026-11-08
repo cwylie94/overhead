@@ -112,3 +112,26 @@ export function edgePoint(
   );
   return { x: width / 2 + dx * reach, y: height / 2 + dy * reach };
 }
+
+export function trackSegments(
+  track: readonly SkyPosition[],
+  pose: CameraPose,
+  viewport: CameraViewport,
+): { x: number; y: number }[][] {
+  'worklet';
+  const segments: { x: number; y: number }[][] = [];
+  let current: { x: number; y: number }[] = [];
+  for (const position of track) {
+    const point = projectToCamera(position, pose, viewport);
+    if (point.inFront) {
+      current.push({ x: point.x, y: point.y });
+    } else if (current.length > 0) {
+      segments.push(current);
+      current = [];
+    }
+  }
+  if (current.length > 0) {
+    segments.push(current);
+  }
+  return segments.filter((segment) => segment.length > 1);
+}

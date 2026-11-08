@@ -19,13 +19,17 @@ import { CATCH_HOLD_MS } from '@/domain/catchMachine';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useClock, useNow } from '@/environment/clock';
+import { useLocation } from '@/environment/location';
 import { Banner } from '@/ui/Banner';
 import { Chip } from '@/ui/Chip';
 import { ALWAYS_ANIMATE } from '@/ui/motion';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 
+import { CalibrationControls } from './CalibrationControls';
+import { CameraCatchView } from './CameraCatchView';
 import { CatchCanvas, POINTS_PER_DEGREE } from './CatchCanvas';
 import { manualPointing } from './pointing';
+import { useCameraAim } from './useCameraAim';
 import { useCatchSession } from './useCatchSession';
 import { usePointing } from './usePointing';
 
@@ -75,6 +79,12 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
   );
   const session = useCatchSession(pass, pointing);
   const { machine } = session;
+  const location = useLocation();
+  const aim = useCameraAim(
+    pointing,
+    location.state.status === 'ready' ? location.state.observer : null,
+    now,
+  );
 
   const time = useSharedValue(clock.now());
   const progress = useSharedValue(0);
@@ -150,23 +160,70 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
       {pointing.calibrate && !manual && <Banner tone="warning" message={t('calibrate')} />}
 
       <GestureDetector gesture={hold}>
-        <View
-          style={styles.canvas}
-          onLayout={(event: LayoutChangeEvent) => setSize(event.nativeEvent.layout.width)}>
-          {size > 0 && (
-            <CatchCanvas
-              size={size}
+        {aim.cameraOn && aim.device ? (
+          <View style={styles.camera}>
+            <CameraCatchView
+              device={aim.device}
               track={pass.track}
               time={time}
               azimuth={pointing.azimuth}
               elevation={pointing.elevation}
+              roll={pointing.roll}
               progress={progress}
+              moon={aim.moon}
+              moonLabel={t('moon.label')}
             />
-          )}
-        </View>
+          </View>
+        ) : (
+          <View
+            style={styles.canvas}
+            onLayout={(event: LayoutChangeEvent) => setSize(event.nativeEvent.layout.width)}>
+            {size > 0 && (
+              <CatchCanvas
+                size={size}
+                track={pass.track}
+                time={time}
+                azimuth={pointing.azimuth}
+                elevation={pointing.elevation}
+                progress={progress}
+              />
+            )}
+          </View>
+        )}
       </GestureDetector>
 
       <Text style={styles.hint}>{manual ? t('holdManual') : t('hold')}</Text>
+
+      {aim.cameraOn && (
+        <CalibrationControls
+          calibrating={aim.calibrating}
+          moonUp={aim.moonUp}
+          calibratedAt={aim.calibratedAt}
+          tooFar={aim.tooFar}
+          now={now}
+          onStart={aim.startCalibration}
+          onSet={aim.setCalibration}
+          onCancel={aim.cancelCalibration}
+        />
+      )}
+      {aim.available &&
+        (aim.denied ? (
+          <Pressable accessibilityRole="button" onPress={aim.openSettings}>
+            <Text style={styles.hint}>{t('camera.denied')}</Text>
+            <Text style={[styles.hint, styles.link]}>{t('camera.openSettings')}</Text>
+          </Pressable>
+        ) : (
+          <Pressable
+            accessibilityRole="button"
+            style={styles.secondary}
+            onPress={() => {
+              aim.toggleCamera().catch(() => {});
+            }}>
+            <Text style={styles.secondaryText}>
+              {aim.cameraOn ? t('camera.hide') : t('camera.show')}
+            </Text>
+          </Pressable>
+        ))}
 
       {session.sawIt ? (
         <Text style={styles.hint}>{t('sawItLogged')}</Text>
@@ -220,6 +277,12 @@ const styles = StyleSheet.create({
   canvas: {
     width: '100%',
     aspectRatio: 1,
+  },
+  camera: {
+    flex: 1,
+  },
+  link: {
+    color: colors.accent,
   },
   hint: {
     ...typography.caption,

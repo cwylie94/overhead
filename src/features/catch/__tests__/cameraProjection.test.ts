@@ -3,6 +3,7 @@ import {
   focalLengthPx,
   projectToCamera,
   rollFromGravity,
+  trackSegments,
   type CameraPose,
   type CameraViewport,
 } from '../cameraProjection';
@@ -114,5 +115,23 @@ describe('edgePoint', () => {
 
     expect(point.x).toBeCloseTo(380, 6);
     expect(point.y).toBeCloseTo(580, 6);
+  });
+});
+
+describe('trackSegments', () => {
+  test('joins the points in front of the camera', () => {
+    const track = [-20, -10, 0, 10, 20].map((azimuth) => ({ azimuth, elevation: 5 }));
+    const [segment, ...rest] = trackSegments(track, level, view);
+
+    expect(rest).toEqual([]);
+    expect(segment).toHaveLength(5);
+    expect(segment![2]!.x).toBeCloseTo(200, 6);
+  });
+
+  test('breaks the line where the path goes behind the camera', () => {
+    const track = [60, 80, 100, 120, 260, 280, 300].map((azimuth) => ({ azimuth, elevation: 0 }));
+    const segments = trackSegments(track, level, view);
+
+    expect(segments.map((segment) => segment.length)).toEqual([2, 2]);
   });
 });
