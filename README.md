@@ -153,3 +153,8 @@ npm run fixtures:passes
 - Let people move their collection to a new phone, for example with a transfer code for the account ID.
 - Show times in a chosen city's own time zone, and accept local-language city names (Londres, Edimburgo).
 - Deploy the Worker, and add Arabic with right-to-left layout.
+
+## Credits
+
+- Orbit data from [CelesTrak](https://celestrak.org/).
+- City data from [GeoNames](https://www.geonames.org/), under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
