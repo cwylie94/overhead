@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
@@ -13,9 +13,10 @@ import { Countdown } from './Countdown';
 
 type PassRowProps = {
   pass: UpcomingPass;
+  reminder: { isSet: boolean; onToggle(): void } | null;
 };
 
-export function PassRow({ pass }: PassRowProps) {
+export function PassRow({ pass, reminder }: PassRowProps) {
   const { t, i18n } = useTranslation(['tonight', 'common']);
   const start = positionOnTrack(pass.track, pass.startAt);
   const end = positionOnTrack(pass.track, pass.endAt);
@@ -43,7 +44,22 @@ export function PassRow({ pass }: PassRowProps) {
           {t('maxElevation', { degrees: Math.round(pass.maxElevation) })}
         </Text>
       )}
-      <Chip label={t(`common:rarity.${pass.rarity}`)} color={rarityColors[pass.rarity]} />
+      <View style={styles.footer}>
+        <Chip label={t(`common:rarity.${pass.rarity}`)} color={rarityColors[pass.rarity]} />
+        {reminder && (
+          <Pressable
+            accessibilityRole="switch"
+            accessibilityState={{ checked: reminder.isSet }}
+            accessibilityLabel={t('reminder.add')}
+            hitSlop={spacing.sm}
+            onPress={reminder.onToggle}
+            style={[styles.remind, reminder.isSet && styles.remindSet]}>
+            <Text style={[styles.remindText, reminder.isSet && styles.remindTextSet]}>
+              {reminder.isSet ? t('reminder.set') : t('reminder.add')}
+            </Text>
+          </Pressable>
+        )}
+      </View>
     </View>
   );
 }
@@ -80,5 +96,28 @@ const styles = StyleSheet.create({
   detail: {
     ...typography.caption,
     color: colors.textMuted,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  remind: {
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  remindSet: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
+  remindText: {
+    ...typography.label,
+    color: colors.text,
+  },
+  remindTextSet: {
+    color: colors.background,
   },
 });

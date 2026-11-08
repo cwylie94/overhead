@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import type { LocationState } from '@/environment/location';
@@ -9,6 +9,8 @@ import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import { groupByNight, type NightLabel } from './nights';
 import { PassRow } from './PassRow';
+import { canRemind } from './reminders';
+import type { Reminders } from './useReminders';
 
 export type TonightViewProps = {
   location: LocationState;
@@ -17,6 +19,9 @@ export type TonightViewProps = {
   now: number;
   offline: boolean;
   staleDays: number | null;
+  reminders: Reminders | null;
+  refreshing: boolean;
+  onRefresh(): void;
   onAllowLocation(): void;
 };
 
@@ -36,6 +41,9 @@ export function TonightView({
   now,
   offline,
   staleDays,
+  reminders,
+  refreshing,
+  onRefresh,
   onAllowLocation,
 }: TonightViewProps) {
   const { t, i18n } = useTranslation(['tonight', 'common']);
@@ -76,7 +84,23 @@ export function TonightView({
     <SectionList
       sections={sections}
       keyExtractor={(pass) => String(pass.id)}
-      renderItem={({ item }) => <PassRow pass={item} />}
+      renderItem={({ item }) => (
+        <PassRow
+          pass={item}
+          reminder={
+            reminders && (reminders.isSet(item) || canRemind(item, now))
+              ? { isSet: reminders.isSet(item), onToggle: () => reminders.toggle(item) }
+              : null
+          }
+        />
+      )}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={colors.textMuted}
+        />
+      }
       renderSectionHeader={({ section }) => (
         <Text accessibilityRole="header" style={styles.sectionTitle}>
           {nightTitle(section.label)}

@@ -10,9 +10,11 @@ import { DatabaseGate } from '@/data/DatabaseGate';
 import { PassCacheProvider } from '@/data/passCache/PassCacheScheduler';
 import { ClockProvider, systemClock } from '@/environment/clock';
 import { DeviceLocationProvider } from '@/environment/location';
+import { configureNotificationHandler } from '@/features/tonight/reminders';
 import { colors } from '@/ui/theme';
 
 SplashScreen.preventAutoHideAsync();
+configureNotificationHandler();
 
 const navigationTheme = {
   ...DarkTheme,

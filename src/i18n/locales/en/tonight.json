@@ -16,5 +16,11 @@
     "locationDenied": "Overhead needs your location to know which satellites pass over you.",
     "allowLocation": "Allow location",
     "openSettings": "Open Settings"
+  },
+  "reminder": {
+    "add": "Remind me",
+    "set": "Reminder set",
+    "title": "{{name}} in {{minutes}} minutes",
+    "body": "Look {{direction}}. It climbs to {{degrees}}°."
   }
 }

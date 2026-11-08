@@ -37,6 +37,9 @@ const defaults: TonightViewProps = {
   now: NOW,
   offline: false,
   staleDays: null,
+  reminders: null,
+  refreshing: false,
+  onRefresh: () => {},
   onAllowLocation: () => {},
 };
 
@@ -123,6 +126,37 @@ describe('TonightView', () => {
     await renderView({ location: { status: 'denied', canAskAgain: false } });
 
     expect(screen.getByRole('button', { name: 'Open Settings' })).toBeOnTheScreen();
+  });
+
+  test('toggles a reminder for a pass far enough away', async () => {
+    const toggle = jest.fn();
+    await renderView({ reminders: { isSet: () => false, toggle } });
+
+    fireEvent.press(screen.getByRole('switch', { name: 'Remind me' }));
+
+    expect(toggle).toHaveBeenCalledWith(expect.objectContaining({ name: 'SL-16 R/B' }));
+  });
+
+  test('shows a reminder that is already set', async () => {
+    await renderView({ reminders: { isSet: () => true, toggle: () => {} } });
+
+    expect(screen.getByRole('switch', { name: 'Remind me' })).toBeChecked();
+    expect(screen.getByText('Reminder set')).toBeOnTheScreen();
+  });
+
+  test('offers no reminder for a pass that starts too soon', async () => {
+    await renderView({
+      passes: [makePass({ startAt: NOW + 2 * MINUTE })],
+      reminders: { isSet: () => false, toggle: () => {} },
+    });
+
+    expect(screen.queryByRole('switch')).toBeNull();
+  });
+
+  test('offers no reminders when notifications are off in Settings', async () => {
+    await renderView({ reminders: null });
+
+    expect(screen.queryByRole('switch')).toBeNull();
   });
 
   test('waits for a location before listing anything', async () => {
