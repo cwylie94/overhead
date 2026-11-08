@@ -7,12 +7,12 @@ describe('projectToDome', () => {
     ['the zenith at the centre', { azimuth: 123, elevation: 90 }, { x: 200, y: 200 }],
     ['north on the horizon at the top', { azimuth: 0, elevation: 0 }, { x: 200, y: 20 }],
     [
-      'east on the horizon on the left, as seen looking up',
+      'east on the horizon on the right, like a map held flat',
       { azimuth: 90, elevation: 0 },
-      { x: 20, y: 200 },
+      { x: 380, y: 200 },
     ],
     ['south on the horizon at the bottom', { azimuth: 180, elevation: 0 }, { x: 200, y: 380 }],
-    ['west halfway up on the right', { azimuth: 270, elevation: 45 }, { x: 290, y: 200 }],
+    ['west halfway up on the left', { azimuth: 270, elevation: 45 }, { x: 110, y: 200 }],
   ])('puts %s', (_, position, expected) => {
     const point = projectToDome(position, layout, 0)!;
 
@@ -29,6 +29,14 @@ describe('projectToDome', () => {
 
     expect(point.x).toBeCloseTo(200, 6);
     expect(point.y).toBeCloseTo(20, 6);
+  });
+
+  test('keeps what is on your right on the right when facing any way', () => {
+    const facingEast = 90;
+    const toTheSouth = projectToDome({ azimuth: 180, elevation: 0 }, layout, facingEast)!;
+
+    expect(toTheSouth.x).toBeCloseTo(380, 6);
+    expect(toTheSouth.y).toBeCloseTo(200, 6);
   });
 });
 

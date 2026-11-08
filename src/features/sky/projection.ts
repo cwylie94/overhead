@@ -22,7 +22,7 @@ export function projectToDome(
   const distance = (layout.radius * (90 - elevation)) / 90;
   const angle = (azimuth - rotation) * DEG;
   return {
-    x: layout.centerX - distance * Math.sin(angle),
+    x: layout.centerX + distance * Math.sin(angle),
     y: layout.centerY - distance * Math.cos(angle),
   };
 }
@@ -33,7 +33,7 @@ export function domeToSky(
   rotation: number,
 ): SkyPosition | null {
   'worklet';
-  const dx = layout.centerX - point.x;
+  const dx = point.x - layout.centerX;
   const dy = layout.centerY - point.y;
   const distance = Math.sqrt(dx * dx + dy * dy);
   if (distance > layout.radius) {
