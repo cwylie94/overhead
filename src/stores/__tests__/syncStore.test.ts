@@ -41,13 +41,21 @@ describe('sync store', () => {
     });
   });
 
-  test('saves only the last sync time', () => {
+  test('saves only the last sync time and the account id', () => {
     useSyncStore.getState().syncStarted();
     useSyncStore.getState().syncSucceeded(NOW);
+    useSyncStore.getState().setAccountId('0193a6f0-0000-7000-8000-00000000a11c');
 
     expect(JSON.parse(storeStorage.getString('sync') ?? 'null')).toEqual({
       version: 1,
-      state: { lastSyncedAt: NOW },
+      state: { lastSyncedAt: NOW, accountId: '0193a6f0-0000-7000-8000-00000000a11c' },
     });
+  });
+
+  test('never replaces an account id once it has one', () => {
+    useSyncStore.getState().setAccountId('first');
+    useSyncStore.getState().setAccountId('second');
+
+    expect(useSyncStore.getState().accountId).toBe('first');
   });
 });

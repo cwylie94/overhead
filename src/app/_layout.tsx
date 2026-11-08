@@ -11,6 +11,7 @@ import { PassCacheProvider } from '@/data/passCache/PassCacheScheduler';
 import { ClockProvider, systemClock } from '@/environment/clock';
 import { DeviceLocationProvider } from '@/environment/location';
 import { configureNotificationHandler } from '@/features/tonight/reminders';
+import { SyncProvider } from '@/sync/SyncProvider';
 import { colors } from '@/ui/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -36,14 +37,16 @@ export default function RootLayout() {
           <DeviceLocationProvider>
             <DatabaseGate>
               <PassCacheProvider runner={passCacheRunner}>
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(tabs)" />
-                  <Stack.Screen
-                    name="catch/[passId]"
-                    options={{ presentation: 'fullScreenModal' }}
-                  />
-                  <Stack.Screen name="satellite/[noradId]" options={{ presentation: 'modal' }} />
-                </Stack>
+                <SyncProvider>
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen
+                      name="catch/[passId]"
+                      options={{ presentation: 'fullScreenModal' }}
+                    />
+                    <Stack.Screen name="satellite/[noradId]" options={{ presentation: 'modal' }} />
+                  </Stack>
+                </SyncProvider>
               </PassCacheProvider>
             </DatabaseGate>
           </DeviceLocationProvider>

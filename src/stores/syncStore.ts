@@ -9,12 +9,14 @@ type SyncState = {
   status: SyncStatus;
   lastSyncedAt: number | null;
   lastError: string | null;
+  accountId: string | null;
 };
 
 type SyncActions = {
   syncStarted(): void;
   syncSucceeded(at: number): void;
   syncFailed(message: string): void;
+  setAccountId(accountId: string): void;
 };
 
 export const useSyncStore = create<SyncState & SyncActions>()(
@@ -23,6 +25,7 @@ export const useSyncStore = create<SyncState & SyncActions>()(
       status: 'idle',
       lastSyncedAt: null,
       lastError: null,
+      accountId: null,
 
       syncStarted: () =>
         set((state) => (state.status === 'syncing' ? state : { status: 'syncing' })),
@@ -36,12 +39,14 @@ export const useSyncStore = create<SyncState & SyncActions>()(
         set((state) =>
           state.status === 'syncing' ? { status: 'error', lastError: message } : state,
         ),
+      setAccountId: (accountId) =>
+        set((state) => (state.accountId === null ? { accountId } : state)),
     }),
     {
       name: 'sync',
       version: 1,
       storage: persistStorage,
-      partialize: ({ lastSyncedAt }) => ({ lastSyncedAt }),
+      partialize: ({ lastSyncedAt, accountId }) => ({ lastSyncedAt, accountId }),
     },
   ),
 );
