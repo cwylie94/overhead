@@ -6,7 +6,7 @@ The loop is **Plan → Point → Catch → Collect**:
 
 - **Tonight** lists every visible pass for the next two nights, with when and where to look, how bright it will be and how rare it is. You can ask for a reminder 5 minutes before.
 - **Sky** shows the dome overhead with each satellite's path. Drag the timeline to see the sky later tonight, pinch to zoom, or turn on Compass to match the dome to the way you're facing.
-- **Catch** points you at a satellite during its pass. Hold the crosshair on it for 2 seconds, guided by haptic pulses, to catch it.
+- **Catch** points you at a satellite during its pass. Hold the crosshair on it for 2 seconds, guided by haptic pulses, to catch it. On a phone you can show the camera behind the crosshair, with the satellite's path drawn over the real sky, and line up the Moon to correct the compass.
 - **Collection** groups everything you've caught into themed sets, with a card for each satellite.
 
 Built with Expo (SDK 58), React Native and TypeScript, in English and Spanish.
@@ -128,11 +128,13 @@ npm run fixtures:passes
 - **A bundled snapshot plus a cautious refresh.** The app ships with orbit data so the first launch works offline, and refreshes each CelesTrak group at most every 2 hours.
 - **No login.** Each install has an anonymous account ID, which keeps sync simple, but a lost phone means a lost collection.
 - **Last write wins for notes.** Notes are the only thing that changes after a sighting is logged, so a full merge strategy wasn't worth it.
+- **Camera mode corrects the compass instead of trusting it.** Phone compasses are often 5–15° off, which is more than the catch tolerance. Lining up the Moon, whose position the app works out to within 0.4°, measures that error directly. The correction lasts for the session, because the error changes as you move.
 - **Expo with development builds, not ejected.** Native code (MMKV, Skia, sensors) comes in through config plugins, so `ios/` and `android/` are generated and never edited.
 
 ## Next steps
 
-- Check the compass and tilt sign conventions on a real phone, and test on Android.
+- Try camera mode on a real phone: check the heading follows the back camera when the phone is upright, and the overlay lines up with the Moon away from the centre. Then test on Android.
+- Calibrate on bright planets as well as the Moon, for nights when the Moon is down.
 - Calibrate brightness against real observations.
 - Group docked station modules (the ISS currently appears as ZARYA, NAUKA and POISK).
 - Let people move their collection to a new phone, for example with a transfer code for the account ID.

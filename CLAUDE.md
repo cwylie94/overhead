@@ -61,11 +61,13 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Skia 2 paths are built with `Skia.PathBuilder.Make()…build()`. A `Group` applies `transform` before `clip`, so to clip zoomed content, put the clip on an outer group and the transform on an inner one.
 - If the device reports a function as undefined right after you've added it, Metro's cache is probably stale. Restart it with `npx expo start --dev-client --clear` before debugging further. After editing a module the root layout loads at start-up (`src/demo/session.ts`, `src/i18n/`, the translation files), relaunch the app rather than trusting Fast Refresh, which can leave the screen frozen and ignoring taps.
 - Catch mode (`src/features/catch/`):
-  - Pointing is the compass heading from `expo-location` plus the camera's elevation from `DeviceMotion` gravity, in shared values (`usePointing`).
+  - Pointing is the compass heading from `expo-location` plus the camera's elevation and roll from `DeviceMotion` gravity (smoothed), in shared values (`usePointing`). Expo reports gravity pointing down in device coordinates on both platforms: lying flat with the screen up gives z = −g. Don't use `DeviceMotion.rotation`: its Euler angles break down with the phone held upright.
+  - Moon calibration stores the offset between the raw reading and the Moon (`src/domain/moon.ts`, within 0.4° of Skyfield) in `calibrationStore`, in memory only. `usePointing` applies it to every reading, and `pointing.raw` keeps the uncorrected one for calibrating. Offsets over 45° are rejected as aimed at the wrong thing.
+  - Camera mode (`CameraCatchView`, VisionCamera 5) is offered only with sensors and a back camera, so never on the simulator or in demo mode. The overlay projects the sky with `cameraProjection.ts`: the field of view comes from the lens's 35 mm-equivalent focal length, assuming the 4:3 photo frame fills the view (`resizeMode="cover"`). The catch logic is the same in both modes; only the drawing changes.
   - With no sensor data within 2.5 s (as on the simulator), it falls back to drag-to-aim. Demo mode can force that.
   - A 50 ms JS ticker feeds the catch machine, with readings that count only while a finger is down.
   - Log sightings through `logSighting` (UUIDv7 IDs), and guard against duplicates with something stable such as the catch time, never a flag an effect resets.
-  - The device sign conventions for gravity and heading are untested on real hardware. Check them on a phone before the demo.
+  - Untested on real hardware: whether the iOS heading follows the back camera when the phone is upright, and how accurate the field of view is. Check both on a phone, using the Moon marker, before the demo.
 - Routes outside the tabs: `catch/[passId]` (full-screen modal) and `satellite/[noradId]` (modal), both declared in the root `Stack`.
 - Compute pass tracks once, as a point every 10 s stored in `passes`. Worklets interpolate between points, so no orbit maths runs per frame.
 - The pass finder (`src/domain/passFinder.ts`) is checked against Skyfield fixtures across all 172 satellites: rise, set and visible boundaries within 2 s. Keep those tolerances. If a change breaks them, fix the change, not the test. It skips ahead while a satellite is out of reach, so one night for the whole catalogue costs about 117k SGP4 propagations: 1.6 s in Node, 1.2 s under Hermes on the simulator. Check `npm run bench` after touching it.
@@ -177,4 +179,4 @@ There is no collection table. The collection is derived from verified sightings.
 6. Sync: outbox engine, Hono Worker, CelesTrak refresh
 7. Polish: demo mode, haptics and reduce motion, Spanish, Maestro, README
 
-Never cut sync, tests or demo mode. Cut first: Arabic and right-to-left layout, a camera background in Catch mode, achievements.
+Never cut sync, tests or demo mode. Cut first: Arabic and right-to-left layout, achievements.
