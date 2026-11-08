@@ -49,3 +49,6 @@ example
 /tools/fixtures/.venv
 /tools/fixtures/.cache
 __pycache__/
+
+# Cloudflare
+.wrangler/
