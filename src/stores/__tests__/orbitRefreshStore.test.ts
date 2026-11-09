@@ -1,47 +1,106 @@
 import { useOrbitRefreshStore } from '../orbitRefreshStore';
 import { storeStorage } from '../storage';
 
+type OrbitRefreshStore = ReturnType<typeof useOrbitRefreshStore.getState>;
+
 beforeEach(() => {
   storeStorage.clearAll();
   useOrbitRefreshStore.setState(useOrbitRefreshStore.getInitialState());
 });
 
-describe('orbit refresh store', () => {
-  test('records when a check finished and whether it failed', () => {
-    const store = useOrbitRefreshStore.getState();
+describe('useOrbitRefreshStore', () => {
+  describe('given no check is running', () => {
+    let before: OrbitRefreshStore;
 
-    store.checkStarted();
-    expect(useOrbitRefreshStore.getState().status).toBe('checking');
-
-    store.checkFinished(1_000, true);
-    expect(useOrbitRefreshStore.getState()).toMatchObject({
-      status: 'failed',
-      lastCheckedAt: 1_000,
+    beforeEach(() => {
+      before = useOrbitRefreshStore.getState();
     });
 
-    store.checkStarted();
-    store.checkFinished(2_000, false);
-    expect(useOrbitRefreshStore.getState()).toMatchObject({ status: 'idle', lastCheckedAt: 2_000 });
+    describe('when a check starts', () => {
+      beforeEach(() => {
+        before.checkStarted();
+      });
+
+      test('then it is checking', () => {
+        expect(useOrbitRefreshStore.getState().status).toBe('checking');
+      });
+    });
+
+    describe('when a check finishes without having started', () => {
+      beforeEach(() => {
+        before.checkFinished(1_000, false);
+      });
+
+      test('then it is ignored', () => {
+        expect(useOrbitRefreshStore.getState()).toBe(before);
+      });
+    });
   });
 
-  test('ignores a finish without a start and a second start', () => {
-    const before = useOrbitRefreshStore.getState();
-    before.checkFinished(1_000, false);
-    expect(useOrbitRefreshStore.getState()).toBe(before);
+  describe('given a check is running', () => {
+    let checking: OrbitRefreshStore;
 
-    useOrbitRefreshStore.getState().checkStarted();
-    const checking = useOrbitRefreshStore.getState();
-    checking.checkStarted();
-    expect(useOrbitRefreshStore.getState()).toBe(checking);
+    beforeEach(() => {
+      useOrbitRefreshStore.getState().checkStarted();
+      checking = useOrbitRefreshStore.getState();
+    });
+
+    describe('when the check fails', () => {
+      beforeEach(() => {
+        checking.checkFinished(1_000, true);
+      });
+
+      test('then it records the failure and when the check finished', () => {
+        expect(useOrbitRefreshStore.getState()).toMatchObject({
+          status: 'failed',
+          lastCheckedAt: 1_000,
+        });
+      });
+    });
+
+    describe('when a second check starts', () => {
+      beforeEach(() => {
+        checking.checkStarted();
+      });
+
+      test('then it is ignored', () => {
+        expect(useOrbitRefreshStore.getState()).toBe(checking);
+      });
+    });
+
+    describe('when the check succeeds', () => {
+      beforeEach(() => {
+        checking.checkFinished(5_000, false);
+      });
+
+      test('then it saves only the last check time', () => {
+        expect(JSON.parse(storeStorage.getString('orbitRefresh') ?? 'null')).toEqual({
+          version: 1,
+          state: { lastCheckedAt: 5_000 },
+        });
+      });
+    });
   });
 
-  test('saves only the last check time', () => {
-    useOrbitRefreshStore.getState().checkStarted();
-    useOrbitRefreshStore.getState().checkFinished(5_000, false);
+  describe('given a check failed and another has started', () => {
+    beforeEach(() => {
+      const store = useOrbitRefreshStore.getState();
+      store.checkStarted();
+      store.checkFinished(1_000, true);
+      store.checkStarted();
+    });
 
-    expect(JSON.parse(storeStorage.getString('orbitRefresh') ?? 'null')).toEqual({
-      version: 1,
-      state: { lastCheckedAt: 5_000 },
+    describe('when the new check succeeds', () => {
+      beforeEach(() => {
+        useOrbitRefreshStore.getState().checkFinished(2_000, false);
+      });
+
+      test('then it is idle with the new check time', () => {
+        expect(useOrbitRefreshStore.getState()).toMatchObject({
+          status: 'idle',
+          lastCheckedAt: 2_000,
+        });
+      });
     });
   });
 });

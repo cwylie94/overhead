@@ -4,38 +4,110 @@ beforeEach(() => {
   useSkyStore.setState(useSkyStore.getInitialState());
 });
 
-describe('sky store', () => {
-  test('selects and clears a satellite', () => {
-    useSkyStore.getState().selectSatellite(25544);
-    expect(useSkyStore.getState().selectedNoradId).toBe(25544);
+describe('useSkyStore', () => {
+  describe('given no satellite is selected', () => {
+    describe('when the user selects a satellite', () => {
+      beforeEach(() => {
+        useSkyStore.getState().selectSatellite(25544);
+      });
 
-    useSkyStore.getState().clearSelection();
-    expect(useSkyStore.getState().selectedNoradId).toBeNull();
+      test('then it is selected', () => {
+        expect(useSkyStore.getState().selectedNoradId).toBe(25544);
+      });
+    });
   });
 
-  test('toggling a rarity adds it, toggling again removes it', () => {
-    const { toggleRarity } = useSkyStore.getState();
+  describe('given a satellite is selected', () => {
+    beforeEach(() => {
+      useSkyStore.getState().selectSatellite(25544);
+    });
 
-    toggleRarity('legendary');
-    toggleRarity('rare');
-    expect(useSkyStore.getState().rarityFilter).toEqual(['legendary', 'rare']);
+    describe('when the selection is cleared', () => {
+      beforeEach(() => {
+        useSkyStore.getState().clearSelection();
+      });
 
-    toggleRarity('legendary');
-    expect(useSkyStore.getState().rarityFilter).toEqual(['rare']);
+      test('then no satellite is selected', () => {
+        expect(useSkyStore.getState().selectedNoradId).toBeNull();
+      });
+    });
   });
 
-  test('clearing filters removes every rarity', () => {
-    useSkyStore.getState().toggleRarity('common');
-    useSkyStore.getState().clearFilters();
+  describe('given legendary is the only rarity filtered', () => {
+    beforeEach(() => {
+      useSkyStore.getState().toggleRarity('legendary');
+    });
 
-    expect(useSkyStore.getState().rarityFilter).toEqual([]);
+    describe('when the user toggles rare', () => {
+      beforeEach(() => {
+        useSkyStore.getState().toggleRarity('rare');
+      });
+
+      test('then both rarities are filtered in the order they were added', () => {
+        expect(useSkyStore.getState().rarityFilter).toEqual(['legendary', 'rare']);
+      });
+    });
   });
 
-  test('commits and resets the scrubber time offset', () => {
-    useSkyStore.getState().setTimeOffset(45 * 60_000);
-    expect(useSkyStore.getState().timeOffset).toBe(45 * 60_000);
+  describe('given legendary and rare are filtered', () => {
+    beforeEach(() => {
+      const { toggleRarity } = useSkyStore.getState();
+      toggleRarity('legendary');
+      toggleRarity('rare');
+    });
 
-    useSkyStore.getState().resetTime();
-    expect(useSkyStore.getState().timeOffset).toBe(0);
+    describe('when the user toggles legendary again', () => {
+      beforeEach(() => {
+        useSkyStore.getState().toggleRarity('legendary');
+      });
+
+      test('then only rare is left', () => {
+        expect(useSkyStore.getState().rarityFilter).toEqual(['rare']);
+      });
+    });
+  });
+
+  describe('given common is filtered', () => {
+    beforeEach(() => {
+      useSkyStore.getState().toggleRarity('common');
+    });
+
+    describe('when the user clears the filters', () => {
+      beforeEach(() => {
+        useSkyStore.getState().clearFilters();
+      });
+
+      test('then no rarity is filtered', () => {
+        expect(useSkyStore.getState().rarityFilter).toEqual([]);
+      });
+    });
+  });
+
+  describe('given the scrubber is at the present', () => {
+    describe('when the user commits a scrubber time 45 minutes ahead', () => {
+      beforeEach(() => {
+        useSkyStore.getState().setTimeOffset(45 * 60_000);
+      });
+
+      test('then the time offset is 45 minutes', () => {
+        expect(useSkyStore.getState().timeOffset).toBe(45 * 60_000);
+      });
+    });
+  });
+
+  describe('given the scrubber is 45 minutes ahead', () => {
+    beforeEach(() => {
+      useSkyStore.getState().setTimeOffset(45 * 60_000);
+    });
+
+    describe('when the user resets the time', () => {
+      beforeEach(() => {
+        useSkyStore.getState().resetTime();
+      });
+
+      test('then the time offset is back to zero', () => {
+        expect(useSkyStore.getState().timeOffset).toBe(0);
+      });
+    });
   });
 });
