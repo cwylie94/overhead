@@ -264,7 +264,7 @@ function Button({
 const styles = StyleSheet.create({
   screen: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(5, 7, 13, 0.86)',
+    backgroundColor: colors.background,
   },
   content: {
     alignItems: 'center',

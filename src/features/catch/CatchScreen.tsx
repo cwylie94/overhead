@@ -173,24 +173,26 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
       <GestureDetector gesture={hold}>
         {aim.cameraOn && aim.device ? (
           <View style={styles.camera}>
-            <CameraCatchView
-              device={aim.device}
-              track={pass.track}
-              startAt={pass.startAt}
-              time={time}
-              azimuth={pointing.azimuth}
-              elevation={pointing.elevation}
-              roll={pointing.roll}
-              progress={progress}
-              moon={aim.moon}
-              moonLabel={t('moon.label')}
-            />
+            {!caught && (
+              <CameraCatchView
+                device={aim.device}
+                track={pass.track}
+                startAt={pass.startAt}
+                time={time}
+                azimuth={pointing.azimuth}
+                elevation={pointing.elevation}
+                roll={pointing.roll}
+                progress={progress}
+                moon={aim.moon}
+                moonLabel={t('moon.label')}
+              />
+            )}
           </View>
         ) : (
           <View
             style={styles.canvas}
             onLayout={(event: LayoutChangeEvent) => setSize(event.nativeEvent.layout.width)}>
-            {size > 0 && (
+            {size > 0 && !caught && (
               <CatchCanvas
                 size={size}
                 track={pass.track}
