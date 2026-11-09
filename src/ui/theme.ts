@@ -11,6 +11,7 @@ export const colors = {
   accent: '#7CC4FF',
   warning: '#F2C46D',
   warningSurface: '#2A2414',
+  now: '#FF6B6B',
 } as const;
 
 export const rarityColors: Readonly<Record<Rarity, string>> = {
@@ -24,6 +25,12 @@ export const brightnessColors: Readonly<Record<BrightnessTier, string>> = {
   brilliant: '#FFFFFF',
   bright: '#C9D6F2',
   faint: '#6F7891',
+};
+
+export const brightnessMarkColors: Readonly<Record<BrightnessTier, string>> = {
+  brilliant: '#F2C46D',
+  bright: '#7CC4FF',
+  faint: '#4A5370',
 };
 
 export const spacing = {

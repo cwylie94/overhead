@@ -32,6 +32,14 @@ export function formatPassTime(time: number, language: string, timeZone?: string
   return formatter.format(time);
 }
 
+export function formatHour(time: number, language: string, timeZone?: string): string {
+  const formatter = cached(
+    `hour:${language}:${timeZone ?? ''}`,
+    () => new Intl.DateTimeFormat(language, { hour: 'numeric', timeZone }),
+  );
+  return formatter.format(time);
+}
+
 export function formatCountdown(target: number, now: number, language: string): string {
   const formatter = cached(
     `relative:${language}`,

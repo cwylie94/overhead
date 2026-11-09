@@ -1,6 +1,6 @@
 import '../polyfills';
 
-import { formatCountdown, formatDistance, formatPassTime } from '../format';
+import { formatCountdown, formatDistance, formatHour, formatPassTime } from '../format';
 
 const PASS_START = Date.UTC(2026, 10, 8, 21, 12);
 const MINUTE = 60_000;
@@ -9,6 +9,13 @@ describe('formatPassTime', () => {
   test('uses the language and time zone', () => {
     expect(formatPassTime(PASS_START, 'en', 'Europe/London')).toMatch(/^9:12\sPM$/);
     expect(formatPassTime(PASS_START, 'es', 'Europe/Madrid')).toBe('22:12');
+  });
+});
+
+describe('formatHour', () => {
+  test('shows just the hour in the local style', () => {
+    expect(formatHour(PASS_START, 'en', 'Europe/London')).toMatch(/^9\sPM$/);
+    expect(formatHour(PASS_START, 'es', 'Europe/Madrid')).toBe('22');
   });
 });
 
