@@ -20,7 +20,6 @@ const IOS_CALIBRATION_THRESHOLD = 25;
 const ANDROID_GOOD_ACCURACY = 2;
 const GRAVITY_SMOOTHING = 0.25;
 const MAGNETIC_SMOOTHING = 0.25;
-const HEADING_FROM_SENSORS = Platform.OS === 'android';
 
 export function needsCalibration(accuracy: number): boolean {
   return Platform.OS === 'ios'
@@ -52,6 +51,7 @@ export function usePointing(initial: SkyPosition): Pointing {
     if (mode === 'manual') {
       return;
     }
+    const headingFromSensors = Platform.OS === 'android';
     let active = true;
     let receivedHeading = false;
     let heading: Location.LocationSubscription | null = null;
@@ -105,12 +105,12 @@ export function usePointing(initial: SkyPosition): Pointing {
           );
           raw.current = { ...raw.current, elevation: elevationFromGravity(gravity) };
           roll.set(rollFromGravity(gravity));
-          if (HEADING_FROM_SENSORS) {
+          if (headingFromSensors) {
             updateAzimuth();
           }
           publish();
         });
-        if (HEADING_FROM_SENSORS) {
+        if (headingFromSensors) {
           Magnetometer.setUpdateInterval(MOTION_INTERVAL_MS);
           compass = Magnetometer.addListener((reading) => {
             magnetic = smoothVector(magnetic, reading, MAGNETIC_SMOOTHING);
@@ -123,7 +123,7 @@ export function usePointing(initial: SkyPosition): Pointing {
 
     Location.watchHeadingAsync((reading) => {
       setCalibrate(needsCalibration(reading.accuracy));
-      if (HEADING_FROM_SENSORS) {
+      if (headingFromSensors) {
         if (reading.trueHeading >= 0) {
           declination = reading.trueHeading - reading.magHeading;
         }
@@ -142,7 +142,7 @@ export function usePointing(initial: SkyPosition): Pointing {
         }
       })
       .catch(() => {
-        if (!HEADING_FROM_SENSORS) {
+        if (!headingFromSensors) {
           setMode('manual');
         }
       });
