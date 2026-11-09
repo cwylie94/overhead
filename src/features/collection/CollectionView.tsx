@@ -10,7 +10,7 @@ import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import type { CatchTonight } from './catchTonight';
 import { CatchTonightStrip } from './CatchTonightStrip';
-import { CollectionCard } from './CollectionCard';
+import { CollectionCard, type CardNumber } from './CollectionCard';
 import { CollectionHeader } from './CollectionHeader';
 import { filterCollection, rows, type CollectionFilters } from './filterCollection';
 
@@ -78,6 +78,11 @@ export function CollectionView({
   onChance,
 }: CollectionViewProps) {
   const { t } = useTranslation('collection');
+  const positions = new Map<number, CardNumber>(
+    collection.sets.flatMap((set) =>
+      set.cards.map((card, index) => [card.noradId, { number: index + 1, total: set.total }]),
+    ),
+  );
   const sections = filterCollection(collection, filters).map((progress) => ({
     ...progress,
     data: rows(progress.cards, CARDS_PER_ROW),
@@ -159,7 +164,11 @@ export function CollectionView({
         <View style={styles.row}>
           {item.map((card) => (
             <View key={card.noradId} style={styles.cell}>
-              <CollectionCard card={card} onOpen={onOpen} />
+              <CollectionCard
+                card={card}
+                position={positions.get(card.noradId) ?? { number: 0, total: 0 }}
+                onOpen={onOpen}
+              />
             </View>
           ))}
           {Array.from({ length: CARDS_PER_ROW - item.length }, (_, index) => (

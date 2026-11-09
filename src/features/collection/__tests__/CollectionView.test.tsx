@@ -7,11 +7,37 @@ import type { CatchTonight } from '../catchTonight';
 import { CollectionView, type CollectionViewProps } from '../CollectionView';
 import { rows } from '../filterCollection';
 
+jest.mock('@/ui/CardFinish', () => ({ CardFinish: () => null }));
+
 const satellites: CollectableSatellite[] = [
-  { noradId: 25544, name: 'ISS (ZARYA)', rarity: 'common', collectionSet: 'spaceStations' },
-  { noradId: 48274, name: 'CSS (TIANHE)', rarity: 'common', collectionSet: 'spaceStations' },
-  { noradId: 20580, name: 'HST', rarity: 'rare', collectionSet: 'observatories' },
-  { noradId: 694, name: 'ATLAS CENTAUR 2', rarity: 'legendary', collectionSet: 'coldWarVeterans' },
+  {
+    noradId: 25544,
+    name: 'ISS (ZARYA)',
+    objectType: 'payload',
+    rarity: 'common',
+    collectionSet: 'spaceStations',
+  },
+  {
+    noradId: 48274,
+    name: 'CSS (TIANHE)',
+    objectType: 'payload',
+    rarity: 'common',
+    collectionSet: 'spaceStations',
+  },
+  {
+    noradId: 20580,
+    name: 'HST',
+    objectType: 'payload',
+    rarity: 'rare',
+    collectionSet: 'observatories',
+  },
+  {
+    noradId: 694,
+    name: 'ATLAS CENTAUR 2',
+    objectType: 'rocket_body',
+    rarity: 'legendary',
+    collectionSet: 'coldWarVeterans',
+  },
 ];
 
 const collection = deriveCollection(satellites, [{ noradId: 25544, observedAt: 1 }]);
@@ -71,13 +97,28 @@ describe('CollectionView', () => {
     expect(screen.getByText('ISS (ZARYA)')).toBeOnTheScreen();
     expect(screen.getByText('Caught Jan 1')).toBeOnTheScreen();
     expect(screen.queryByText('HST')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Not caught yet, Rare' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Not caught yet, Rare, #1/1' })).toBeOnTheScreen();
+  });
+
+  test('numbers each card within its set and draws what kind of object it is', async () => {
+    await renderView();
+
+    expect(screen.getByRole('button', { name: 'ISS (ZARYA), Common, #2/2' })).toBeOnTheScreen();
+    expect(
+      screen.getAllByTestId('silhouette-station', { includeHiddenElements: true }),
+    ).toHaveLength(2);
+    expect(
+      screen.getByTestId('silhouette-telescope', { includeHiddenElements: true }),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByTestId('silhouette-rocketStage', { includeHiddenElements: true }),
+    ).toBeOnTheScreen();
   });
 
   test('opens a card, caught or not', async () => {
     const { onOpen } = await renderView();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Not caught yet, Legendary' }));
+    await fireEvent.press(screen.getByRole('button', { name: /^Not caught yet, Legendary/ }));
 
     expect(onOpen).toHaveBeenCalledWith(694);
   });

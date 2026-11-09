@@ -2,49 +2,63 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { CollectionCard as Card } from '@/domain/collection';
+import { silhouetteFor } from '@/domain/silhouette';
 import { formatShortDate } from '@/i18n/format';
+import { CardFinish } from '@/ui/CardFinish';
+import { SilhouetteArt } from '@/ui/SilhouetteArt';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
+
+export type CardNumber = { number: number; total: number };
 
 type CollectionCardProps = {
   card: Card;
+  position: CardNumber;
   onOpen(noradId: number): void;
 };
 
 const UNKNOWN_BORDER_ALPHA = '59';
 
-export function CollectionCard({ card, onOpen }: CollectionCardProps) {
+export function CollectionCard({ card, position, onOpen }: CollectionCardProps) {
   const { t, i18n } = useTranslation(['collection', 'common']);
   const rarity = t(`common:rarity.${card.rarity}`);
   const color = rarityColors[card.rarity];
-
-  if (card.caughtAt === null) {
-    return (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${t('unknown')}, ${rarity}`}
-        onPress={() => onOpen(card.noradId)}
-        style={[styles.card, styles.unknown, { borderColor: `${color}${UNKNOWN_BORDER_ALPHA}` }]}>
-        <Text style={[styles.mark, { color }]}>?</Text>
-        <Text style={[styles.rarity, { color }]}>{rarity}</Text>
-      </Pressable>
-    );
-  }
+  const caught = card.caughtAt !== null;
+  const number = t('cardNumber', position);
 
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${card.name}, ${rarity}`}
+      accessibilityLabel={`${caught ? card.name : t('unknown')}, ${rarity}, ${number}`}
       onPress={() => onOpen(card.noradId)}
-      style={[styles.card, styles.caught, { borderColor: color }]}>
-      <Text style={styles.name} numberOfLines={3}>
-        {card.name}
-      </Text>
-      <View>
-        <Text style={[styles.rarity, { color }]}>{rarity}</Text>
-        <Text style={styles.date} numberOfLines={1}>
-          {t('caughtOn', { date: formatShortDate(card.caughtAt, i18n.language) })}
-        </Text>
+      style={[
+        styles.card,
+        caught
+          ? [styles.caught, { borderColor: color }, card.rarity === 'common' && styles.plain]
+          : [styles.unknown, { borderColor: `${color}${UNKNOWN_BORDER_ALPHA}` }],
+        caught && card.rarity === 'uncommon' && [styles.glow, { shadowColor: color }],
+      ]}>
+      <View style={[styles.art, !caught && styles.artUnknown]}>
+        <SilhouetteArt
+          silhouette={silhouetteFor(card)}
+          color={caught ? color : colors.border}
+          solid={!caught}
+        />
+        <Text style={[styles.small, styles.number]}>{number}</Text>
       </View>
+      <View style={styles.body}>
+        <Text style={[styles.name, !caught && styles.nameUnknown]} numberOfLines={2}>
+          {caught ? card.name : '?'}
+        </Text>
+        <Text style={[styles.rarity, { color }]} numberOfLines={1}>
+          {rarity}
+        </Text>
+        {card.caughtAt !== null && (
+          <Text style={styles.small} numberOfLines={1}>
+            {t('caughtOn', { date: formatShortDate(card.caughtAt, i18n.language) })}
+          </Text>
+        )}
+      </View>
+      {caught && <CardFinish rarity={card.rarity} />}
     </Pressable>
   );
 }
@@ -54,32 +68,61 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 0.72,
     borderRadius: radius.md,
-    padding: spacing.sm,
+    overflow: 'hidden',
   },
   caught: {
     borderWidth: 2,
     backgroundColor: colors.surfaceRaised,
-    justifyContent: 'space-between',
+  },
+  plain: {
+    borderWidth: 1.5,
+  },
+  glow: {
+    overflow: 'visible',
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 0 },
   },
   unknown: {
     borderWidth: 1.5,
     backgroundColor: colors.surface,
-    alignItems: 'center',
+  },
+  art: {
+    flexBasis: '52%',
     justifyContent: 'center',
-    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radius.md - 2,
+    borderTopRightRadius: radius.md - 2,
+  },
+  artUnknown: {
+    backgroundColor: colors.background,
+  },
+  body: {
+    flex: 1,
+    padding: spacing.sm,
+    gap: 2,
   },
   name: {
     ...typography.label,
     color: colors.text,
   },
-  rarity: {
-    ...typography.label,
-  },
-  date: {
-    ...typography.caption,
+  nameUnknown: {
     color: colors.textMuted,
   },
-  mark: {
-    ...typography.title,
+  rarity: {
+    ...typography.label,
+    marginTop: 'auto',
+  },
+  number: {
+    position: 'absolute',
+    top: spacing.xs,
+    right: spacing.sm,
+  },
+  small: {
+    fontSize: 10,
+    lineHeight: 13,
+    color: colors.textMuted,
+    fontVariant: ['tabular-nums'],
   },
 });

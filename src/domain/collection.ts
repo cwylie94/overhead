@@ -1,9 +1,10 @@
 import { COLLECTION_SETS, type CollectionSet } from './collectionSets';
-import { RARITIES, type Rarity } from './types';
+import { RARITIES, type ObjectType, type Rarity } from './types';
 
 export type CollectableSatellite = {
   noradId: number;
   name: string;
+  objectType: ObjectType;
   rarity: Rarity;
   collectionSet: CollectionSet;
 };

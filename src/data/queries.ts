@@ -89,6 +89,7 @@ export function collectableSatellitesQuery(db: Database) {
     .select({
       noradId: satellites.noradId,
       name: satellites.name,
+      objectType: satellites.objectType,
       rarity: satellites.rarity,
       collectionSet: satellites.collectionSet,
     })

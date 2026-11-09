@@ -23,6 +23,7 @@
   },
   "unknown": "Aún sin atrapar",
   "caughtOn": "Atrapado el {{date}}",
+  "cardNumber": "n.º {{number}}/{{total}}",
   "chances": {
     "tonight": "Por atrapar esta noche",
     "tomorrow": "Por atrapar mañana por la noche",

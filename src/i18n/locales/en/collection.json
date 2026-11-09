@@ -23,6 +23,7 @@
   },
   "unknown": "Not caught yet",
   "caughtOn": "Caught {{date}}",
+  "cardNumber": "#{{number}}/{{total}}",
   "chances": {
     "tonight": "Catch tonight",
     "tomorrow": "Catch tomorrow night",

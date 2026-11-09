@@ -1,11 +1,41 @@
 import { deriveCollection, type CollectableSatellite } from '../collection';
 
 const satellites: CollectableSatellite[] = [
-  { noradId: 25544, name: 'ISS (ZARYA)', rarity: 'common', collectionSet: 'spaceStations' },
-  { noradId: 48274, name: 'CSS (TIANHE)', rarity: 'common', collectionSet: 'spaceStations' },
-  { noradId: 20580, name: 'HST', rarity: 'rare', collectionSet: 'observatories' },
-  { noradId: 3597, name: 'OAO 2', rarity: 'legendary', collectionSet: 'observatories' },
-  { noradId: 694, name: 'ATLAS CENTAUR 2', rarity: 'legendary', collectionSet: 'coldWarVeterans' },
+  {
+    noradId: 25544,
+    name: 'ISS (ZARYA)',
+    objectType: 'payload',
+    rarity: 'common',
+    collectionSet: 'spaceStations',
+  },
+  {
+    noradId: 48274,
+    name: 'CSS (TIANHE)',
+    objectType: 'payload',
+    rarity: 'common',
+    collectionSet: 'spaceStations',
+  },
+  {
+    noradId: 20580,
+    name: 'HST',
+    objectType: 'payload',
+    rarity: 'rare',
+    collectionSet: 'observatories',
+  },
+  {
+    noradId: 3597,
+    name: 'OAO 2',
+    objectType: 'payload',
+    rarity: 'legendary',
+    collectionSet: 'observatories',
+  },
+  {
+    noradId: 694,
+    name: 'ATLAS CENTAUR 2',
+    objectType: 'rocket_body',
+    rarity: 'legendary',
+    collectionSet: 'coldWarVeterans',
+  },
 ];
 
 const T = Date.UTC(2026, 10, 8, 21);
@@ -69,8 +99,20 @@ describe('deriveCollection', () => {
   test('leaves out docked modules and visitors unless they were already seen', () => {
     const withModules: CollectableSatellite[] = [
       ...satellites,
-      { noradId: 49044, name: 'ISS (NAUKA)', rarity: 'common', collectionSet: 'spaceStations' },
-      { noradId: 36086, name: 'POISK', rarity: 'common', collectionSet: 'spaceStations' },
+      {
+        noradId: 49044,
+        name: 'ISS (NAUKA)',
+        objectType: 'payload',
+        rarity: 'common',
+        collectionSet: 'spaceStations',
+      },
+      {
+        noradId: 36086,
+        name: 'POISK',
+        objectType: 'payload',
+        rarity: 'common',
+        collectionSet: 'spaceStations',
+      },
     ];
     const collection = deriveCollection(
       withModules,
