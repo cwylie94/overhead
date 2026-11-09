@@ -1,7 +1,9 @@
+import { Redirect } from 'expo-router';
 import { NativeTabs } from 'expo-router/native-tabs';
 import { useTranslation } from 'react-i18next';
 
 import { useDemo } from '@/demo/session';
+import { useNeedsOnboarding } from '@/features/onboarding/useNeedsOnboarding';
 import { usePendingChanges } from '@/features/settings/SettingsScreen';
 import { colors } from '@/ui/theme';
 
@@ -9,7 +11,12 @@ export default function TabsLayout() {
   const { t } = useTranslation();
   const pending = usePendingChanges();
   const demo = useDemo();
+  const onboarding = useNeedsOnboarding();
   const showPending = pending > 0 && demo === null;
+
+  if (onboarding) {
+    return <Redirect href="/onboarding" />;
+  }
 
   return (
     <NativeTabs

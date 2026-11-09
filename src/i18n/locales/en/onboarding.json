@@ -1,0 +1,36 @@
+{
+  "back": "Back",
+  "skip": "Skip",
+  "progress": "Step {{step}} of {{total}}",
+  "welcome": {
+    "title": "Satellites cross your sky every night",
+    "body": "See what’s passing over, then catch it to add its card to your collection.",
+    "start": "Get started",
+    "demo": "Try the demo"
+  },
+  "location": {
+    "title": "Where are you watching from?",
+    "body": "Passes depend on where you are. Your location stays on this phone, rounded to about 1 km.",
+    "useMine": "Use my location",
+    "chooseCity": "Choose a city",
+    "current": "Your current location",
+    "continue": "Continue",
+    "fallback": "If location is turned off, the city picker opens"
+  },
+  "catching": {
+    "title": "Catch one in three steps",
+    "pick": "Pick a pass on Tonight",
+    "pickHint": "Gold ticks are the brightest",
+    "open": "Open Catch when it’s up",
+    "openHint": "Hold your phone up to the sky",
+    "hold": "Keep the crosshair on it",
+    "holdHint": "Two seconds adds its card",
+    "next": "Next"
+  },
+  "reminders": {
+    "title": "Want a nudge before bright passes?",
+    "body": "Tap the bell on any pass and you’ll get a reminder a few minutes before it rises.",
+    "enable": "Turn on reminders",
+    "later": "Not now"
+  }
+}

@@ -33,7 +33,7 @@ export async function scheduledReminderIds(): Promise<Set<string>> {
   );
 }
 
-async function hasPermission(): Promise<boolean> {
+export async function requestReminderPermission(): Promise<boolean> {
   const current = await Notifications.getPermissionsAsync();
   if (current.granted) {
     return true;
@@ -45,7 +45,7 @@ async function hasPermission(): Promise<boolean> {
 }
 
 export async function setReminder(pass: ReminderPass, content: ReminderContent): Promise<boolean> {
-  if (!(await hasPermission())) {
+  if (!(await requestReminderPermission())) {
     return false;
   }
   await Notifications.scheduleNotificationAsync({

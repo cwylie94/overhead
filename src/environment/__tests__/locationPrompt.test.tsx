@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 async function launch() {
-  render(<LocationProvider fixed={null}>{null}</LocationProvider>);
+  await render(<LocationProvider fixed={null}>{null}</LocationProvider>);
   await act(async () => {});
 }
 
