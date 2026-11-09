@@ -6,18 +6,14 @@ import type { SightingRepository } from './types';
 
 export function createSightingRepository(db: Database): SightingRepository {
   return {
-    log(sighting, now) {
-      return db
-        .insert(sightings)
-        .values({ ...sighting, updatedAt: now, syncStatus: 'pending' })
-        .returning()
-        .get();
+    log(sighting) {
+      return db.insert(sightings).values(sighting).returning().get();
     },
 
-    updateNote(id, note, now) {
+    updateNote(id, note) {
       const updated = db
         .update(sightings)
-        .set({ note, updatedAt: now, syncStatus: 'pending' })
+        .set({ note })
         .where(eq(sightings.id, id))
         .returning({ id: sightings.id })
         .get();

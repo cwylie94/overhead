@@ -12,10 +12,12 @@ beforeEach(() => {
 });
 
 function logIssSighting(id = '0193a6f0-0000-7000-8000-000000000001') {
-  return createSightingRepository(db).log(
-    { id, noradId: ISS_NORAD_ID, observedAt: NOW, verified: true, angleError: 4.2 },
-    NOW,
-  );
+  return createSightingRepository(db).log({
+    id,
+    noradId: ISS_NORAD_ID,
+    observedAt: NOW,
+    angleError: 4.2,
+  });
 }
 
 describe('sighting repository', () => {
@@ -37,13 +39,13 @@ describe('sighting repository', () => {
     const sightings = createSightingRepository(db);
     const { id } = logIssSighting();
 
-    sightings.updateNote(id, 'Bright and fast', NOW + 1_000);
+    sightings.updateNote(id, 'Bright and fast');
 
     expect(sightings.getById(id)?.note).toBe('Bright and fast');
   });
 
   test('updating the note of an unknown sighting throws', () => {
-    expect(() => createSightingRepository(db).updateNote('missing', 'x', NOW)).toThrow(
+    expect(() => createSightingRepository(db).updateNote('missing', 'x')).toThrow(
       'Sighting missing not found',
     );
   });
@@ -65,9 +67,9 @@ describe('sighting repository', () => {
 
   test('lists sightings newest first, optionally for one satellite', () => {
     const sightings = createSightingRepository(db);
-    sightings.log({ id: 'a', noradId: ISS_NORAD_ID, observedAt: NOW, verified: true }, NOW);
-    sightings.log({ id: 'b', noradId: HUBBLE_NORAD_ID, observedAt: NOW + 10, verified: true }, NOW);
-    sightings.log({ id: 'c', noradId: ISS_NORAD_ID, observedAt: NOW + 20, verified: true }, NOW);
+    sightings.log({ id: 'a', noradId: ISS_NORAD_ID, observedAt: NOW });
+    sightings.log({ id: 'b', noradId: HUBBLE_NORAD_ID, observedAt: NOW + 10 });
+    sightings.log({ id: 'c', noradId: ISS_NORAD_ID, observedAt: NOW + 20 });
 
     expect(sightings.listAll().map((s) => s.id)).toEqual(['c', 'b', 'a']);
     expect(sightings.listForSatellite(ISS_NORAD_ID).map((s) => s.id)).toEqual(['c', 'a']);

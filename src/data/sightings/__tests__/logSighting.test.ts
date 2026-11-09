@@ -15,7 +15,7 @@ describe('logSighting', () => {
 
     const sighting = logSighting(
       repositories,
-      { noradId: 25544, observedAt: NOW, verified: true, angleError: 4.2 },
+      { noradId: 25544, observedAt: NOW, angleError: 4.2 },
       context,
     );
 
@@ -28,7 +28,7 @@ describe('logSighting', () => {
 
   test('two sightings in the same millisecond get different IDs', () => {
     const repositories = createRepositories(createTestDatabase());
-    const input = { noradId: 25544, observedAt: NOW, verified: true, angleError: 1 };
+    const input = { noradId: 25544, observedAt: NOW, angleError: 1 };
 
     const first = logSighting(repositories, input, context);
     const second = logSighting(repositories, input, context);

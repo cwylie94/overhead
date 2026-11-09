@@ -7,9 +7,6 @@ export type ObjectType = (typeof OBJECT_TYPES)[number];
 export const CELESTRAK_GROUPS = ['visual', 'stations'] as const;
 export type CelestrakGroup = (typeof CELESTRAK_GROUPS)[number];
 
-export const SYNC_STATUSES = ['pending', 'synced'] as const;
-export type SyncStatus = (typeof SYNC_STATUSES)[number];
-
 export const UNIT_SYSTEMS = ['metric', 'imperial'] as const;
 export type UnitSystem = (typeof UNIT_SYSTEMS)[number];
 

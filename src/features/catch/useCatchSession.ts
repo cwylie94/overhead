@@ -74,7 +74,6 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
         {
           noradId: pass.noradId,
           observedAt: machine.caughtAt,
-          verified: true,
           angleError: Math.round(machine.angleError * 10) / 10,
         },
         { now: clock.now(), randomBytes: Crypto.getRandomBytes },

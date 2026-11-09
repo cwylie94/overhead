@@ -32,11 +32,9 @@ export type PassRepository = {
   nextForSatellite(noradId: number, after: number): Pass | undefined;
 };
 
-export type NewLoggedSighting = Omit<NewSighting, 'updatedAt' | 'syncStatus'>;
-
 export type SightingRepository = {
-  log(sighting: NewLoggedSighting, now: number): Sighting;
-  updateNote(id: string, note: string | null, now: number): void;
+  log(sighting: NewSighting): Sighting;
+  updateNote(id: string, note: string | null): void;
   delete(id: string): void;
   getById(id: string): Sighting | undefined;
   listAll(): Sighting[];

@@ -6,7 +6,6 @@ import type { Sighting } from '../schema';
 export type SightingInput = {
   noradId: number;
   observedAt: number;
-  verified: boolean;
   angleError: number | null;
 };
 
@@ -21,5 +20,5 @@ export function logSighting(
   { now, randomBytes }: SightingContext,
 ): Sighting {
   const id = uuidv7(now, randomBytes(UUID_RANDOM_BYTES));
-  return repositories.sightings.log({ id, ...input }, now);
+  return repositories.sightings.log({ id, ...input });
 }
