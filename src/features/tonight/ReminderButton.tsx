@@ -2,6 +2,7 @@ import { SymbolView } from 'expo-symbols';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
+import { icons } from '@/ui/icons';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 export type ReminderControl = { isSet: boolean; onToggle(): void };
@@ -20,7 +21,7 @@ export function ReminderButton({ reminder, compact = false }: ReminderButtonProp
       style={compact ? styles.bell : [styles.action, reminder.isSet && styles.actionOn]}>
       {compact ? (
         <SymbolView
-          name={reminder.isSet ? 'bell.fill' : 'bell'}
+          name={reminder.isSet ? icons.bellOn : icons.bell}
           size={18}
           tintColor={reminder.isSet ? colors.accent : colors.textMuted}
           fallback={<Text style={styles.actionText}>{reminder.isSet ? '●' : '○'}</Text>}

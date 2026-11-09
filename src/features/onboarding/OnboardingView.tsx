@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Rarity } from '@/domain/types';
 import { formatPassTime } from '@/i18n/format';
 import { Chip } from '@/ui/Chip';
+import { icons } from '@/ui/icons';
 import {
   brightnessMarkColors,
   colors,
@@ -88,7 +89,7 @@ function StepContent({ step, place }: OnboardingViewProps) {
           {place && (
             <View style={[styles.card, styles.placeCard]}>
               <SymbolView
-                name="location.fill"
+                name={icons.location}
                 size={18}
                 tintColor={colors.accent}
                 fallback={<Text style={styles.icon}>⌖</Text>}
@@ -141,7 +142,7 @@ function StepContent({ step, place }: OnboardingViewProps) {
               </Text>
             </View>
             <SymbolView
-              name="bell"
+              name={icons.bell}
               size={18}
               tintColor={colors.accent}
               fallback={<Text style={styles.icon}>○</Text>}

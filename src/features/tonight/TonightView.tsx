@@ -8,6 +8,7 @@ import { brightnessTier } from '@/domain/brightness';
 import type { LocationState } from '@/environment/location';
 import { formatNightDate } from '@/i18n/format';
 import { Banner } from '@/ui/Banner';
+import { icons } from '@/ui/icons';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import { featuredPass, matchesFilter, PASS_FILTERS, type PassFilter } from './featured';
@@ -85,7 +86,12 @@ function Header({ locationName, summary, onChooseCity }: HeaderProps) {
           <Text style={styles.locationText} numberOfLines={1}>
             {locationName}
           </Text>
-          <SymbolView name="chevron.down" size={12} tintColor={colors.textMuted} fallback={null} />
+          <SymbolView
+            name={icons.chevronDown}
+            size={12}
+            tintColor={colors.textMuted}
+            fallback={null}
+          />
         </Pressable>
       </View>
       {summary && <Text style={styles.summary}>{summary}</Text>}

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { CustomLocation } from '@/stores/settingsStore';
+import { icons } from '@/ui/icons';
 import { colors, spacing } from '@/ui/theme';
 
 import { Section, sectionStyles } from './controls';
@@ -22,7 +23,7 @@ export function LocationSection({ customLocation, onChooseCity, onUseGps }: Loca
     <Section title={t('location.title')}>
       <View style={styles.current}>
         <SymbolView
-          name={customLocation ? 'mappin.and.ellipse' : 'location.fill'}
+          name={customLocation ? icons.chosenPlace : icons.location}
           size={ICON_SIZE}
           tintColor={colors.accent}
           fallback={null}
