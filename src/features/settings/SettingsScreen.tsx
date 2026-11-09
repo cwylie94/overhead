@@ -78,6 +78,7 @@ export function SettingsScreen() {
   const { preferences, actions } = usePreferences();
   const demo = useDemo();
   const setDemoMode = useSettingsStore((settings) => settings.setDemoMode);
+  const setOnboardingComplete = useSettingsStore((settings) => settings.setOnboardingComplete);
   const customLocation = useSettingsStore((settings) => settings.customLocation);
   const setCustomLocation = useSettingsStore((settings) => settings.setCustomLocation);
 
@@ -105,7 +106,14 @@ export function SettingsScreen() {
             }}
           />
         )}
-        <AboutSection version={APP_VERSION} onToggleDemo={() => setDemoMode(demo === null)} />
+        <AboutSection
+          version={APP_VERSION}
+          onToggleDemo={() => setDemoMode(demo === null)}
+          onReplayIntro={() => {
+            setDemoMode(false);
+            setOnboardingComplete(false);
+          }}
+        />
       </ScrollView>
     </Screen>
   );

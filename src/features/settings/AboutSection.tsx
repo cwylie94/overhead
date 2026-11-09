@@ -12,9 +12,10 @@ const TAP_GAP_MS = 1_500;
 type AboutSectionProps = {
   version: string;
   onToggleDemo(): void;
+  onReplayIntro(): void;
 };
 
-export function AboutSection({ version, onToggleDemo }: AboutSectionProps) {
+export function AboutSection({ version, onToggleDemo, onReplayIntro }: AboutSectionProps) {
   const { t } = useTranslation('settings');
   const taps = useRef(0);
   const reset = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -49,6 +50,13 @@ export function AboutSection({ version, onToggleDemo }: AboutSectionProps) {
         <Text style={sectionStyles.caption}>{t('about.version', { version })}</Text>
       </Pressable>
       <Text style={sectionStyles.caption}>{t('about.cityData')}</Text>
+      <Pressable
+        testID="replay-intro"
+        accessibilityRole="button"
+        onPress={onReplayIntro}
+        style={sectionStyles.button}>
+        <Text style={sectionStyles.buttonText}>{t('about.replayIntro')}</Text>
+      </Pressable>
     </Section>
   );
 }

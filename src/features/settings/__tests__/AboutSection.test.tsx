@@ -13,7 +13,9 @@ describe('AboutSection', () => {
   afterEach(() => jest.useRealTimers());
 
   test('shows the version and credits the city data', async () => {
-    await render(<AboutSection version="1.0.0" onToggleDemo={jest.fn()} />);
+    await render(
+      <AboutSection version="1.0.0" onToggleDemo={jest.fn()} onReplayIntro={jest.fn()} />,
+    );
 
     expect(screen.getByText('Version 1.0.0')).toBeOnTheScreen();
     expect(screen.getByText('City data from GeoNames (CC BY 4.0)')).toBeOnTheScreen();
@@ -21,7 +23,9 @@ describe('AboutSection', () => {
 
   test('toggles demo mode after five quick taps on the version', async () => {
     const onToggleDemo = jest.fn();
-    await render(<AboutSection version="1.0.0" onToggleDemo={onToggleDemo} />);
+    await render(
+      <AboutSection version="1.0.0" onToggleDemo={onToggleDemo} onReplayIntro={jest.fn()} />,
+    );
 
     await tapVersion(DEMO_TAPS - 1);
     expect(onToggleDemo).not.toHaveBeenCalled();
@@ -32,12 +36,25 @@ describe('AboutSection', () => {
 
   test('starts counting again after a pause', async () => {
     const onToggleDemo = jest.fn();
-    await render(<AboutSection version="1.0.0" onToggleDemo={onToggleDemo} />);
+    await render(
+      <AboutSection version="1.0.0" onToggleDemo={onToggleDemo} onReplayIntro={jest.fn()} />,
+    );
 
     await tapVersion(DEMO_TAPS - 1);
     jest.advanceTimersByTime(2_000);
     await tapVersion(1);
 
     expect(onToggleDemo).not.toHaveBeenCalled();
+  });
+
+  test('shows the intro again', async () => {
+    const onReplayIntro = jest.fn();
+    await render(
+      <AboutSection version="1.0.0" onToggleDemo={jest.fn()} onReplayIntro={onReplayIntro} />,
+    );
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Show intro again' }));
+
+    expect(onReplayIntro).toHaveBeenCalledTimes(1);
   });
 });

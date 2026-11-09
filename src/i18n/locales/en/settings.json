@@ -56,7 +56,8 @@
   "about": {
     "title": "About",
     "version": "Version {{version}}",
-    "cityData": "City data from GeoNames (CC BY 4.0)"
+    "cityData": "City data from GeoNames (CC BY 4.0)",
+    "replayIntro": "Show intro again"
   },
   "demo": {
     "title": "Demo mode",
