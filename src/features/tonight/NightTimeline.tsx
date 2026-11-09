@@ -1,10 +1,17 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View, type GestureResponderEvent } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+  type GestureResponderEvent,
+} from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier, type BrightnessTier } from '@/domain/brightness';
 import { formatHour, formatPassTime } from '@/i18n/format';
+import { Text } from '@/ui/Text';
 import { brightnessMarkColors, colors, radius, spacing, typography } from '@/ui/theme';
 
 import type { NightSky, Interval } from './nightSky';
@@ -16,6 +23,7 @@ import {
   hourStep,
   MIN_HOUR_SPACING,
   nearestPass,
+  spacedOut,
   timeAtX,
   timelineAxis,
   timelineRange,
@@ -28,6 +36,7 @@ const TRACK_HEIGHT = 30;
 const TOUCH_REACH = 16;
 const MARKER_SIZE = 8;
 const HOUR_LABEL_MAX_SCALE = 1.4;
+const HOUR_LABEL_TEXT_WIDTH = 40;
 const TICK_HEIGHT: Readonly<Record<BrightnessTier, number>> = {
   brilliant: 24,
   bright: 16,
@@ -49,6 +58,7 @@ function tierOf(pass: UpcomingPass): BrightnessTier {
 export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightTimelineProps) {
   const { t, i18n } = useTranslation('tonight');
   const [width, setWidth] = useState(0);
+  const { fontScale } = useWindowDimensions();
   const [voiceIndex, setVoiceIndex] = useState<number | null>(null);
   const range = timelineRange(sky, passes);
   if (!range) {
@@ -69,7 +79,11 @@ export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightT
     sky?.darkUntil ? { from: sky.darkUntil, to: range.to } : null,
   ].filter((interval): interval is Interval => interval !== null);
   const moon = pieces(sky?.moonUp ?? []).map(span);
-  const hours = axis.segments.flatMap((segment) => hourMarks(segment, hourStep(axis, width)));
+  const hours = spacedOut(
+    axis.segments.flatMap((segment) => hourMarks(segment, hourStep(axis, width))),
+    at,
+    HOUR_LABEL_TEXT_WIDTH * Math.min(fontScale, HOUR_LABEL_MAX_SCALE),
+  );
   const showNow = now > range.from && now < range.to;
   const bright = passes.filter((pass) => tierOf(pass) !== 'faint');
   const featured = passes.find((pass) => pass.id === featuredId);

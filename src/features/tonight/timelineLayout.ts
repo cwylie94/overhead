@@ -37,6 +37,17 @@ export function hourMarks(range: Interval, every = 3): number[] {
   return marks;
 }
 
+export function spacedOut<T>(marks: T[], position: (mark: T) => number, gap: number): T[] {
+  const kept: T[] = [];
+  for (const mark of marks) {
+    const previous = kept.at(-1);
+    if (previous === undefined || position(mark) - position(previous) >= gap) {
+      kept.push(mark);
+    }
+  }
+  return kept;
+}
+
 export function nearestPass<T extends TimelinePass>(
   passes: T[],
   time: number,

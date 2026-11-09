@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
@@ -8,6 +8,7 @@ import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useNow } from '@/environment/clock';
 import { formatPassTime } from '@/i18n/format';
+import { Text } from '@/ui/Text';
 import {
   brightnessMarkColors,
   colors,
@@ -145,7 +146,7 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.text,
     fontVariant: ['tabular-nums'],
-    width: 76,
+    minWidth: 76,
   },
   text: {
     flex: 1,

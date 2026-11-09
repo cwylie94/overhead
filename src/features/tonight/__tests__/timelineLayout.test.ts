@@ -4,6 +4,7 @@ import {
   hourMarks,
   hourStep,
   nearestPass,
+  spacedOut,
   SPLIT_PADDING,
   timeAtX,
   timelineAxis,
@@ -160,5 +161,15 @@ describe('hourStep', () => {
     expect(hourStep(night(6), 360)).toBe(1);
     expect(hourStep(night(11), 360)).toBe(2);
     expect(hourStep(night(11), 200)).toBe(3);
+  });
+});
+
+describe('spacedOut', () => {
+  test('keeps marks at least the gap apart, dropping the later of a close pair', () => {
+    expect(spacedOut([0, 50, 80, 130, 200], (x) => x, 48)).toEqual([0, 50, 130, 200]);
+  });
+
+  test('keeps everything when the marks are already far enough apart', () => {
+    expect(spacedOut([10, 60, 110], (x) => x, 40)).toEqual([10, 60, 110]);
   });
 });
