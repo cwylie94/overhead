@@ -39,6 +39,8 @@ const pass: UpcomingPass = {
   rarity: 'common',
 };
 
+type HookResult = Awaited<ReturnType<typeof renderReminders>>['result'];
+
 async function renderReminders() {
   const hook = await renderHook(() => useReminders());
   await act(async () => {});
@@ -54,71 +56,147 @@ beforeEach(() => {
 });
 
 describe('useReminders', () => {
-  test('is off when notifications are off', async () => {
-    useSettingsStore.setState({ notificationsEnabled: false });
+  let result: HookResult;
 
-    const { result } = await renderReminders();
-
-    expect(result.current).toBeNull();
-    expect(scheduledReminderIds).not.toHaveBeenCalled();
-  });
-
-  test('is off in demo mode', async () => {
-    useSettingsStore.setState({ demoMode: true });
-
-    const { result } = await renderReminders();
-
-    expect(result.current).toBeNull();
-  });
-
-  test('knows which passes already have a reminder', async () => {
-    jest.mocked(scheduledReminderIds).mockResolvedValue(new Set([reminderId(pass)]));
-
-    const { result } = await renderReminders();
-
-    expect(result.current!.isSet(pass)).toBe(true);
-    expect(result.current!.isSet({ ...pass, noradId: 20580 })).toBe(false);
-  });
-
-  test('sets a reminder that says where to look and how high', async () => {
-    const { result } = await renderReminders();
-
-    await act(async () => result.current!.toggle(pass));
-
-    expect(setReminder).toHaveBeenCalledWith(pass, {
-      title: 'ISS (ZARYA) in 5 minutes',
-      body: 'Look southwest. It climbs to 56°.',
+  describe('given notifications are turned off', () => {
+    beforeEach(() => {
+      useSettingsStore.setState({ notificationsEnabled: false, demoMode: false });
     });
-    expect(result.current!.isSet(pass)).toBe(true);
+
+    describe('when the hook renders', () => {
+      beforeEach(async () => {
+        ({ result } = await renderReminders());
+      });
+
+      test('then it offers no reminders', () => {
+        expect(result.current).toBeNull();
+      });
+
+      test('then it does not look up the scheduled reminders', () => {
+        expect(scheduledReminderIds).not.toHaveBeenCalled();
+      });
+    });
   });
 
-  test('stays unset when the reminder could not be scheduled', async () => {
-    jest.mocked(setReminder).mockResolvedValue(false);
-    const { result } = await renderReminders();
+  describe('given demo mode is on', () => {
+    beforeEach(() => {
+      useSettingsStore.setState({ notificationsEnabled: true, demoMode: true });
+    });
 
-    await act(async () => result.current!.toggle(pass));
+    describe('when the hook renders', () => {
+      beforeEach(async () => {
+        ({ result } = await renderReminders());
+      });
 
-    expect(result.current!.isSet(pass)).toBe(false);
+      test('then it offers no reminders', () => {
+        expect(result.current).toBeNull();
+      });
+    });
   });
 
-  test('cancels a reminder that is already set', async () => {
-    jest.mocked(scheduledReminderIds).mockResolvedValue(new Set([reminderId(pass)]));
-    const { result } = await renderReminders();
+  describe('given a reminder is already scheduled for the pass', () => {
+    beforeEach(() => {
+      jest.mocked(scheduledReminderIds).mockResolvedValue(new Set([reminderId(pass)]));
+    });
 
-    await act(async () => result.current!.toggle(pass));
+    describe('when the hook renders', () => {
+      beforeEach(async () => {
+        ({ result } = await renderReminders());
+      });
 
-    expect(cancelReminder).toHaveBeenCalledWith(pass);
-    expect(setReminder).not.toHaveBeenCalled();
-    expect(result.current!.isSet(pass)).toBe(false);
+      test('then it knows the pass has a reminder', () => {
+        expect(result.current!.isSet(pass)).toBe(true);
+      });
+
+      test('then it knows another satellite has none', () => {
+        expect(result.current!.isSet({ ...pass, noradId: 20580 })).toBe(false);
+      });
+    });
   });
 
-  test('carries on when the notifications fail', async () => {
-    jest.mocked(scheduledReminderIds).mockRejectedValue(new Error('denied'));
-    jest.mocked(setReminder).mockRejectedValue(new Error('denied'));
-    const { result } = await renderReminders();
+  describe('given the reminders loaded with none scheduled', () => {
+    beforeEach(async () => {
+      jest.mocked(scheduledReminderIds).mockResolvedValue(new Set());
+      jest.mocked(setReminder).mockResolvedValue(true);
+      ({ result } = await renderReminders());
+    });
 
-    await act(async () => result.current!.toggle(pass));
+    describe('when the user turns on the reminder for the pass', () => {
+      beforeEach(async () => {
+        await act(async () => result.current!.toggle(pass));
+      });
 
-    expect(result.current!.isSet(pass)).toBe(false);
+      test('then it sets a reminder that says where to look and how high', () => {
+        expect(setReminder).toHaveBeenCalledWith(pass, {
+          title: 'ISS (ZARYA) in 5 minutes',
+          body: 'Look southwest. It climbs to 56°.',
+        });
+      });
+
+      test('then the pass has a reminder', () => {
+        expect(result.current!.isSet(pass)).toBe(true);
+      });
+    });
+  });
+
+  describe('given the reminders loaded and a reminder cannot be scheduled', () => {
+    beforeEach(async () => {
+      jest.mocked(scheduledReminderIds).mockResolvedValue(new Set());
+      jest.mocked(setReminder).mockResolvedValue(false);
+      ({ result } = await renderReminders());
+    });
+
+    describe('when the user turns on the reminder for the pass', () => {
+      beforeEach(async () => {
+        await act(async () => result.current!.toggle(pass));
+      });
+
+      test('then the pass stays without a reminder', () => {
+        expect(result.current!.isSet(pass)).toBe(false);
+      });
+    });
+  });
+
+  describe('given the reminders loaded with one set for the pass', () => {
+    beforeEach(async () => {
+      jest.mocked(scheduledReminderIds).mockResolvedValue(new Set([reminderId(pass)]));
+      ({ result } = await renderReminders());
+    });
+
+    describe('when the user turns off the reminder for the pass', () => {
+      beforeEach(async () => {
+        await act(async () => result.current!.toggle(pass));
+      });
+
+      test('then it cancels the reminder', () => {
+        expect(cancelReminder).toHaveBeenCalledWith(pass);
+      });
+
+      test('then it sets no new reminder', () => {
+        expect(setReminder).not.toHaveBeenCalled();
+      });
+
+      test('then the pass no longer has a reminder', () => {
+        expect(result.current!.isSet(pass)).toBe(false);
+      });
+    });
+  });
+
+  describe('given the reminders loaded while the notifications fail', () => {
+    beforeEach(async () => {
+      jest.mocked(scheduledReminderIds).mockRejectedValue(new Error('denied'));
+      jest.mocked(setReminder).mockRejectedValue(new Error('denied'));
+      ({ result } = await renderReminders());
+    });
+
+    describe('when the user turns on the reminder for the pass', () => {
+      beforeEach(async () => {
+        await act(async () => result.current!.toggle(pass));
+      });
+
+      test('then it carries on with the pass still without a reminder', () => {
+        expect(result.current!.isSet(pass)).toBe(false);
+      });
+    });
   });
 });
