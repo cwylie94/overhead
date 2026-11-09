@@ -42,7 +42,7 @@ function useFixedLocation(demo: DemoEnvironment | null) {
 }
 
 export default function RootLayout() {
-  const { data, demo } = useAppSession();
+  const { data, demo, features } = useAppSession();
   const fixedLocation = useFixedLocation(demo);
 
   return (
@@ -55,7 +55,7 @@ export default function RootLayout() {
             <LocationProvider fixed={fixedLocation}>
               <DatabaseGate>
                 <PassCacheProvider runner={data.passCacheRunner}>
-                  <OrbitRefreshProvider enabled={demo === null}>
+                  <OrbitRefreshProvider enabled={features.orbitUpdates}>
                     <Stack screenOptions={{ headerShown: false }}>
                       <Stack.Screen name="(tabs)" />
                       <Stack.Screen

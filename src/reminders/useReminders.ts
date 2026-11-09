@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import type { UpcomingPass } from '@/data/queries';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
+import { useSessionFeatures } from '@/session/appSession';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 import {
@@ -21,9 +22,8 @@ export type Reminders = {
 };
 
 export function useReminders(): Reminders | null {
-  const enabled = useSettingsStore(
-    (settings) => settings.notificationsEnabled && !settings.demoMode,
-  );
+  const notificationsEnabled = useSettingsStore((settings) => settings.notificationsEnabled);
+  const enabled = useSessionFeatures().reminders && notificationsEnabled;
   const { t } = useTranslation(['tonight', 'common']);
   const [ids, setIds] = useState<ReadonlySet<string>>(new Set());
 

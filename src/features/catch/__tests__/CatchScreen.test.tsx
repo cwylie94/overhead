@@ -18,7 +18,9 @@ jest.mock('expo-router', () => ({
 }));
 jest.mock('@/data/AppDataContext', () => ({ useAppData: () => ({ db: {} }) }));
 jest.mock('@/data/queries', () => ({ passWithSatelliteQuery: () => ({ get: () => undefined }) }));
-jest.mock('@/session/appSession', () => ({ useDemo: () => null }));
+jest.mock('@/session/appSession', () => ({
+  useSessionFeatures: () => jest.requireActual('@/session/features').DEVICE_FEATURES,
+}));
 jest.mock('@/environment/location', () => ({
   ...jest.requireActual('@/environment/location'),
   useLocation: () => ({ state: mockLocation }),

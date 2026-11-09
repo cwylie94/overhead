@@ -175,7 +175,7 @@ There is no collection table. The collection is derived from sightings.
 - Turn it on with the Demo mode switch in Settings, by tapping the version five times, or with the `overhead://demo` link (`?enabled=0` turns it off). The flag is `demoMode` in `settingsStore`, so it survives a relaunch.
 - The demo pass is the first ISS pass over London after the snapshot was taken that peaks at 40° or higher and magnitude −2 or brighter (`src/demo/scenario.ts`). The clock starts a minute before it appears and then runs in real time. It's derived from the snapshot, so it still works after `npm run snapshot:update`; the tests fail if a refresh leaves no such pass.
 - Each start deletes and recreates `overhead-demo.db` and imports the bundled snapshot, so demo catches never touch the real collection.
-- In demo mode, the CelesTrak refresh, reminders and the staleness banner are off. Catch aims with the compass on a phone (drag-to-aim only where there are no sensors, such as the simulator), but camera mode is off, because Moon calibration would use the demo evening's Moon rather than the real one.
+- In demo mode, the CelesTrak refresh (with the offline and staleness banners and the Orbit data section), reminders, onboarding and the chosen city are off. The session says so in its `features` (`src/session/features.ts`): read them with `useSessionFeatures()`, and keep `useDemo()` for showing or switching the demo itself. Catch aims with the compass on a phone (drag-to-aim only where there are no sensors, such as the simulator), but camera mode is off, because Moon calibration would use the demo evening's Moon rather than the real one.
 
 ## Build phases
 

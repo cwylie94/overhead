@@ -7,6 +7,8 @@ import type { Observer } from '@/domain/observer';
 import { systemClock, type Clock } from '@/environment/clock';
 import { useSettingsStore } from '@/stores/settingsStore';
 
+import { DEMO_FEATURES, DEVICE_FEATURES, type SessionFeatures } from './features';
+
 export type DemoEnvironment = {
   clock: Clock;
   observer: Observer;
@@ -17,6 +19,7 @@ export type DemoEnvironment = {
 export type AppSession = {
   data: AppData;
   demo: DemoEnvironment | null;
+  features: SessionFeatures;
 };
 
 let demoPass: DemoPass | null | undefined;
@@ -38,7 +41,9 @@ function startDemo(): DemoEnvironment | null {
 
 function createSession(demoMode: boolean): AppSession {
   const demo = demoMode ? startDemo() : null;
-  return demo ? { data: freshDemoData(), demo } : { data: deviceData(), demo: null };
+  return demo
+    ? { data: freshDemoData(), demo, features: DEMO_FEATURES }
+    : { data: deviceData(), demo: null, features: DEVICE_FEATURES };
 }
 
 let session: AppSession | null = null;
@@ -67,4 +72,8 @@ export function useAppSession(): AppSession {
 
 export function useDemo(): DemoEnvironment | null {
   return useAppSession().demo;
+}
+
+export function useSessionFeatures(): SessionFeatures {
+  return useAppSession().features;
 }

@@ -9,7 +9,7 @@ import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import { orbitFreshnessQuery } from '@/data/queries';
 import { useNow } from '@/environment/clock';
 import { cancelAllReminders } from '@/reminders/reminders';
-import { useDemo } from '@/session/appSession';
+import { useDemo, useSessionFeatures } from '@/session/appSession';
 import { useOrbitRefreshStore } from '@/stores/orbitRefreshStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Screen } from '@/ui/Screen';
@@ -74,6 +74,7 @@ export function SettingsScreen() {
   const orbitsUpdatedAt = useOrbitsUpdatedAt();
   const { preferences, actions } = usePreferences();
   const demo = useDemo();
+  const features = useSessionFeatures();
   const setDemoMode = useSettingsStore((settings) => settings.setDemoMode);
   const setOnboardingComplete = useSettingsStore((settings) => settings.setOnboardingComplete);
   const customLocation = useSettingsStore((settings) => settings.customLocation);
@@ -88,7 +89,7 @@ export function SettingsScreen() {
           onUseGps={() => setCustomLocation(null)}
         />
         <PreferencesSections preferences={preferences} actions={actions} />
-        {demo === null && (
+        {features.orbitUpdates && (
           <OrbitDataSection updatedAt={orbitsUpdatedAt} status={refreshStatus} now={now} />
         )}
         <DemoSection startsAt={demo?.startsAt ?? null} onChange={setDemoMode} />

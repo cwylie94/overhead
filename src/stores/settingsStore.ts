@@ -86,8 +86,8 @@ export function migrateSettings(persisted: unknown, version: number): PersistedS
   return settings;
 }
 
-export function needsOnboarding(onboardingComplete: boolean, inDemo: boolean): boolean {
-  return !onboardingComplete && !inDemo;
+export function needsOnboarding(onboardingComplete: boolean, offered: boolean): boolean {
+  return offered && !onboardingComplete;
 }
 
 export const useSettingsStore = create<SettingsState & SettingsActions>()(

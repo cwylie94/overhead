@@ -279,21 +279,21 @@ describe('migrateSettings', () => {
 });
 
 describe('needsOnboarding', () => {
-  describe('given onboarding isn’t finished and the app isn’t in demo mode', () => {
+  describe('given onboarding is offered and isn’t finished', () => {
     test('then onboarding shows', () => {
-      expect(needsOnboarding(false, false)).toBe(true);
+      expect(needsOnboarding(false, true)).toBe(true);
     });
   });
 
   describe('given onboarding is finished', () => {
     test('then onboarding doesn’t show', () => {
-      expect(needsOnboarding(true, false)).toBe(false);
+      expect(needsOnboarding(true, true)).toBe(false);
     });
   });
 
-  describe('given the app is in demo mode', () => {
+  describe('given onboarding isn’t offered, as in demo mode', () => {
     test('then onboarding doesn’t show', () => {
-      expect(needsOnboarding(false, true)).toBe(false);
+      expect(needsOnboarding(false, false)).toBe(false);
     });
   });
 });

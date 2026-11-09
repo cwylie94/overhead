@@ -1,8 +1,8 @@
-import { useDemo } from '@/session/appSession';
+import { useSessionFeatures } from '@/session/appSession';
 import { needsOnboarding, useSettingsStore } from '@/stores/settingsStore';
 
 export function useNeedsOnboarding(): boolean {
-  const demo = useDemo();
+  const { onboarding } = useSessionFeatures();
   const onboardingComplete = useSettingsStore((settings) => settings.onboardingComplete);
-  return needsOnboarding(onboardingComplete, demo !== null);
+  return needsOnboarding(onboardingComplete, onboarding);
 }

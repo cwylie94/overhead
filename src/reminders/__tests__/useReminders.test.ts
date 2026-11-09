@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react-native';
 
 import type { UpcomingPass } from '@/data/queries';
+import { DEMO_FEATURES, DEVICE_FEATURES, type SessionFeatures } from '@/session/features';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 import { cancelReminder, reminderId, scheduledReminderIds, setReminder } from '../reminders';
@@ -12,6 +13,10 @@ jest.mock('expo-router', () => {
 });
 
 jest.mock('expo-notifications', () => ({}));
+
+let mockFeatures: SessionFeatures = DEVICE_FEATURES;
+
+jest.mock('@/session/appSession', () => ({ useSessionFeatures: () => mockFeatures }));
 
 jest.mock('../reminders', () => ({
   ...jest.requireActual('../reminders'),
@@ -49,7 +54,8 @@ async function renderReminders() {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  useSettingsStore.setState({ notificationsEnabled: true, demoMode: false });
+  mockFeatures = DEVICE_FEATURES;
+  useSettingsStore.setState({ notificationsEnabled: true });
   jest.mocked(scheduledReminderIds).mockResolvedValue(new Set());
   jest.mocked(setReminder).mockResolvedValue(true);
   jest.mocked(cancelReminder).mockResolvedValue();
@@ -60,7 +66,7 @@ describe('useReminders', () => {
 
   describe('given notifications are turned off', () => {
     beforeEach(() => {
-      useSettingsStore.setState({ notificationsEnabled: false, demoMode: false });
+      useSettingsStore.setState({ notificationsEnabled: false });
     });
 
     describe('when the hook renders', () => {
@@ -80,7 +86,8 @@ describe('useReminders', () => {
 
   describe('given demo mode is on', () => {
     beforeEach(() => {
-      useSettingsStore.setState({ notificationsEnabled: true, demoMode: true });
+      mockFeatures = DEMO_FEATURES;
+      useSettingsStore.setState({ notificationsEnabled: true });
     });
 
     describe('when the hook renders', () => {

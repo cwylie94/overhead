@@ -5,7 +5,8 @@ import type { ReactNode } from 'react';
 
 import type { UpcomingPass } from '@/data/queries';
 import { ClockProvider } from '@/environment/clock';
-import { useDemo, type DemoEnvironment } from '@/session/appSession';
+import { useDemo, useSessionFeatures, type DemoEnvironment } from '@/session/appSession';
+import { DEMO_FEATURES, DEVICE_FEATURES } from '@/session/features';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 import { useTonight } from '../useTonight';
@@ -37,7 +38,7 @@ jest.mock('@/session/PassCacheProvider', () => ({
     refresh: mockRefresh,
   }),
 }));
-jest.mock('@/session/appSession', () => ({ useDemo: jest.fn() }));
+jest.mock('@/session/appSession', () => ({ useDemo: jest.fn(), useSessionFeatures: jest.fn() }));
 jest.mock('@/environment/location', () => ({
   useLocation: () => ({
     state: { status: 'ready', observer: { latitude: 51.5, longitude: -0.1, altitude: 0 } },
@@ -69,6 +70,7 @@ beforeEach(() => {
   mockRefresh.mockResolvedValue();
   mockRequestPermission.mockResolvedValue();
   jest.mocked(useDemo).mockReturnValue(null);
+  jest.mocked(useSessionFeatures).mockReturnValue(DEVICE_FEATURES);
   setOnline(true);
   useSettingsStore.setState({ customLocation: null });
 });
@@ -153,6 +155,7 @@ describe('useTonight', () => {
   describe('given demo mode while offline with old orbit data and a chosen city', () => {
     beforeEach(() => {
       jest.mocked(useDemo).mockReturnValue(DEMO);
+      jest.mocked(useSessionFeatures).mockReturnValue(DEMO_FEATURES);
       setOnline(false);
       mockFetchedAt = [MOCK_NOW - 5 * DAY];
       useSettingsStore.setState({ customLocation: CHOSEN });

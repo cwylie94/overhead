@@ -14,7 +14,7 @@ import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useClock, useNow } from '@/environment/clock';
 import { isEstimated, useLocation } from '@/environment/location';
-import { useDemo } from '@/session/appSession';
+import { useSessionFeatures } from '@/session/appSession';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { formatCountdown } from '@/translations/format';
 import { Banner } from '@/ui/Banner';
@@ -79,7 +79,7 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
     pass.track,
     Math.min(Math.max(clock.now(), pass.startAt), pass.endAt),
   );
-  const demo = useDemo();
+  const features = useSessionFeatures();
   const pointing = usePointing({
     azimuth: ((startPosition?.azimuth ?? 0) + 25) % 360,
     elevation: Math.max(0, (startPosition?.elevation ?? 30) - 15),
@@ -92,7 +92,7 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
     pointing,
     location.state.status === 'ready' ? location.state.observer : null,
     now,
-    demo === null,
+    features.camera,
   );
 
   const time = useSharedValue(clock.now());
@@ -172,7 +172,7 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
           <Text style={styles.status}>{statusText}</Text>
         </View>
 
-        {customLocation && !demo && (
+        {customLocation && features.chosenLocation && (
           <Banner
             message={t('common:banners.chosenLocation', {
               name: customLocation.name,

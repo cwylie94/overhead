@@ -6,7 +6,8 @@ import { DEMO_PASS } from '@/demo/testing/demoMocks';
 import type { Clock } from '@/environment/clock';
 import { useSettingsStore } from '@/stores/settingsStore';
 
-import { useAppSession, useDemo, type AppSession } from '../appSession';
+import { useAppSession, useDemo, useSessionFeatures, type AppSession } from '../appSession';
+import { DEMO_FEATURES, DEVICE_FEATURES } from '../features';
 
 jest.mock('@/data/client', () => {
   let demoRuns = 0;
@@ -60,7 +61,11 @@ describe('useAppSession', () => {
       });
 
       test('then it stays on the device database', () => {
-        expect(session.current).toEqual({ data: { key: 'device' }, demo: null });
+        expect(session.current).toEqual({
+          data: { key: 'device' },
+          demo: null,
+          features: DEVICE_FEATURES,
+        });
       });
 
       test('then it makes no demo database', () => {
@@ -112,6 +117,10 @@ describe('useAppSession', () => {
           startsAt: DEMO_PASS.startAt - DEMO_LEAD,
         });
       });
+
+      test('then it turns off orbit updates, reminders, the camera, onboarding and the chosen city', () => {
+        expect(session.current.features).toEqual(DEMO_FEATURES);
+      });
     });
 
     describe('when the user changes another setting', () => {
@@ -139,7 +148,11 @@ describe('useAppSession', () => {
       });
 
       test('then it goes back to the device database', () => {
-        expect(session.current).toEqual({ data: { key: 'device' }, demo: null });
+        expect(session.current).toEqual({
+          data: { key: 'device' },
+          demo: null,
+          features: DEVICE_FEATURES,
+        });
       });
 
       test('then it reopens the device database', () => {
@@ -210,6 +223,30 @@ describe('useDemo', () => {
 
       test('then the demo clock runs in real time', () => {
         expect(clock.now()).toBe(DEMO_PASS.startAt - DEMO_LEAD + 90_000);
+      });
+    });
+  });
+});
+
+describe('useSessionFeatures', () => {
+  describe('given demo mode is off and the features are being watched', () => {
+    let features: { current: ReturnType<typeof useSessionFeatures> };
+
+    beforeEach(async () => {
+      ({ result: features } = await renderHook(() => useSessionFeatures()));
+    });
+
+    test('then every feature is on', () => {
+      expect(features.current).toEqual(DEVICE_FEATURES);
+    });
+
+    describe('when demo mode turns on', () => {
+      beforeEach(async () => {
+        await setDemoMode(true);
+      });
+
+      test('then the demo features apply', () => {
+        expect(features.current).toEqual(DEMO_FEATURES);
       });
     });
   });

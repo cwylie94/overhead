@@ -8,7 +8,7 @@ import { orbitFreshnessQuery, upcomingPassesQuery } from '@/data/queries';
 import { useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
 import { useReminders } from '@/reminders/useReminders';
-import { useDemo } from '@/session/appSession';
+import { useDemo, useSessionFeatures } from '@/session/appSession';
 import { usePassCache } from '@/session/PassCacheProvider';
 import { useSettingsStore } from '@/stores/settingsStore';
 
@@ -19,6 +19,7 @@ import type { TonightViewProps } from './TonightView';
 export function useTonight(): TonightViewProps {
   const { db } = useAppData();
   const demo = useDemo();
+  const features = useSessionFeatures();
   const customLocation = useSettingsStore((settings) => settings.customLocation);
   const now = useNow(60_000);
   const location = useLocation();
@@ -34,15 +35,15 @@ export function useTonight(): TonightViewProps {
     ...passListProgress(cache, loadedAt),
     passes,
     now,
-    offline: demo === null && net.isConnected === false,
-    staleDays: demo
-      ? null
-      : staleDaysFor(
+    offline: features.orbitUpdates && net.isConnected === false,
+    staleDays: features.orbitUpdates
+      ? staleDaysFor(
           freshness.map((group) => group.fetchedAt),
           now,
-        ),
+        )
+      : null,
     demoStartsAt: demo?.startsAt ?? null,
-    chosenLocation: demo ? null : customLocation,
+    chosenLocation: features.chosenLocation ? customLocation : null,
     reminders,
     refreshing,
     onRefresh: () => {
