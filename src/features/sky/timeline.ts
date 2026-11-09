@@ -1,5 +1,4 @@
 export const TIMELINE_SPAN = 12 * 60 * 60 * 1_000;
-export const MS_PER_POINT = 30_000;
 const MINUTE = 60_000;
 
 export type ClockStyle = {
@@ -13,9 +12,9 @@ export function clampOffset(offset: number): number {
   return Math.min(TIMELINE_SPAN, Math.max(0, offset));
 }
 
-export function offsetAfterDrag(start: number, translationX: number): number {
+export function offsetAtX(x: number, width: number): number {
   'worklet';
-  return clampOffset(start + translationX * MS_PER_POINT);
+  return width > 0 ? clampOffset((x / width) * TIMELINE_SPAN) : 0;
 }
 
 export function formatClock(time: number, style: ClockStyle): string {

@@ -5,21 +5,12 @@ import {
   cancelAnimation,
   runOnJS,
   useDerivedValue,
-  useSharedValue,
-  withDecay,
   type SharedValue,
 } from 'react-native-reanimated';
 
 import { colors } from '@/ui/theme';
 
-import {
-  formatClock,
-  formatOffset,
-  MS_PER_POINT,
-  offsetAfterDrag,
-  TIMELINE_SPAN,
-  type ClockStyle,
-} from './timeline';
+import { formatClock, formatOffset, offsetAtX, TIMELINE_SPAN, type ClockStyle } from './timeline';
 
 const HEIGHT = 56;
 const TRACK_Y = 44;
@@ -46,8 +37,6 @@ export function TimelineScrubber({
   clockStyle,
   onCommit,
 }: TimelineScrubberProps) {
-  const offsetAtStart = useSharedValue(0);
-
   const label = useDerivedValue(() => {
     const extra = formatOffset(offset.get());
     const clock = formatClock(base.get() + offset.get(), clockStyle);
@@ -66,19 +55,15 @@ export function TimelineScrubber({
 
   const pan = Gesture.Pan()
     .activeOffsetX([-8, 8])
-    .onStart(() => {
+    .onStart((event) => {
       cancelAnimation(offset);
-      offsetAtStart.set(offset.get());
+      offset.set(offsetAtX(event.x, width));
     })
     .onUpdate((event) => {
-      offset.set(offsetAfterDrag(offsetAtStart.get(), event.translationX));
+      offset.set(offsetAtX(event.x, width));
     })
-    .onEnd((event) => {
-      offset.set(
-        withDecay({ velocity: event.velocityX * MS_PER_POINT, clamp: [0, TIMELINE_SPAN] }, () => {
-          runOnJS(onCommit)(offset.get());
-        }),
-      );
+    .onEnd(() => {
+      runOnJS(onCommit)(offset.get());
     });
 
   return (

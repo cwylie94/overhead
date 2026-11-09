@@ -3,19 +3,21 @@ import {
   clockStyleFor,
   formatClock,
   formatOffset,
-  MS_PER_POINT,
-  offsetAfterDrag,
+  offsetAtX,
   TIMELINE_SPAN,
 } from '../timeline';
 
-describe('offsetAfterDrag', () => {
-  test('dragging right moves forward in time', () => {
-    expect(offsetAfterDrag(0, 100)).toBe(100 * MS_PER_POINT);
+describe('offsetAtX', () => {
+  test('puts the time under the finger', () => {
+    expect(offsetAtX(0, 300)).toBe(0);
+    expect(offsetAtX(150, 300)).toBe(TIMELINE_SPAN / 2);
+    expect(offsetAtX(300, 300)).toBe(TIMELINE_SPAN);
   });
 
   test('stays within the timeline', () => {
-    expect(offsetAfterDrag(0, -50)).toBe(0);
-    expect(offsetAfterDrag(TIMELINE_SPAN, 50)).toBe(TIMELINE_SPAN);
+    expect(offsetAtX(-20, 300)).toBe(0);
+    expect(offsetAtX(320, 300)).toBe(TIMELINE_SPAN);
+    expect(offsetAtX(50, 0)).toBe(0);
     expect(clampOffset(-1)).toBe(0);
   });
 });
