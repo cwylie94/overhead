@@ -10,6 +10,7 @@ function play(effect: () => Promise<void>): void {
 
 export const haptics = {
   aimPulse: () => play(() => Haptics.selectionAsync()),
+  select: () => play(() => Haptics.selectionAsync()),
   locked: () => play(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)),
   caught: () => play(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)),
 };

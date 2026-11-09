@@ -34,6 +34,7 @@
     "change": "Elegir una ubicación"
   },
   "timeline": {
+    "noPass": "Ningún paso aquí",
     "label_one": "Noche de {{from}} a {{to}}: {{count}} paso, {{bright}} brillantes",
     "label_many": "Noche de {{from}} a {{to}}: {{count}} pasos, {{bright}} brillantes",
     "label_other": "Noche de {{from}} a {{to}}: {{count}} pasos, {{bright}} brillantes"

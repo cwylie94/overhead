@@ -9,6 +9,8 @@ import { brightnessMarkColors, colors, radius, spacing, typography } from '@/ui/
 
 import type { NightSky } from './nightSky';
 import { clip, fractionOf, hourMarks, nearestPass, timelineRange } from './timelineLayout';
+import { loupeLabelTimes } from './timelineScrub';
+import { TimelineScrubber, type ScrubPass } from './TimelineScrubber';
 
 const TRACK_HEIGHT = 30;
 const TOUCH_REACH = 16;
@@ -34,6 +36,7 @@ function tierOf(pass: UpcomingPass): BrightnessTier {
 export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightTimelineProps) {
   const { t, i18n } = useTranslation('tonight');
   const [width, setWidth] = useState(0);
+  const [voiceIndex, setVoiceIndex] = useState<number | null>(null);
   const range = timelineRange(sky, passes);
   if (!range) {
     return null;
@@ -65,6 +68,37 @@ export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightT
     }
   };
 
+  const scrubPasses = passes.map((pass): ScrubPass => {
+    const tier = tierOf(pass);
+    return {
+      id: pass.id,
+      startAt: pass.startAt,
+      name: pass.name,
+      time: formatPassTime(pass.startAt, i18n.language),
+      color: brightnessMarkColors[tier],
+      height: TICK_HEIGHT[tier],
+    };
+  });
+  const loupeLabels = loupeLabelTimes(range).map((time) => ({
+    time,
+    text: formatPassTime(time, i18n.language),
+  }));
+  const selectById = (id: number) => {
+    const pass = passes.find((candidate) => candidate.id === id);
+    if (pass) {
+      onSelect(pass);
+    }
+  };
+  const step = (by: number) => {
+    const next = Math.min(Math.max((voiceIndex ?? -1) + by, 0), passes.length - 1);
+    setVoiceIndex(next);
+    const pass = passes[next];
+    if (pass) {
+      onSelect(pass);
+    }
+  };
+  const voicePass = voiceIndex === null ? null : scrubPasses[voiceIndex];
+
   return (
     <View style={styles.container}>
       <View style={styles.markerRow}>
@@ -72,45 +106,60 @@ export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightT
           <View style={[styles.marker, { left: at(featured.startAt) - MARKER_SIZE / 2 }]} />
         )}
       </View>
-      <Pressable
-        accessibilityRole="image"
-        accessibilityLabel={t('timeline.label', {
-          from: formatPassTime(range.from, i18n.language),
-          to: formatPassTime(range.to, i18n.language),
-          count: passes.length,
-          bright: bright.length,
-        })}
-        onPress={onPress}
-        onLayout={({ nativeEvent }) => setWidth(nativeEvent.layout.width)}
-        style={styles.track}>
-        {width > 0 && (
-          <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-            {dusk && <View style={[styles.twilight, dusk]} />}
-            {dawn && <View style={[styles.twilight, dawn]} />}
-            {passes.map((pass) => {
-              const tier = tierOf(pass);
-              const height = TICK_HEIGHT[tier];
-              const isFeatured = pass.id === featuredId;
-              return (
-                <View
-                  key={pass.id}
-                  style={[
-                    styles.tick,
-                    {
-                      left: at(pass.startAt) - (isFeatured ? 1.5 : 1),
-                      width: isFeatured ? 3 : tier === 'faint' ? 1.5 : 2,
-                      height: isFeatured ? TRACK_HEIGHT - 4 : height,
-                      top: (TRACK_HEIGHT - (isFeatured ? TRACK_HEIGHT - 4 : height)) / 2,
-                      backgroundColor: brightnessMarkColors[tier],
-                    },
-                  ]}
-                />
-              );
-            })}
-            {showNow && <View style={[styles.now, { left: at(now) - 1 }]} />}
-          </View>
-        )}
-      </Pressable>
+      <TimelineScrubber
+        width={width}
+        trackHeight={TRACK_HEIGHT}
+        range={range}
+        passes={scrubPasses}
+        labels={loupeLabels}
+        onSelect={selectById}>
+        <Pressable
+          accessibilityRole="adjustable"
+          accessibilityLabel={t('timeline.label', {
+            from: formatPassTime(range.from, i18n.language),
+            to: formatPassTime(range.to, i18n.language),
+            count: passes.length,
+            bright: bright.length,
+          })}
+          accessibilityValue={
+            voicePass ? { text: `${voicePass.name}, ${voicePass.time}` } : undefined
+          }
+          accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+          onAccessibilityAction={({ nativeEvent }) =>
+            step(nativeEvent.actionName === 'increment' ? 1 : -1)
+          }
+          onPress={onPress}
+          onLayout={({ nativeEvent }) => setWidth(nativeEvent.layout.width)}
+          style={styles.track}>
+          {width > 0 && (
+            <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+              {dusk && <View style={[styles.twilight, dusk]} />}
+              {dawn && <View style={[styles.twilight, dawn]} />}
+              {passes.map((pass) => {
+                const tier = tierOf(pass);
+                const height = TICK_HEIGHT[tier];
+                const isFeatured = pass.id === featuredId;
+                return (
+                  <View
+                    key={pass.id}
+                    style={[
+                      styles.tick,
+                      {
+                        left: at(pass.startAt) - (isFeatured ? 1.5 : 1),
+                        width: isFeatured ? 3 : tier === 'faint' ? 1.5 : 2,
+                        height: isFeatured ? TRACK_HEIGHT - 4 : height,
+                        top: (TRACK_HEIGHT - (isFeatured ? TRACK_HEIGHT - 4 : height)) / 2,
+                        backgroundColor: brightnessMarkColors[tier],
+                      },
+                    ]}
+                  />
+                );
+              })}
+              {showNow && <View style={[styles.now, { left: at(now) - 1 }]} />}
+            </View>
+          )}
+        </Pressable>
+      </TimelineScrubber>
       <View style={styles.moonRow}>
         {width > 0 &&
           moon.map(

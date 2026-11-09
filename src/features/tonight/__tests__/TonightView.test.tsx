@@ -10,6 +10,9 @@ import { fractionOf, timelineRange } from '../timelineLayout';
 import { TonightView, type TonightViewProps } from '../TonightView';
 
 jest.mock('../SkyGlyph', () => ({ SkyGlyph: () => null }));
+jest.mock('../TimelineScrubber', () => ({
+  TimelineScrubber: ({ children }: { children: React.ReactNode }) => children,
+}));
 
 const NOW = new Date(2026, 10, 8, 20, 0).getTime();
 const MINUTE = 60_000;
@@ -185,6 +188,18 @@ describe('TonightView', () => {
       nativeEvent: { locationX: fractionOf(passes[1]!.startAt + MINUTE, range) * width },
     });
 
+    expect(screen.getByText('COSMOS 1867')).toBeOnTheScreen();
+  });
+
+  test('steps through the passes on the timeline with VoiceOver', async () => {
+    const passes = [makePass(), faintLow()];
+    await renderView({ passes });
+    const timeline = screen.getByLabelText(/^Night from/);
+
+    await fireEvent(timeline, 'accessibilityAction', { nativeEvent: { actionName: 'increment' } });
+    await fireEvent(timeline, 'accessibilityAction', { nativeEvent: { actionName: 'increment' } });
+
+    expect(timeline).toHaveAccessibilityValue({ text: /^COSMOS 1867, / });
     expect(screen.getByText('COSMOS 1867')).toBeOnTheScreen();
   });
 

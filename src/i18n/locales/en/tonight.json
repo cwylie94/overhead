@@ -32,6 +32,7 @@
     "change": "Choose a location"
   },
   "timeline": {
+    "noPass": "No pass here",
     "label_one": "Night from {{from}} to {{to}}: {{count}} pass, {{bright}} bright",
     "label_other": "Night from {{from}} to {{to}}: {{count}} passes, {{bright}} bright"
   },
