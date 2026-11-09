@@ -84,14 +84,20 @@ It is an interview showcase project, so code quality, tests and a working demo m
 
 ```
 src/
-  domain/        pure TS: pass finder, visibility, angle maths, rarity, collection rules
-  data/          Drizzle schema, repositories, migrations
+  domain/        pure TS: pass finder, visibility, angle maths, rarity, collection rules, pass ranking
+  data/          Drizzle schema, repositories, migrations, snapshot, pass cache, cities
   sync/          CelesTrak fetcher, refresh rules and triggers
-  stores/        Zustand: settingsStore, skyStore, catchStore, orbitRefreshStore
+  environment/   injected clock and location
+  session/       React wiring that starts the app's data: database gate, pass cache provider
+  demo/          demo pass and the app session
+  reminders/     pass reminders (local notifications) and their button
+  stores/        Zustand: settingsStore, skyStore, catchStore, calibrationStore, orbitRefreshStore
   translations/  i18next setup, typed keys, locales/{en,es}/*.json
-  features/      tonight/, sky/, catch/, collection/, settings/
-  ui/            shared components, Skia primitives, haptics
+  features/      tonight/, sky/, catch/, collection/, satellite/, location/, onboarding/, settings/
+  ui/            shared components, Skia primitives, haptics, the Loupe and dome projection
 ```
+
+- Layers only import downwards, and `npm run lint` enforces it (`import/no-restricted-paths` in `eslint.config.js`). `domain/` imports only `domain/`. `data/` imports only `domain/`. Nothing outside `features/` and `app/` imports a feature, and features never import each other: code two features share moves into `domain/` (rules) or `ui/` (components). Tests and `testing/` helpers are exempt.
 
 ## Data model
 

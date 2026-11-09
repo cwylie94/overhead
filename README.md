@@ -70,12 +70,15 @@ src/
   data/          SQLite schema (Drizzle), repositories, migrations, bundled snapshot, pass cache
   sync/          CelesTrak refresh and its triggers
   environment/   injected clock and location
+  session/       React wiring that starts the app's data
   demo/          demo pass and the app session that swaps in demo mode
-  features/      tonight, sky, catch, collection, satellite, settings
+  reminders/     pass reminders as local notifications
+  features/      tonight, sky, catch, collection, satellite, location, onboarding, settings
   stores/        Zustand for UI and session state, persisted to MMKV
   translations/  i18next with typed keys, English and Spanish
 ```
 
+- **Layers only import downwards.** `domain/` is pure, `data/` depends only on it, and features never import each other; what two features share lives in `domain/` or `ui/`. A lint rule enforces this.
 - **SQLite is the single source of truth.** Screens read with Drizzle live queries, so a catch or a new pass list shows up everywhere without any state passed around. Zustand only holds UI state such as the selected satellite or the catch in progress.
 - **Orbit maths is pure and injected.** Everything in `domain/` takes the time and the observer as arguments, and the app gets them from a `ClockProvider` and a location provider. That is what makes the tests deterministic and lets demo mode swap in a fixed evening without touching any screen.
 - **Passes are computed once and cached.** The pass cache works out 48 hours of passes for the whole catalogue in chunks that yield to the UI (one night takes about 1.2 s under Hermes) and stores each pass with a track point every 10 seconds. It reruns only when the orbits, the location or the minimum elevation change.

@@ -1,6 +1,60 @@
+const fs = require('node:fs');
+
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 const prettierRecommended = require('eslint-plugin-prettier/recommended');
+
+const features = fs.readdirSync('./src/features');
+const sharedLayers = [
+  './src/data',
+  './src/demo',
+  './src/domain',
+  './src/environment',
+  './src/reminders',
+  './src/session',
+  './src/stores',
+  './src/sync',
+  './src/translations',
+  './src/ui',
+];
+
+const layerZones = [
+  {
+    target: './src/domain',
+    from: './src',
+    except: ['./domain'],
+    message: 'domain is pure: it imports only other domain modules.',
+  },
+  {
+    target: './src/data',
+    from: [
+      './src/demo',
+      './src/environment',
+      './src/reminders',
+      './src/session',
+      './src/stores',
+      './src/sync',
+      './src/ui',
+    ],
+    message: 'data depends only on domain. React wiring belongs in src/session.',
+  },
+  {
+    target: sharedLayers,
+    from: ['./src/features', './src/app'],
+    message: 'Shared layers never import features or routes. Move the shared code down a layer.',
+  },
+  {
+    target: './src/features',
+    from: './src/app',
+    message: 'Features never import routes.',
+  },
+  ...features.map((feature) => ({
+    target: `./src/features/${feature}`,
+    from: './src/features',
+    except: [`./${feature}`],
+    message: 'Features never import each other. Move what they share into domain or ui.',
+  })),
+];
 
 module.exports = defineConfig([
   expoConfig,
@@ -27,6 +81,13 @@ module.exports = defineConfig([
           alphabetize: { order: 'asc', caseInsensitive: true },
         },
       ],
+    },
+  },
+  {
+    files: ['src/**/*.ts', 'src/**/*.tsx'],
+    ignores: ['**/__tests__/**', '**/__benchmarks__/**', '**/testing/**'],
+    rules: {
+      'import/no-restricted-paths': ['error', { zones: layerZones }],
     },
   },
   {
