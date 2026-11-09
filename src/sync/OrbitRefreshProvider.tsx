@@ -1,5 +1,5 @@
 import NetInfo from '@react-native-community/netinfo';
-import { createContext, useCallback, useContext, useEffect, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 
 import { useAppData } from '@/data/AppDataContext';
@@ -8,12 +8,6 @@ import { useClock } from '@/environment/clock';
 import { useOrbitRefreshStore } from '@/stores/orbitRefreshStore';
 
 import { anyFailed, httpOrbitFetcher, orbitsChanged, refreshOrbits } from './celestrak';
-
-type OrbitRefreshContextValue = { refreshNow(): Promise<void> };
-
-const OrbitRefreshContext = createContext<OrbitRefreshContextValue>({
-  refreshNow: async () => {},
-});
 
 const fetchOrbits = httpOrbitFetcher();
 
@@ -74,11 +68,5 @@ export function OrbitRefreshProvider({ enabled, children }: OrbitRefreshProvider
     };
   }, [enabled, refreshNow]);
 
-  return (
-    <OrbitRefreshContext.Provider value={{ refreshNow }}>{children}</OrbitRefreshContext.Provider>
-  );
-}
-
-export function useOrbitRefresh(): OrbitRefreshContextValue {
-  return useContext(OrbitRefreshContext);
+  return children;
 }

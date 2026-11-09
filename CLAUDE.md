@@ -134,7 +134,7 @@ There is no collection table. The collection is derived from sightings.
 - A bundled snapshot of both groups and their SATCAT records lives in `src/data/snapshot/*.json`, so the first launch works offline. `prepareDatabase()` runs the migrations and then `importSnapshot` on every launch. The import is idempotent: it reloads the catalogue only when the snapshot or the rarity rules have changed since the last import, and a group's orbits only when the snapshot is newer than the stored ones. Refresh it with `npm run snapshot:update` (one request per endpoint, so it respects CelesTrak's limits), then commit the JSON.
 - Show a staleness banner when orbit data is several days old.
 - CelesTrak refresh (`src/sync/celestrak.ts`) keeps per-group failure counts and retry times in `sync_meta`. Backoff starts at 5 minutes and doubles up to 6 hours; a 403 waits the full 2 hours. A failed or malformed response never replaces stored orbits.
-- `OrbitRefreshProvider` runs `refreshOrbits` on launch, on returning to the foreground, on reconnecting and from Check for updates in Settings, one run at a time, and recomputes passes when a group was updated. `orbitRefreshStore` holds its status for the Orbit data section.
+- `OrbitRefreshProvider` runs `refreshOrbits` on launch, on returning to the foreground, and on reconnecting, one run at a time, and recomputes passes when a group was updated. `orbitRefreshStore` holds its status for the Orbit data section.
 
 ## i18n
 

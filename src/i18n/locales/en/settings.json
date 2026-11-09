@@ -47,8 +47,7 @@
     "bundled": "Using the orbit data bundled in the app",
     "hint": "Fresh orbits come from CelesTrak, checked at most every 2 hours.",
     "checking": "Checking CelesTrak…",
-    "failed": "Couldn't reach CelesTrak. The app will try again later.",
-    "check": "Check for updates"
+    "failed": "Couldn't reach CelesTrak. The app will try again later."
   },
   "about": {
     "title": "About",

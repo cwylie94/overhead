@@ -47,8 +47,7 @@
     "bundled": "Usando los datos orbitales incluidos en la app",
     "hint": "Las órbitas nuevas vienen de CelesTrak, que se consulta como mucho cada 2 horas.",
     "checking": "Consultando CelesTrak…",
-    "failed": "No se pudo contactar con CelesTrak. La app lo volverá a intentar más tarde.",
-    "check": "Buscar actualizaciones"
+    "failed": "No se pudo contactar con CelesTrak. La app lo volverá a intentar más tarde."
   },
   "about": {
     "title": "Acerca de",

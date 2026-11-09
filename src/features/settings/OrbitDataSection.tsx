@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text } from 'react-native';
+import { Text } from 'react-native';
 
 import { formatCountdown } from '@/i18n/format';
 import type { RefreshStatus } from '@/stores/orbitRefreshStore';
@@ -11,12 +11,10 @@ export type OrbitDataSectionProps = {
   updatedAt: number | null;
   status: RefreshStatus;
   now: number;
-  onCheck(): void;
 };
 
-export function OrbitDataSection({ updatedAt, status, now, onCheck }: OrbitDataSectionProps) {
+export function OrbitDataSection({ updatedAt, status, now }: OrbitDataSectionProps) {
   const { t, i18n } = useTranslation('settings');
-  const checking = status === 'checking';
 
   return (
     <Section title={t('orbits.title')}>
@@ -26,20 +24,12 @@ export function OrbitDataSection({ updatedAt, status, now, onCheck }: OrbitDataS
           : t('orbits.updated', { time: formatCountdown(updatedAt, now, i18n.language) })}
       </Text>
       <Text style={[sectionStyles.caption, status === 'failed' && { color: colors.now }]}>
-        {checking
+        {status === 'checking'
           ? t('orbits.checking')
           : status === 'failed'
             ? t('orbits.failed')
             : t('orbits.hint')}
       </Text>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={{ disabled: checking }}
-        disabled={checking}
-        onPress={onCheck}
-        style={[sectionStyles.button, checking && { opacity: 0.5 }]}>
-        <Text style={sectionStyles.buttonText}>{t('orbits.check')}</Text>
-      </Pressable>
     </Section>
   );
 }

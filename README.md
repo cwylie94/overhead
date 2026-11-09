@@ -86,7 +86,7 @@ src/
 
 ## Orbit data
 
-Everything stays on the phone; there is no account and no server. The only network access is CelesTrak. The app refreshes orbits on launch, on returning to the foreground, when the network comes back, and from Check for updates in Settings, at most once every 2 hours per group, because CelesTrak blocks clients that ask more often. After a failure it backs off from 5 minutes, doubling up to 6 hours, and keeps the existing orbits. Settings shows how old the orbit data is.
+Everything stays on the phone; there is no account and no server. The only network access is CelesTrak. The app refreshes orbits on launch, on returning to the foreground, and when the network comes back, at most once every 2 hours per group, because CelesTrak blocks clients that ask more often. After a failure it backs off from 5 minutes, doubling up to 6 hours, and keeps the existing orbits. Settings shows how old the orbit data is.
 
 ## Reference pass fixtures
 

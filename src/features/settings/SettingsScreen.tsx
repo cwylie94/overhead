@@ -12,7 +12,6 @@ import { useNow } from '@/environment/clock';
 import { cancelAllReminders } from '@/features/tonight/reminders';
 import { useOrbitRefreshStore } from '@/stores/orbitRefreshStore';
 import { useSettingsStore } from '@/stores/settingsStore';
-import { useOrbitRefresh } from '@/sync/OrbitRefreshProvider';
 import { Screen } from '@/ui/Screen';
 import { spacing } from '@/ui/theme';
 
@@ -71,7 +70,6 @@ function usePreferences() {
 export function SettingsScreen() {
   const { t } = useTranslation();
   const now = useNow(30_000);
-  const { refreshNow } = useOrbitRefresh();
   const refreshStatus = useOrbitRefreshStore((refresh) => refresh.status);
   const orbitsUpdatedAt = useOrbitsUpdatedAt();
   const { preferences, actions } = usePreferences();
@@ -91,14 +89,7 @@ export function SettingsScreen() {
         />
         <PreferencesSections preferences={preferences} actions={actions} />
         {demo === null && (
-          <OrbitDataSection
-            updatedAt={orbitsUpdatedAt}
-            status={refreshStatus}
-            now={now}
-            onCheck={() => {
-              refreshNow();
-            }}
-          />
+          <OrbitDataSection updatedAt={orbitsUpdatedAt} status={refreshStatus} now={now} />
         )}
         <DemoSection startsAt={demo?.startsAt ?? null} onChange={setDemoMode} />
         <AboutSection
