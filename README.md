@@ -120,7 +120,7 @@ npm run fixtures:passes
 
 ## Next steps
 
-- Try camera mode on a real phone: check the heading follows the back camera when the phone is upright, and the overlay lines up with the Moon away from the centre. Then test on Android.
+- Try camera mode on a real phone: check the heading follows the back camera when the phone is upright, and the overlay lines up with the Moon away from the centre. On Android the heading is computed from the magnetometer and checked against the emulator's virtual sensors, so it still needs a real Android phone.
 - Calibrate on bright planets as well as the Moon, for nights when the Moon is down.
 - Calibrate brightness against real observations.
 - Group docked station modules (the ISS currently appears as ZARYA, NAUKA and POISK).

@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import { DeviceMotion } from 'expo-sensors';
+import { DeviceMotion, Magnetometer } from 'expo-sensors';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import { useSharedValue, type SharedValue } from 'react-native-reanimated';
@@ -8,6 +8,7 @@ import type { SkyPosition } from '@/domain/sky';
 import { useCalibrationStore } from '@/stores/calibrationStore';
 
 import { applyOffset, NO_OFFSET } from './calibration';
+import { cameraAzimuth } from './cameraHeading';
 import { rollFromGravity } from './cameraProjection';
 import { elevationFromGravity, smoothVector, type Vector } from './pointing';
 
@@ -18,6 +19,8 @@ const SENSOR_TIMEOUT_MS = 2_500;
 const IOS_CALIBRATION_THRESHOLD = 25;
 const ANDROID_GOOD_ACCURACY = 2;
 const GRAVITY_SMOOTHING = 0.25;
+const MAGNETIC_SMOOTHING = 0.25;
+const HEADING_FROM_SENSORS = Platform.OS === 'android';
 
 export function needsCalibration(accuracy: number): boolean {
   return Platform.OS === 'ios'
@@ -53,7 +56,10 @@ export function usePointing(initial: SkyPosition): Pointing {
     let receivedHeading = false;
     let heading: Location.LocationSubscription | null = null;
     let motion: { remove(): void } | null = null;
+    let compass: { remove(): void } | null = null;
     let gravity: Vector | null = null;
+    let magnetic: Vector | null = null;
+    let declination = 0;
 
     const publish = () => {
       const corrected = applyOffset(
@@ -65,6 +71,15 @@ export function usePointing(initial: SkyPosition): Pointing {
       latest.current = corrected;
     };
     const calibration = useCalibrationStore.subscribe(publish);
+
+    const updateAzimuth = () => {
+      const magneticAzimuth = gravity && magnetic ? cameraAzimuth(gravity, magnetic) : null;
+      if (magneticAzimuth === null) {
+        return;
+      }
+      receivedHeading = true;
+      raw.current = { ...raw.current, azimuth: (magneticAzimuth + declination + 360) % 360 };
+    };
 
     const fallback = setTimeout(() => {
       if (!receivedHeading) {
@@ -90,17 +105,34 @@ export function usePointing(initial: SkyPosition): Pointing {
           );
           raw.current = { ...raw.current, elevation: elevationFromGravity(gravity) };
           roll.set(rollFromGravity(gravity));
+          if (HEADING_FROM_SENSORS) {
+            updateAzimuth();
+          }
           publish();
         });
+        if (HEADING_FROM_SENSORS) {
+          Magnetometer.setUpdateInterval(MOTION_INTERVAL_MS);
+          compass = Magnetometer.addListener((reading) => {
+            magnetic = smoothVector(magnetic, reading, MAGNETIC_SMOOTHING);
+            updateAzimuth();
+            publish();
+          });
+        }
       })
       .catch(() => setMode('manual'));
 
     Location.watchHeadingAsync((reading) => {
+      setCalibrate(needsCalibration(reading.accuracy));
+      if (HEADING_FROM_SENSORS) {
+        if (reading.trueHeading >= 0) {
+          declination = reading.trueHeading - reading.magHeading;
+        }
+        return;
+      }
       receivedHeading = true;
       const value = reading.trueHeading >= 0 ? reading.trueHeading : reading.magHeading;
       raw.current = { ...raw.current, azimuth: value };
       publish();
-      setCalibrate(needsCalibration(reading.accuracy));
     })
       .then((subscription) => {
         if (active) {
@@ -109,7 +141,11 @@ export function usePointing(initial: SkyPosition): Pointing {
           subscription.remove();
         }
       })
-      .catch(() => setMode('manual'));
+      .catch(() => {
+        if (!HEADING_FROM_SENSORS) {
+          setMode('manual');
+        }
+      });
 
     return () => {
       active = false;
@@ -117,6 +153,7 @@ export function usePointing(initial: SkyPosition): Pointing {
       calibration();
       heading?.remove();
       motion?.remove();
+      compass?.remove();
     };
   }, [mode, azimuth, elevation, roll]);
 
