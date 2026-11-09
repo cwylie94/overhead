@@ -39,4 +39,12 @@ module.exports = {
     '/node_modules/react-native-reanimated/plugin/',
     '/node_modules/@react-native/babel-preset/',
   ],
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/__tests__/**',
+    '!src/**/__benchmarks__/**',
+    '!src/data/migrations/**',
+  ],
+  coverageReporters: ['text', 'text-summary', 'html'],
 };

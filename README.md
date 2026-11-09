@@ -53,6 +53,7 @@ The first time, Xcode has to create a signing profile, which `expo run:ios` does
 | `npm run format`                  | Format with Prettier                        |
 | `npm run typecheck`               | Type-check with TypeScript                  |
 | `npm test`                        | Run the Jest test suite                     |
+| `npm run test:coverage`           | Run the tests and print a coverage report   |
 | `npm run db:generate`             | Generate a migration from the schema        |
 | `npm run snapshot:update`         | Refresh the bundled CelesTrak snapshot      |
 | `npm run cities:update`           | Refresh the bundled GeoNames city list      |
@@ -102,7 +103,7 @@ npm run fixtures:passes
 
 ## Testing
 
-- **Jest** covers the domain maths, repositories (against in-memory SQLite with the real migrations), schema migrations, stores, the CelesTrak refresh, formatting, translations and the presentational views. Run `npm test`.
+- **Jest** covers the domain maths, repositories (against in-memory SQLite with the real migrations), schema migrations, stores, the CelesTrak refresh, formatting, translations and the presentational views. Run `npm test`, or `npm run test:coverage` for a coverage table (the full report is in `coverage/index.html`).
 - **Pass predictions** are checked against Skyfield for every satellite in the snapshot, to within 2 seconds.
 - **Maestro** flows in `.maestro/` drive the demo evening, the demo toggle and the language switch on a simulator. Install the [Maestro CLI](https://docs.maestro.dev/getting-started/installing-maestro) (it needs Java 17 or later), start the app with `npm run ios`, then run `npm run e2e`. Maestro can't hold a drag in place, so the aim-and-hold catch itself is covered by the catch state machine's tests and by hand.
 

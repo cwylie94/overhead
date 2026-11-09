@@ -72,6 +72,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "db:generate": "drizzle-kit generate",
     "snapshot:update": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/fetch-snapshot.ts",
     "cities:update": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/fetch-cities.ts",
