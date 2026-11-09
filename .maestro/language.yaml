@@ -7,9 +7,15 @@ name: Switching the language to Spanish and back
       location: inuse
       notifications: deny
 - runFlow: subflows/finish-onboarding.yaml
-- tapOn: Settings
+- tapOn:
+    id: tab-settings
 - tapOn: Español
 - assertVisible: Ajustes
 - assertVisible: Idioma
+- tapOn:
+    id: tab-tonight
+- assertVisible: Esta noche
+- tapOn:
+    id: tab-settings
 - tapOn: English
 - assertVisible: Language

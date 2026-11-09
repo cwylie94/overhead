@@ -27,11 +27,14 @@ name: Demo evening, from the Tonight list to the collection
     visible: Line up the crosshair with the satellite
     timeout: 90000
 - tapOn: Done
-- tapOn: Sky
+- tapOn:
+    id: tab-sky
 - assertVisible: 'Tap a satellite to see where to look.*'
-- tapOn: Collection
+- tapOn:
+    id: tab-collection
 - assertVisible: Space stations
-- tapOn: Settings
+- tapOn:
+    id: tab-settings
 - scrollUntilVisible:
     element:
       id: demo-mode

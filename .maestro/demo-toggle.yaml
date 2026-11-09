@@ -7,7 +7,8 @@ name: Five taps on the version turn demo mode on and off
       location: inuse
       notifications: deny
 - runFlow: subflows/finish-onboarding.yaml
-- tapOn: Settings
+- tapOn:
+    id: tab-settings
 - scrollUntilVisible:
     element:
       id: app-version
@@ -16,9 +17,11 @@ name: Five taps on the version turn demo mode on and off
     id: app-version
     repeat: 5
     delay: 150
-- tapOn: Tonight
+- tapOn:
+    id: tab-tonight
 - assertVisible: 'Demo mode: .*'
-- tapOn: Settings
+- tapOn:
+    id: tab-settings
 - scrollUntilVisible:
     element:
       id: app-version
@@ -27,5 +30,6 @@ name: Five taps on the version turn demo mode on and off
     id: app-version
     repeat: 5
     delay: 150
-- tapOn: Tonight
+- tapOn:
+    id: tab-tonight
 - assertNotVisible: 'Demo mode: .*'
