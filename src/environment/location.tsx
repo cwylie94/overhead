@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { AppState, Linking } from 'react-native';
+import { AppState, Linking, Platform } from 'react-native';
 
 import type { Observer } from '@/domain/observer';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -29,6 +29,9 @@ type Permission =
 
 const LAST_KNOWN_MAX_AGE = 6 * 60 * 60 * 1_000;
 const METRES_PER_KM = 1_000;
+// Android's balanced mode uses Wi-Fi and cell positioning only, which dark-sky sites don't have.
+const FIX_ACCURACY =
+  Platform.OS === 'android' ? Location.Accuracy.High : Location.Accuracy.Balanced;
 
 const LocationContext = createContext<LocationContextValue>({
   state: { status: 'locating' },
@@ -77,9 +80,12 @@ function useDeviceLocation(enabled: boolean): LocationContextValue {
         rememberLocation(observerFromCoordinates(lastKnown.coords));
       }
       const current = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
-      rememberLocation(observerFromCoordinates(current.coords));
+        accuracy: FIX_ACCURACY,
+        mayShowUserSettingsDialog: false,
+      }).catch(() => null);
+      if (current) {
+        rememberLocation(observerFromCoordinates(current.coords));
+      }
       return { status: 'granted' };
     },
     [rememberLocation],

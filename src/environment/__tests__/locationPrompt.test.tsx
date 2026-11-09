@@ -7,7 +7,7 @@ import { LocationProvider } from '../location';
 
 jest.mock('expo-location', () => ({
   PermissionStatus: { UNDETERMINED: 'undetermined' },
-  Accuracy: { Balanced: 3 },
+  Accuracy: { Balanced: 3, High: 4 },
   getForegroundPermissionsAsync: jest.fn(async () => ({
     status: 'undetermined',
     granted: false,
@@ -18,12 +18,24 @@ jest.mock('expo-location', () => ({
     granted: false,
     canAskAgain: true,
   })),
+  getLastKnownPositionAsync: jest.fn(async () => null),
+  getCurrentPositionAsync: jest.fn(),
 }));
 
 const request = jest.mocked(Location.requestForegroundPermissionsAsync);
+const permission = jest.mocked(Location.getForegroundPermissionsAsync);
+const current = jest.mocked(Location.getCurrentPositionAsync);
+
+const GRANTED = {
+  status: 'granted',
+  granted: true,
+  canAskAgain: true,
+  expires: 'never',
+} as Location.LocationPermissionResponse;
 
 beforeEach(() => {
   request.mockClear();
+  current.mockReset();
   useSettingsStore.setState(useSettingsStore.getInitialState());
 });
 
@@ -44,4 +56,17 @@ test('asks for location at launch once onboarding is finished', async () => {
   await launch();
 
   expect(request).toHaveBeenCalledTimes(1);
+});
+
+test('never shows the Android location accuracy prompt', async () => {
+  permission.mockResolvedValueOnce(GRANTED);
+  current.mockResolvedValueOnce({
+    coords: { latitude: 51.5, longitude: -0.13, altitude: 20 },
+  } as Location.LocationObject);
+
+  await launch();
+
+  expect(current).toHaveBeenCalledWith(
+    expect.objectContaining({ mayShowUserSettingsDialog: false }),
+  );
 });
