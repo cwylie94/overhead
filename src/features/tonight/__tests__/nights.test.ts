@@ -1,4 +1,4 @@
-import { groupByNight, nightLabel, nightOf } from '../nights';
+import { groupByNight, nightLabel, nightNoon, nightOf } from '../nights';
 
 const local = (day: number, hour: number, minute = 0) =>
   new Date(2026, 10, day, hour, minute).getTime();
@@ -11,6 +11,12 @@ describe('nightOf', () => {
   test('the night changes at noon', () => {
     expect(nightOf(local(9, 11, 59))).toBe('2026-11-08');
     expect(nightOf(local(9, 12, 0))).toBe('2026-11-09');
+  });
+});
+
+describe('nightNoon', () => {
+  test('is midday on the date the night begins', () => {
+    expect(nightNoon(nightOf(local(9, 1, 30)))).toBe(local(8, 12));
   });
 });
 

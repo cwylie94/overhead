@@ -11,6 +11,11 @@ export function nightOf(time: number): NightKey {
   return `${shifted.getFullYear()}-${month}-${day}`;
 }
 
+export function nightNoon(night: NightKey): number {
+  const [year, month, day] = night.split('-').map(Number);
+  return new Date(year!, month! - 1, day!, 12).getTime();
+}
+
 export type NightLabel =
   { kind: 'tonight' } | { kind: 'tomorrow' } | { kind: 'later'; date: number };
 
