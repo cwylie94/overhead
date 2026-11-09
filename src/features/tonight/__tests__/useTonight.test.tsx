@@ -44,7 +44,7 @@ jest.mock('@/environment/location', () => ({
     requestPermission: mockRequestPermission,
   }),
 }));
-jest.mock('../useReminders', () => ({ useReminders: () => null }));
+jest.mock('@/reminders/useReminders', () => ({ useReminders: () => null }));
 
 const CHOSEN = { name: 'Madrid', country: 'Spain', latitude: 40.4, longitude: -3.7 };
 const DEMO = { startsAt: MOCK_NOW - 60_000 } as DemoEnvironment;

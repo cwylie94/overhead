@@ -5,7 +5,7 @@ import type { UpcomingPass } from '@/data/queries';
 import type { Collection, CollectionSetProgress } from '@/domain/collection';
 import type { CollectionSet } from '@/domain/collectionSets';
 import type { Rarity } from '@/domain/types';
-import type { Reminders } from '@/features/tonight/useReminders';
+import type { Reminders } from '@/reminders/useReminders';
 import { Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 

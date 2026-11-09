@@ -7,6 +7,7 @@ import { catchWindow } from '@/domain/catchWindow';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useNow } from '@/environment/clock';
+import { ReminderButton, type ReminderControl } from '@/reminders/ReminderButton';
 import { formatPassTime } from '@/translations/format';
 import { Text } from '@/ui/Text';
 import {
@@ -19,7 +20,6 @@ import {
 } from '@/ui/theme';
 
 import { Countdown } from './Countdown';
-import { ReminderButton, type ReminderControl } from './ReminderButton';
 import { SkyGlyph } from './SkyGlyph';
 
 const SOON = 60 * 60_000;

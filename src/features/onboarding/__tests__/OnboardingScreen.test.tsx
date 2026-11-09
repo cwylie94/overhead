@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
-import { requestReminderPermission } from '@/features/tonight/reminders';
+import { requestReminderPermission } from '@/reminders/reminders';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 import { OnboardingScreen } from '../OnboardingScreen';
@@ -13,7 +13,7 @@ jest.mock('@/demo/session', () => ({ useDemo: () => null }));
 jest.mock('@/environment/location', () => ({
   useLocation: () => ({ state: { status: 'locating' }, askPermission: mockAskPermission }),
 }));
-jest.mock('@/features/tonight/reminders', () => ({
+jest.mock('@/reminders/reminders', () => ({
   requestReminderPermission: jest.fn(async () => true),
 }));
 jest.mock('../DomeIllustration', () => ({ DomeIllustration: () => null }));

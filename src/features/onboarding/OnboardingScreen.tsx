@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useLocation } from '@/environment/location';
-import { requestReminderPermission } from '@/features/tonight/reminders';
+import { requestReminderPermission } from '@/reminders/reminders';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 import { ONBOARDING_STEPS, OnboardingView } from './OnboardingView';

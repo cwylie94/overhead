@@ -9,7 +9,7 @@ import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import { orbitFreshnessQuery } from '@/data/queries';
 import { useDemo } from '@/demo/session';
 import { useNow } from '@/environment/clock';
-import { cancelAllReminders } from '@/features/tonight/reminders';
+import { cancelAllReminders } from '@/reminders/reminders';
 import { useOrbitRefreshStore } from '@/stores/orbitRefreshStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Screen } from '@/ui/Screen';

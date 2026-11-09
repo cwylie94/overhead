@@ -9,12 +9,12 @@ import { orbitFreshnessQuery, upcomingPassesQuery } from '@/data/queries';
 import { useDemo } from '@/demo/session';
 import { useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
+import { useReminders } from '@/reminders/useReminders';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 import { passListProgress } from './passListProgress';
 import { staleDaysFor } from './staleness';
 import type { TonightViewProps } from './TonightView';
-import { useReminders } from './useReminders';
 
 export function useTonight(): TonightViewProps {
   const { db } = useAppData();

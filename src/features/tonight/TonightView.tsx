@@ -5,6 +5,9 @@ import { Pressable, RefreshControl, SectionList, StyleSheet, View } from 'react-
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
 import type { LocationState } from '@/environment/location';
+import type { ReminderControl } from '@/reminders/ReminderButton';
+import { canRemind } from '@/reminders/reminders';
+import type { Reminders } from '@/reminders/useReminders';
 import { formatNightDate } from '@/translations/format';
 import { Banner } from '@/ui/Banner';
 import { Icon } from '@/ui/Icon';
@@ -17,9 +20,6 @@ import { groupByNight, nightNoon, type NightLabel } from './nights';
 import { nightSky } from './nightSky';
 import { NightTimeline } from './NightTimeline';
 import { PassRow } from './PassRow';
-import type { ReminderControl } from './ReminderButton';
-import { canRemind } from './reminders';
-import type { Reminders } from './useReminders';
 
 const HIGHLIGHT_FOR = 2_500;
 const RETRY_AFTER = 120;

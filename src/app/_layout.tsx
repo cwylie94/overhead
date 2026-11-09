@@ -12,7 +12,7 @@ import { PassCacheProvider } from '@/data/passCache/PassCacheScheduler';
 import { useAppSession, type DemoEnvironment } from '@/demo/session';
 import { ClockProvider, systemClock } from '@/environment/clock';
 import { LocationProvider } from '@/environment/location';
-import { configureNotificationHandler } from '@/features/tonight/reminders';
+import { configureNotificationHandler } from '@/reminders/reminders';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { OrbitRefreshProvider } from '@/sync/OrbitRefreshProvider';
 import { MotionConfig } from '@/ui/motion';

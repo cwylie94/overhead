@@ -5,9 +5,9 @@ import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
 import { catchWindow } from '@/domain/catchWindow';
 import type { NightLabel } from '@/features/tonight/nights';
-import { ReminderButton, type ReminderControl } from '@/features/tonight/ReminderButton';
-import { canRemind } from '@/features/tonight/reminders';
-import type { Reminders } from '@/features/tonight/useReminders';
+import { ReminderButton, type ReminderControl } from '@/reminders/ReminderButton';
+import { canRemind } from '@/reminders/reminders';
+import type { Reminders } from '@/reminders/useReminders';
 import { formatCountdown, formatNightDate, formatPassTime } from '@/translations/format';
 import { Text } from '@/ui/Text';
 import {

@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { deriveCollection, type CollectableSatellite } from '@/domain/collection';
-import type { Reminders } from '@/features/tonight/useReminders';
+import type { Reminders } from '@/reminders/useReminders';
 
 import type { CatchTonight } from '../catchTonight';
 import { CollectionView, type CollectionViewProps } from '../CollectionView';

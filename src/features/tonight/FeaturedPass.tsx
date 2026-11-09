@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
 import { useNow } from '@/environment/clock';
+import { ReminderButton, type ReminderControl } from '@/reminders/ReminderButton';
 import { formatCountdown, formatPassTime } from '@/translations/format';
 import { Chip } from '@/ui/Chip';
 import { Text } from '@/ui/Text';
@@ -20,7 +21,6 @@ import type { FeaturedReason } from './featured';
 import { LookDial } from './LookDial';
 import type { NightLabel } from './nights';
 import { CatchButton } from './PassRow';
-import { ReminderButton, type ReminderControl } from './ReminderButton';
 import { lookStage, whereToLook, type LookGuide } from './whereToLook';
 
 const DIAL_SIZE = 72;
