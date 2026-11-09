@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
+import { MAX_FONT_SCALE, Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import type { City } from './citySearch';
@@ -28,6 +29,7 @@ export function CityPicker({ query, results, onChangeQuery, onSelect, onCancel }
         </Pressable>
       </View>
       <TextInput
+        maxFontSizeMultiplier={MAX_FONT_SCALE}
         accessibilityLabel={t('location.search')}
         placeholder={t('location.search')}
         placeholderTextColor={colors.textMuted}

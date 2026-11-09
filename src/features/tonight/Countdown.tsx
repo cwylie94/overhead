@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { useNow } from '@/environment/clock';
 import { formatCountdown } from '@/i18n/format';
+import { Text } from '@/ui/Text';
 import { colors, typography } from '@/ui/theme';
 
 type CountdownProps = {

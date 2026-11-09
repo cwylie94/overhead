@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 import { Icon } from '@/ui/Icon';
+import { Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 export type ReminderControl = { isSet: boolean; onToggle(): void };

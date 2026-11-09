@@ -43,6 +43,12 @@ module.exports = defineConfig([
               message:
                 "Use useLiveQuery from '@/data/liveQuery/useLiveQuery', which batches row changes into one reload.",
             },
+            {
+              name: 'react-native',
+              importNames: ['Text'],
+              message:
+                "Use Text from '@/ui/Text', which caps font scaling at the size the layouts are checked at.",
+            },
           ],
         },
       ],

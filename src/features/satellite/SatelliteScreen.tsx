@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAppData } from '@/data/AppDataContext';
@@ -14,6 +14,7 @@ import { formatCalendarDate, formatDistance, formatNightDate, formatPassTime } f
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Chip } from '@/ui/Chip';
 import { SilhouetteArt } from '@/ui/SilhouetteArt';
+import { Text } from '@/ui/Text';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 
 import { SatelliteCard } from './SatelliteCard';

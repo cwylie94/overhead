@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, SectionList, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, SectionList, StyleSheet, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import type { Collection, CollectionSetProgress } from '@/domain/collection';
 import type { CollectionSet } from '@/domain/collectionSets';
 import type { Rarity } from '@/domain/types';
 import type { Reminders } from '@/features/tonight/useReminders';
+import { Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import type { CatchTonight } from './catchTonight';

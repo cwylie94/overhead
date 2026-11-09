@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
@@ -7,6 +7,7 @@ import { catchWindow } from '@/domain/catchWindow';
 import { useNow } from '@/environment/clock';
 import { formatPassTime } from '@/i18n/format';
 import { Chip } from '@/ui/Chip';
+import { Text } from '@/ui/Text';
 import {
   brightnessMarkColors,
   colors,

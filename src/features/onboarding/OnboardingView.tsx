@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { Rarity } from '@/domain/types';
 import { formatPassTime } from '@/i18n/format';
 import { Chip } from '@/ui/Chip';
 import { Icon } from '@/ui/Icon';
+import { Text } from '@/ui/Text';
 import {
   brightnessMarkColors,
   colors,

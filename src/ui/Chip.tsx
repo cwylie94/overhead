@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { Text } from '@/ui/Text';
 import { radius, spacing, typography } from '@/ui/theme';
 
 type ChipProps = {

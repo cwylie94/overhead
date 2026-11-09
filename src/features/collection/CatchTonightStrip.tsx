@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
@@ -9,6 +9,7 @@ import { ReminderButton, type ReminderControl } from '@/features/tonight/Reminde
 import { canRemind } from '@/features/tonight/reminders';
 import type { Reminders } from '@/features/tonight/useReminders';
 import { formatCountdown, formatNightDate, formatPassTime } from '@/i18n/format';
+import { Text } from '@/ui/Text';
 import {
   brightnessMarkColors,
   colors,

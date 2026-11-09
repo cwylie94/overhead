@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
+import { Pressable, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import { Easing, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { useAppData } from '@/data/AppDataContext';
@@ -10,6 +10,7 @@ import { useClock, useNow } from '@/environment/clock';
 import { useSkyStore } from '@/stores/skyStore';
 import { ALWAYS_ANIMATE } from '@/ui/motion';
 import { Screen } from '@/ui/Screen';
+import { Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import { SelectedSatellite } from './SelectedSatellite';

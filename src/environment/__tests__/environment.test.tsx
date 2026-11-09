@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react-native';
-import { Text } from 'react-native';
+
+import { Text } from '@/ui/Text';
 
 import { ClockProvider, useNow, type Clock } from '../clock';
 import { locationState, observerFromCoordinates } from '../location';

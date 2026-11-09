@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { CustomLocation } from '@/stores/settingsStore';
 import { Icon } from '@/ui/Icon';
+import { Text } from '@/ui/Text';
 import { colors, spacing } from '@/ui/theme';
 
 import { Section, sectionStyles } from './controls';

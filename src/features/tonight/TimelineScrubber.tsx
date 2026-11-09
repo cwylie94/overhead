@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   runOnJS,
@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { haptics } from '@/ui/haptics';
+import { MAX_FONT_SCALE, Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import { axisScale, timeAtX, type TimelineAxis } from './timelineLayout';
@@ -84,7 +85,11 @@ function LoupeLabel({
     const x = loupeX(label.time, center.get(), loupeWidth);
     return { left: x - LABEL_WIDTH / 2, opacity: x < 0 || x > loupeWidth ? 0 : 1 };
   });
-  return <Animated.Text style={[styles.label, style]}>{label.text}</Animated.Text>;
+  return (
+    <Animated.Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.label, style]}>
+      {label.text}
+    </Animated.Text>
+  );
 }
 
 export function TimelineScrubber({

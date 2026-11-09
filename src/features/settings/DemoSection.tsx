@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Text } from 'react-native';
 
 import { formatNightDate, formatPassTime } from '@/i18n/format';
+import { Text } from '@/ui/Text';
 
 import { Row, Section, sectionStyles, Toggle } from './controls';
 

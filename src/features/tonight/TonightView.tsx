@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, SectionList, StyleSheet, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
@@ -8,6 +8,7 @@ import type { LocationState } from '@/environment/location';
 import { formatNightDate } from '@/i18n/format';
 import { Banner } from '@/ui/Banner';
 import { Icon } from '@/ui/Icon';
+import { Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import { featuredPass, matchesFilter, PASS_FILTERS, type PassFilter } from './featured';

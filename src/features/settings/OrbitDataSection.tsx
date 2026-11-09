@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Text } from 'react-native';
 
 import { formatCountdown } from '@/i18n/format';
 import type { RefreshStatus } from '@/stores/orbitRefreshStore';
+import { Text } from '@/ui/Text';
 import { colors } from '@/ui/theme';
 
 import { Section, sectionStyles } from './controls';

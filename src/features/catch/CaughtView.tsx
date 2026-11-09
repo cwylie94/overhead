@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { CollectionCard as Card } from '@/domain/collection';
@@ -9,6 +9,7 @@ import type { ChancePass } from '@/features/collection/catchTonight';
 import { CollectionCard } from '@/features/collection/CollectionCard';
 import { formatCountdown, formatPassTime } from '@/i18n/format';
 import { HOLO_COLORS } from '@/ui/CardFinish';
+import { Text } from '@/ui/Text';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 
 import type { CatchHeadline, CatchSummary } from './catchSummary';

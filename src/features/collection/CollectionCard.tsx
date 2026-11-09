@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { CollectionCard as Card } from '@/domain/collection';
 import { silhouetteFor } from '@/domain/silhouette';
 import { formatShortDate } from '@/i18n/format';
 import { CardFinish } from '@/ui/CardFinish';
 import { SilhouetteArt } from '@/ui/SilhouetteArt';
+import { Text } from '@/ui/Text';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 
 export type CardNumber = { number: number; total: number };

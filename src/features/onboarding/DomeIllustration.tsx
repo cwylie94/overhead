@@ -1,6 +1,6 @@
 import { Canvas, Circle, Path, Skia } from '@shopify/react-native-skia';
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { Text } from '@/ui/Text';
 import { brightnessMarkColors, colors, typography } from '@/ui/theme';
 
 const SIZE = 200;

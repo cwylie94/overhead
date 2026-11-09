@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, Text } from 'react-native';
+import { Pressable } from 'react-native';
 
+import { Text } from '@/ui/Text';
 import { spacing } from '@/ui/theme';
 
 import { Section, sectionStyles } from './controls';

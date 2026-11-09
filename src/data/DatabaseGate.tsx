@@ -1,8 +1,9 @@
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { Text } from '@/ui/Text';
 import { colors, spacing, typography } from '@/ui/theme';
 
 import { useAppData } from './AppDataContext';
