@@ -145,6 +145,7 @@ export function Toggle({ label, value, testID, onChange }: ToggleProps) {
       value={value}
       onValueChange={onChange}
       trackColor={{ true: colors.accent, false: colors.border }}
+      thumbColor={colors.text}
     />
   );
 }
