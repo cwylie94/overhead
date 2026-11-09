@@ -91,3 +91,37 @@ export function satelliteSightingsQuery(db: Database, noradId: number) {
     .where(eq(sightings.noradId, noradId))
     .orderBy(desc(sightings.observedAt));
 }
+
+export function satelliteQuery(db: Database, noradId: number) {
+  return db
+    .select({
+      noradId: satellites.noradId,
+      name: satellites.name,
+      objectType: satellites.objectType,
+      owner: satellites.owner,
+      launchDate: satellites.launchDate,
+      rarity: satellites.rarity,
+      collectionSet: satellites.collectionSet,
+    })
+    .from(satellites)
+    .where(eq(satellites.noradId, noradId));
+}
+
+export type SatelliteDetail = Awaited<ReturnType<typeof satelliteQuery>>[number];
+
+export function satelliteOrbitQuery(db: Database, noradId: number) {
+  return db
+    .select({ omm: orbits.omm, hostId: orbits.dockedTo, hostName: satellites.name })
+    .from(orbits)
+    .leftJoin(satellites, eq(satellites.noradId, orbits.dockedTo))
+    .where(eq(orbits.noradId, noradId));
+}
+
+export function nextPassQuery(db: Database, noradId: number, after: number) {
+  return db
+    .select({ startAt: passes.startAt })
+    .from(passes)
+    .where(and(eq(passes.noradId, noradId), gt(passes.endAt, after)))
+    .orderBy(asc(passes.startAt))
+    .limit(1);
+}

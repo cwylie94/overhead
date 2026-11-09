@@ -18,8 +18,6 @@ import { createSyncMetaRepository } from '../syncMetaRepository';
 
 const EVENING = Date.UTC(2026, 10, 8, 18);
 const MORNING = Date.UTC(2026, 10, 9, 6);
-const FIRST_PASS = Date.UTC(2026, 10, 8, 21, 12);
-const SECOND_PASS = FIRST_PASS + 5_400_000;
 
 let db: Database;
 
@@ -256,33 +254,6 @@ describe('createPassRepository', () => {
       test('then only the new pass is left', () => {
         expect(createPassRepository(db).listBetween(EVENING, MORNING)).toHaveLength(1);
       });
-    });
-  });
-
-  describe('given two ISS passes 90 minutes apart', () => {
-    beforeEach(() => {
-      createPassRepository(db).replaceAll([
-        makePass({ startAt: FIRST_PASS }),
-        makePass({ startAt: SECOND_PASS }),
-      ]);
-    });
-
-    test('then a pass in progress is the next one', () => {
-      expect(
-        createPassRepository(db).nextForSatellite(ISS_NORAD_ID, FIRST_PASS + 60_000)?.startAt,
-      ).toBe(FIRST_PASS);
-    });
-
-    test('then after the first pass has ended the next one is the later pass', () => {
-      expect(
-        createPassRepository(db).nextForSatellite(ISS_NORAD_ID, FIRST_PASS + 600_000)?.startAt,
-      ).toBe(SECOND_PASS);
-    });
-
-    test('then a satellite with no passes has no next pass', () => {
-      expect(
-        createPassRepository(db).nextForSatellite(HUBBLE_NORAD_ID, FIRST_PASS),
-      ).toBeUndefined();
     });
   });
 });

@@ -28,15 +28,5 @@ export function createPassRepository(db: Database): PassRepository {
         .orderBy(asc(passes.startAt))
         .all();
     },
-
-    nextForSatellite(noradId, after) {
-      return db
-        .select()
-        .from(passes)
-        .where(and(eq(passes.noradId, noradId), gt(passes.endAt, after)))
-        .orderBy(asc(passes.startAt))
-        .limit(1)
-        .get();
-    },
   };
 }
