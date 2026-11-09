@@ -11,6 +11,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - No code comments unless absolutely necessary. Use clear names and small functions instead. Only comment on non-obvious reasons, such as a workaround or an external constraint.
 - TypeScript strict mode. No `any`.
 - Use the project's ESLint and Prettier config. Don't hand-format.
+- Use `Text` from `@/ui/Text`, never React Native's (lint enforces it). It caps font scaling at 200% (`MAX_FONT_SCALE`), the largest size the layouts are checked at: Android's maximum and iOS's AX2. Check new screens at that size; rows that can overflow should wrap rather than squeeze.
 
 ## Git
 
