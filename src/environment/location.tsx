@@ -21,6 +21,7 @@ export type LocationState =
 type LocationContextValue = {
   state: LocationState;
   requestPermission(): Promise<void>;
+  askPermission(): Promise<boolean>;
 };
 
 type Permission =
@@ -32,6 +33,7 @@ const METRES_PER_KM = 1_000;
 const LocationContext = createContext<LocationContextValue>({
   state: { status: 'locating' },
   requestPermission: async () => {},
+  askPermission: async () => false,
 });
 
 export function observerFromCoordinates(coords: Location.LocationObjectCoords): Observer {
@@ -56,6 +58,7 @@ type ProviderProps = { children: ReactNode };
 
 function useDeviceLocation(enabled: boolean): LocationContextValue {
   const cached = useSettingsStore((settings) => settings.lastLocation);
+  const mayPrompt = useSettingsStore((settings) => settings.onboardingComplete);
   const rememberLocation = useSettingsStore((settings) => settings.rememberLocation);
   const [permission, setPermission] = useState<Permission>({ status: 'unknown' });
 
@@ -88,27 +91,33 @@ function useDeviceLocation(enabled: boolean): LocationContextValue {
     }
     const apply = (askIfUndetermined: boolean) =>
       refresh(askIfUndetermined).then(setPermission, () => {});
-    apply(true);
+    apply(mayPrompt);
     const subscription = AppState.addEventListener('change', (next) => {
       if (next === 'active') {
         apply(false);
       }
     });
     return () => subscription.remove();
-  }, [enabled, refresh]);
+  }, [enabled, mayPrompt, refresh]);
 
-  const requestPermission = useCallback(async () => {
+  const ask = useCallback(async () => {
     const response = await Location.requestForegroundPermissionsAsync();
-    if (!response.granted && !response.canAskAgain) {
-      await Linking.openSettings();
-      return;
-    }
-    setPermission(await refresh(false));
+    refresh(false).then(setPermission, () => {});
+    return response;
   }, [refresh]);
 
+  const requestPermission = useCallback(async () => {
+    const response = await ask();
+    if (!response.granted && !response.canAskAgain) {
+      await Linking.openSettings();
+    }
+  }, [ask]);
+
+  const askPermission = useCallback(async () => (await ask()).granted, [ask]);
+
   return useMemo(
-    () => ({ state: locationState(cached, permission), requestPermission }),
-    [cached, permission, requestPermission],
+    () => ({ state: locationState(cached, permission), requestPermission, askPermission }),
+    [cached, permission, requestPermission, askPermission],
   );
 }
 
@@ -121,7 +130,11 @@ export function LocationProvider({ fixed, children }: LocationProviderProps) {
   const value = useMemo<LocationContextValue>(
     () =>
       fixed
-        ? { state: { status: 'ready', observer: fixed }, requestPermission: NO_PERMISSION_NEEDED }
+        ? {
+            state: { status: 'ready', observer: fixed },
+            requestPermission: NO_PERMISSION_NEEDED,
+            askPermission: device.askPermission,
+          }
         : device,
     [fixed, device],
   );
