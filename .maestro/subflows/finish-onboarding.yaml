@@ -2,6 +2,12 @@ appId: com.craigwylie.overhead
 ---
 - tapOn:
     id: onboarding-start
+- tapOn:
+    id: onboarding-next
+- tapOn:
+    id: onboarding-camera-next
+- tapOn:
+    id: onboarding-reminders-later
 - assertVisible: Where are you watching from?
 - runFlow:
     when:
@@ -18,9 +24,3 @@ appId: com.craigwylie.overhead
     commands:
       - tapOn:
           id: onboarding-continue
-- tapOn:
-    id: onboarding-next
-- tapOn:
-    id: onboarding-camera-next
-- tapOn:
-    id: onboarding-finish

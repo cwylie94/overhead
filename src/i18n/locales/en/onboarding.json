@@ -5,8 +5,7 @@
   "welcome": {
     "title": "Satellites cross your sky every night",
     "body": "See what’s passing over, then catch it to add its card to your collection.",
-    "start": "Get started",
-    "demo": "Try the demo"
+    "start": "Get started"
   },
   "location": {
     "title": "Where are you watching from?",
@@ -15,7 +14,8 @@
     "chooseCity": "Choose a city",
     "current": "Your current location",
     "continue": "Continue",
-    "fallback": "If location is turned off, the city picker opens"
+    "fallback": "If location is turned off, the city picker opens",
+    "demo": "Try the demo"
   },
   "catching": {
     "title": "Catch one in three steps",

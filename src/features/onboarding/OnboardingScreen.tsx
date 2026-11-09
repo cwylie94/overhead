@@ -41,12 +41,12 @@ export function OnboardingScreen() {
       place={place}
       onNext={next}
       onBack={() => setIndex((current) => Math.max(current - 1, 0))}
-      onSkip={next}
+      onSkip={() => setIndex(LAST_STEP)}
       onDemo={() => setDemoMode(true)}
       onUseLocation={async () => {
         if (await location.askPermission()) {
           setUsingGps(true);
-          next();
+          finish();
         } else {
           chooseCity();
         }
@@ -54,7 +54,7 @@ export function OnboardingScreen() {
       onChooseCity={chooseCity}
       onEnableReminders={async () => {
         await requestReminderPermission();
-        finish();
+        next();
       }}
       onFinish={finish}
     />

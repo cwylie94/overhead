@@ -9,6 +9,17 @@ name: First launch onboarding, choosing a city
 - assertVisible: Satellites cross your sky every night
 - tapOn:
     id: onboarding-start
+- assertVisible: Catch one in three steps
+- tapOn:
+    id: onboarding-next
+- assertVisible: Catch with the camera
+- tapOn:
+    id: onboarding-camera-next
+- assertVisible: Want a nudge before bright passes?
+- tapOn:
+    id: onboarding-reminders-later
+- assertVisible: Where are you watching from?
+- assertVisible: Try the demo
 - tapOn:
     id: onboarding-choose-city
 - tapOn: Search cities
@@ -16,13 +27,5 @@ name: First launch onboarding, choosing a city
 - tapOn: Madrid, Spain
 - tapOn:
     id: onboarding-continue
-- assertVisible: Catch one in three steps
-- tapOn:
-    id: onboarding-next
-- assertVisible: Catch with the camera
-- tapOn:
-    id: onboarding-camera-next
-- tapOn:
-    id: onboarding-finish
 - assertVisible: Tonight
 - assertVisible: Madrid, Spain

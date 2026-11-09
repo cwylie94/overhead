@@ -14,7 +14,7 @@ import { CameraWalkthrough } from './CameraWalkthrough';
 import { DomeIllustration } from './DomeIllustration';
 import { LoupeDemo } from './LoupeDemo';
 
-export const ONBOARDING_STEPS = ['welcome', 'location', 'catching', 'camera', 'reminders'] as const;
+export const ONBOARDING_STEPS = ['welcome', 'catching', 'camera', 'reminders', 'location'] as const;
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
 const SAMPLE_PASS_TIME = new Date(2026, 0, 1, 20, 57).getTime();
@@ -144,14 +144,11 @@ function StepActions(props: OnboardingViewProps) {
   switch (props.step) {
     case 'welcome':
       return (
-        <>
-          <PrimaryButton
-            testID="onboarding-start"
-            label={t('welcome.start')}
-            onPress={props.onNext}
-          />
-          <TextButton label={t('welcome.demo')} centered onPress={props.onDemo} />
-        </>
+        <PrimaryButton
+          testID="onboarding-start"
+          label={t('welcome.start')}
+          onPress={props.onNext}
+        />
       );
     case 'location':
       return (
@@ -160,7 +157,7 @@ function StepActions(props: OnboardingViewProps) {
             <PrimaryButton
               testID="onboarding-continue"
               label={t('location.continue')}
-              onPress={props.onNext}
+              onPress={props.onFinish}
             />
           ) : (
             <PrimaryButton
@@ -175,6 +172,7 @@ function StepActions(props: OnboardingViewProps) {
             onPress={props.onChooseCity}
           />
           {!props.place && <Text style={styles.note}>{t('location.fallback')}</Text>}
+          <TextButton label={t('location.demo')} centered onPress={props.onDemo} />
         </>
       );
     case 'catching':
@@ -198,9 +196,9 @@ function StepActions(props: OnboardingViewProps) {
             onPress={props.onEnableReminders}
           />
           <SecondaryButton
-            testID="onboarding-finish"
+            testID="onboarding-reminders-later"
             label={t('reminders.later')}
-            onPress={props.onFinish}
+            onPress={props.onNext}
           />
         </>
       );

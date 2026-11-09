@@ -24,7 +24,7 @@ async function renderStep(step: OnboardingStep, overrides: Partial<OnboardingVie
   return props;
 }
 
-test('welcome starts the flow, offers the demo and can be skipped', async () => {
+test('welcome starts the flow and can be skipped', async () => {
   const props = await renderStep('welcome');
 
   expect(
@@ -33,32 +33,35 @@ test('welcome starts the flow, offers the demo and can be skipped', async () => 
   expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
   expect(screen.getByLabelText('Step 1 of 5')).toBeTruthy();
 
+  expect(screen.queryByRole('button', { name: 'Try the demo' })).toBeNull();
+
   await fireEvent.press(screen.getByRole('button', { name: 'Get started' }));
-  await fireEvent.press(screen.getByRole('button', { name: 'Try the demo' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Skip' }));
 
   expect(props.onNext).toHaveBeenCalledTimes(1);
-  expect(props.onDemo).toHaveBeenCalledTimes(1);
   expect(props.onSkip).toHaveBeenCalledTimes(1);
 });
 
-test('the location step asks for a location and cannot be skipped', async () => {
+test('the last step asks for a location, offers the demo and cannot be skipped', async () => {
   const props = await renderStep('location');
 
+  expect(screen.getByLabelText('Step 5 of 5')).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Skip' })).toBeNull();
   expect(screen.getByText('If location is turned off, the city picker opens')).toBeTruthy();
 
   await fireEvent.press(screen.getByRole('button', { name: 'Use my location' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Choose a city' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Try the demo' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
 
   expect(props.onUseLocation).toHaveBeenCalledTimes(1);
   expect(props.onChooseCity).toHaveBeenCalledTimes(1);
+  expect(props.onDemo).toHaveBeenCalledTimes(1);
   expect(props.onBack).toHaveBeenCalledTimes(1);
   expect(props.onNext).not.toHaveBeenCalled();
 });
 
-test('once a place is chosen, the location step shows it and continues', async () => {
+test('once a place is chosen, the location step shows it and finishes', async () => {
   const props = await renderStep('location', { place: 'Recife, Brazil' });
 
   expect(screen.getByText('Recife, Brazil')).toBeTruthy();
@@ -66,7 +69,8 @@ test('once a place is chosen, the location step shows it and continues', async (
 
   await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
 
-  expect(props.onNext).toHaveBeenCalledTimes(1);
+  expect(props.onFinish).toHaveBeenCalledTimes(1);
+  expect(props.onNext).not.toHaveBeenCalled();
 });
 
 test('the catching step explains the three steps', async () => {
@@ -84,16 +88,17 @@ test('the catching step explains the three steps', async () => {
   expect(props.onSkip).toHaveBeenCalledTimes(1);
 });
 
-test('the reminders step can turn reminders on or finish without them', async () => {
+test('the reminders step can turn reminders on or move on without them', async () => {
   const props = await renderStep('reminders');
 
-  expect(screen.getByLabelText('Step 5 of 5')).toBeTruthy();
+  expect(screen.getByLabelText('Step 4 of 5')).toBeTruthy();
 
   await fireEvent.press(screen.getByRole('button', { name: 'Turn on reminders' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Not now' }));
 
   expect(props.onEnableReminders).toHaveBeenCalledTimes(1);
-  expect(props.onFinish).toHaveBeenCalledTimes(1);
+  expect(props.onNext).toHaveBeenCalledTimes(1);
+  expect(props.onFinish).not.toHaveBeenCalled();
 });
 
 describe('the camera step', () => {

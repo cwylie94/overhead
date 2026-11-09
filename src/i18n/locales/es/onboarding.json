@@ -5,8 +5,7 @@
   "welcome": {
     "title": "Cada noche cruzan satélites por tu cielo",
     "body": "Mira qué pasa por encima y atrápalo para añadir su carta a tu colección.",
-    "start": "Empezar",
-    "demo": "Probar la demo"
+    "start": "Empezar"
   },
   "location": {
     "title": "¿Desde dónde vas a mirar?",
@@ -15,7 +14,8 @@
     "chooseCity": "Elegir una ciudad",
     "current": "Tu ubicación actual",
     "continue": "Continuar",
-    "fallback": "Si la ubicación está desactivada, se abre el selector de ciudades"
+    "fallback": "Si la ubicación está desactivada, se abre el selector de ciudades",
+    "demo": "Probar la demo"
   },
   "catching": {
     "title": "Atrapa uno en tres pasos",
