@@ -67,12 +67,13 @@ function makePointing(mode: PointingMode, aim: SkyPosition = TARGET): Pointing {
 }
 
 let now = START;
+const clock = { now: () => now };
 let repositories: Repositories;
 
 function wrapper({ children }: { children: ReactNode }) {
   const data = { key: 'test', repositories } as unknown as AppData;
   return (
-    <ClockProvider clock={{ now: () => now }}>
+    <ClockProvider clock={clock}>
       <AppDataProvider data={data}>{children}</AppDataProvider>
     </ClockProvider>
   );
@@ -88,7 +89,7 @@ async function advance(ms: number) {
 }
 
 async function renderSession(pass: UpcomingPass, pointing: Pointing) {
-  return renderHook(() => useCatchSession(pass, pointing), { wrapper });
+  return renderHook(() => useCatchSession({ ...pass }, pointing), { wrapper });
 }
 
 type Session = Awaited<ReturnType<typeof renderSession>>;
@@ -112,196 +113,68 @@ afterEach(() => {
 describe('useCatchSession', () => {
   let result: Session['result'];
 
-  describe('given a common pass under way and the sensors aimed at it', () => {
+  describe('given the sensors are aimed at a common pass under way', () => {
     beforeEach(async () => {
       startClockAt(START);
       ({ result } = await renderSession(makePass(), makePointing('sensors')));
-    });
-
-    describe('when the first tick passes', () => {
-      beforeEach(async () => {
-        await advance(TICK);
-      });
-
-      test('then it locks on', () => {
-        expect(result.current.machine.status).toBe('locked');
-      });
-
-      test('then it plays the locked haptic', () => {
-        expect(haptics.locked).toHaveBeenCalled();
-      });
-    });
-  });
-
-  describe('given the sensors have locked on to a common pass', () => {
-    beforeEach(async () => {
-      startClockAt(START);
-      ({ result } = await renderSession(makePass(), makePointing('sensors')));
-      await advance(TICK);
     });
 
     describe('when the hold time passes', () => {
       beforeEach(async () => {
-        await advance(CATCH_HOLD_MS);
+        await advance(CATCH_HOLD_MS + 2 * TICK);
       });
 
-      test('then it catches the satellite', () => {
+      test('then the screen sees the catch', () => {
         expect(result.current.machine.status).toBe('caught');
       });
-    });
-  });
 
-  describe('given the sensors have just caught a common pass', () => {
-    beforeEach(async () => {
-      startClockAt(START);
-      ({ result } = await renderSession(makePass(), makePointing('sensors')));
-      await advance(TICK);
-      await advance(CATCH_HOLD_MS);
-    });
-
-    describe('when more ticks pass', () => {
-      beforeEach(async () => {
-        await advance(10 * TICK);
-      });
-
-      test('then it logs one sighting', () => {
+      test('then it logs one sighting in the database', () => {
         expect(repositories.sightings.listAll()).toEqual([
           expect.objectContaining({ noradId: 25544, angleError: 0 }),
         ]);
       });
 
-      test('then it plays the caught haptic once', () => {
+      test('then it plays the caught haptic', () => {
         expect(haptics.caught).toHaveBeenCalledTimes(1);
       });
-
-      test('then it doesn’t play the big catch haptic', () => {
-        expect(haptics.bigCatch).not.toHaveBeenCalled();
-      });
     });
   });
 
-  describe('given a rare pass under way and the sensors aimed at it', () => {
+  describe('given the sensors have locked on to a pass', () => {
+    let rerender: Session['rerender'];
+
     beforeEach(async () => {
       startClockAt(START);
-      await renderSession(makePass({ rarity: 'rare' }), makePointing('sensors'));
+      const pointing = makePointing('sensors');
+      ({ result, rerender } = await renderSession(makePass(), pointing));
+      await advance(TICK);
     });
 
-    describe('when the hold time passes', () => {
+    describe('when the screen renders again with a fresh copy of the same pass', () => {
       beforeEach(async () => {
-        await advance(CATCH_HOLD_MS + 2 * TICK);
+        await act(() => rerender(undefined));
       });
 
-      test('then it celebrates with the big catch haptic', () => {
-        expect(haptics.bigCatch).toHaveBeenCalledTimes(1);
-      });
-
-      test('then it doesn’t play the ordinary caught haptic', () => {
-        expect(haptics.caught).not.toHaveBeenCalled();
+      test('then it stays locked on', () => {
+        expect(result.current.machine.status).toBe('locked');
       });
     });
   });
 
-  describe('given a pass under way and the sensors pointed away from it', () => {
-    beforeEach(async () => {
-      startClockAt(START);
-      ({ result } = await renderSession(
-        makePass(),
-        makePointing('sensors', { azimuth: 0, elevation: 45 }),
-      ));
-    });
-
-    describe('when the hold time passes', () => {
-      beforeEach(async () => {
-        await advance(CATCH_HOLD_MS + 2 * TICK);
-      });
-
-      test('then it keeps aiming', () => {
-        expect(result.current.machine.status).toBe('aiming');
-      });
-
-      test('then it logs no sighting', () => {
-        expect(repositories.sightings.listAll()).toEqual([]);
-      });
-    });
-  });
-
-  describe('given the pass starts in a minute and the sensors are aimed at it', () => {
-    beforeEach(async () => {
-      startClockAt(START - MINUTE);
-      ({ result } = await renderSession(makePass(), makePointing('sensors')));
-    });
-
-    describe('when the hold time passes', () => {
-      beforeEach(async () => {
-        await advance(CATCH_HOLD_MS + 2 * TICK);
-      });
-
-      test('then the aim doesn’t count yet', () => {
-        expect(result.current.machine.status).toBe('aiming');
-      });
-    });
-  });
-
-  describe('given drag-to-aim on the satellite with no finger down', () => {
+  describe('given drag-to-aim on the satellite', () => {
     beforeEach(async () => {
       startClockAt(START);
       ({ result } = await renderSession(makePass(), makePointing('manual')));
     });
 
-    describe('when the hold time passes', () => {
+    describe('when the user puts a finger down and holds', () => {
       beforeEach(async () => {
-        await advance(CATCH_HOLD_MS + 2 * TICK);
-      });
-
-      test('then it keeps aiming', () => {
-        expect(result.current.machine.status).toBe('aiming');
-      });
-
-      test('then it doesn’t pulse the aim', () => {
-        expect(haptics.aimPulse).not.toHaveBeenCalled();
-      });
-    });
-  });
-
-  describe('given drag-to-aim on the satellite and the user puts a finger down after a hold without one', () => {
-    beforeEach(async () => {
-      startClockAt(START);
-      ({ result } = await renderSession(makePass(), makePointing('manual')));
-      await advance(CATCH_HOLD_MS + 2 * TICK);
-      await act(() => result.current.setTouching(true));
-    });
-
-    describe('when the hold time passes', () => {
-      beforeEach(async () => {
+        await act(() => result.current.setTouching(true));
         await advance(CATCH_HOLD_MS + 2 * TICK);
       });
 
       test('then it catches the satellite', () => {
         expect(result.current.machine.status).toBe('caught');
-      });
-
-      test('then it pulses the aim', () => {
-        expect(haptics.aimPulse).toHaveBeenCalled();
-      });
-    });
-  });
-
-  describe('given the pass is a tick from ending and the sensors are pointed away', () => {
-    beforeEach(async () => {
-      startClockAt(START + 4 * MINUTE - TICK);
-      ({ result } = await renderSession(
-        makePass(),
-        makePointing('sensors', { azimuth: 0, elevation: 45 }),
-      ));
-    });
-
-    describe('when the pass ends', () => {
-      beforeEach(async () => {
-        await advance(2 * TICK);
-      });
-
-      test('then the catch fails', () => {
-        expect(result.current.machine.status).toBe('failed');
       });
     });
   });

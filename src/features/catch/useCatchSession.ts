@@ -4,104 +4,55 @@ import { useEffect, useRef } from 'react';
 import { useAppData } from '@/data/AppDataContext';
 import type { UpcomingPass } from '@/data/queries';
 import { logSighting } from '@/data/sightings/logSighting';
-import { aimError } from '@/domain/sky';
 import { useClock } from '@/environment/clock';
 import { useCatchStore } from '@/stores/catchStore';
 import { haptics } from '@/ui/haptics';
 
-import { aimCounts, pulseInterval } from './pointing';
+import { startCatchSession, type CatchMachine, type RunningCatch } from './catchSession';
 import type { Pointing } from './usePointing';
 
-const AIM_TICK_MS = 50;
+const storeMachine: CatchMachine = {
+  current: () => useCatchStore.getState().machine,
+  start: (target, at) => useCatchStore.getState().start(target, at),
+  aim: (angleError, at) => useCatchStore.getState().aim(angleError, at),
+  passEnded: () => useCatchStore.getState().passEnded(),
+  reset: () => useCatchStore.getState().reset(),
+};
 
 export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
   const { repositories } = useAppData();
   const clock = useClock();
   const machine = useCatchStore((state) => state.machine);
-  const start = useCatchStore((state) => state.start);
-  const aim = useCatchStore((state) => state.aim);
-  const passEnded = useCatchStore((state) => state.passEnded);
-  const reset = useCatchStore((state) => state.reset);
-  const touching = useRef(false);
+  const latestPass = useRef(pass);
   const mode = useRef(pointing.mode);
-  const latestError = useRef<number | null>(null);
-  const loggedCatchAt = useRef<number | null>(null);
+  const running = useRef<RunningCatch | null>(null);
+  const { latest } = pointing;
 
   useEffect(() => {
+    latestPass.current = pass;
     mode.current = pointing.mode;
-  }, [pointing.mode]);
+  });
 
   useEffect(() => {
-    start({ noradId: pass.noradId, passEndAt: pass.endAt }, clock.now());
-    return () => reset();
-  }, [pass.noradId, pass.endAt, start, reset, clock]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = clock.now();
-      if (now >= pass.endAt) {
-        passEnded();
-        return;
-      }
-      const error = aimError(pointing.latest.current, pass.track, Math.max(now, pass.startAt));
-      latestError.current = error;
-      const counts = aimCounts({
-        mode: mode.current,
-        touching: touching.current,
-        error,
-        now,
-        startAt: pass.startAt,
-      });
-      aim(counts && error !== null ? error : Number.POSITIVE_INFINITY, now);
-    }, AIM_TICK_MS);
-    return () => clearInterval(timer);
-  }, [pass.startAt, pass.endAt, pass.track, pointing.latest, aim, passEnded, clock]);
-
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const pulse = () => {
-      const aiming = mode.current !== 'manual' || touching.current;
-      const interval = aiming ? pulseInterval(latestError.current) : null;
-      if (interval !== null) {
-        haptics.aimPulse();
-      }
-      timer = setTimeout(pulse, interval ?? 200);
-    };
-    pulse();
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (machine.status === 'locked') {
-      haptics.locked();
-    }
-    if (machine.status === 'caught' && loggedCatchAt.current !== machine.caughtAt) {
-      loggedCatchAt.current = machine.caughtAt;
-      logSighting(
-        repositories,
-        {
-          noradId: pass.noradId,
-          observedAt: machine.caughtAt,
-          angleError: Math.round(machine.angleError * 10) / 10,
-        },
-        { now: clock.now(), randomBytes: Crypto.getRandomBytes },
-      );
-      if (pass.rarity === 'rare' || pass.rarity === 'legendary') {
-        haptics.bigCatch();
-      } else {
-        haptics.caught();
-      }
-    }
-  }, [machine, pass.noradId, pass.rarity, clock, repositories]);
+    const session = startCatchSession({
+      pass: latestPass.current,
+      clock,
+      machine: storeMachine,
+      haptics,
+      readAim: () => latest.current,
+      readMode: () => mode.current,
+      logCatch: (sighting) =>
+        logSighting(repositories, sighting, {
+          now: clock.now(),
+          randomBytes: Crypto.getRandomBytes,
+        }),
+    });
+    running.current = session;
+    return () => session.stop();
+  }, [pass.id, clock, repositories, latest]);
 
   return {
     machine,
-    setTouching: (value: boolean) => {
-      touching.current = value;
-    },
+    setTouching: (touching: boolean) => running.current?.setTouching(touching),
   };
 }
