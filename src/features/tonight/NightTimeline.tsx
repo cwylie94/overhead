@@ -13,6 +13,7 @@ import { brightnessTier, type BrightnessTier } from '@/domain/brightness';
 import { formatHour, formatPassTime } from '@/translations/format';
 import { Text } from '@/ui/Text';
 import { brightnessMarkColors, colors, radius, spacing, typography } from '@/ui/theme';
+import { loupeLabelTimes } from '@/ui/timelineScrub';
 
 import type { NightSky, Interval } from './nightSky';
 import {
@@ -29,7 +30,6 @@ import {
   timelineRange,
   xOfTime,
 } from './timelineLayout';
-import { loupeLabelTimes } from './timelineScrub';
 import { TimelineScrubber, type ScrubPass } from './TimelineScrubber';
 
 const TRACK_HEIGHT = 30;

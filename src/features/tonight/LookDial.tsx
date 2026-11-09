@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
 import type { TrackPoint } from '@/domain/types';
-import { projectToDome } from '@/features/sky/projection';
+import { projectToDome } from '@/ui/domeProjection';
 import { Text } from '@/ui/Text';
 import { colors, typography } from '@/ui/theme';
 

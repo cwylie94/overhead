@@ -2,7 +2,7 @@ import { Canvas, Circle, Path, Skia } from '@shopify/react-native-skia';
 
 import { positionOnTrack } from '@/domain/sky';
 import type { TrackPoint } from '@/domain/types';
-import { projectToDome, type DomeLayout } from '@/features/sky/projection';
+import { projectToDome, type DomeLayout } from '@/ui/domeProjection';
 import { colors } from '@/ui/theme';
 
 type SkyGlyphProps = {

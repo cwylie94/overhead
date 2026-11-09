@@ -1,9 +1,9 @@
 import { Skia, type SkPath } from '@shopify/react-native-skia';
 
 import type { SkyPass } from '@/data/queries';
+import { projectToDome, type DomeLayout } from '@/ui/domeProjection';
 
 import type { DomeDot } from './domeDots';
-import { projectToDome, type DomeLayout } from './projection';
 
 export const PATH_LOOKBACK = 2 * 60_000;
 export const PATH_LOOKAHEAD = 20 * 60_000;

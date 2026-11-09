@@ -19,11 +19,11 @@ import {
 } from 'react-native-reanimated';
 
 import type { SkyPass } from '@/data/queries';
+import { projectToDome, type DomeLayout } from '@/ui/domeProjection';
 import { colors } from '@/ui/theme';
 
 import { activeDots, nearestDot } from './domeDots';
 import { dotsPath, pathsNear } from './domeGeometry';
-import { projectToDome, type DomeLayout } from './projection';
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 3;

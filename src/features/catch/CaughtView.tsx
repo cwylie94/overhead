@@ -6,9 +6,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { ChancePass } from '@/domain/catchTonight';
 import type { CollectionCard as Card } from '@/domain/collection';
 import type { Rarity } from '@/domain/types';
-import { CollectionCard } from '@/features/collection/CollectionCard';
 import { formatCountdown, formatPassTime } from '@/translations/format';
 import { HOLO_COLORS } from '@/ui/CardFinish';
+import { CollectionCard } from '@/ui/CollectionCard';
 import { Text } from '@/ui/Text';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 

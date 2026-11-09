@@ -1,5 +1,3 @@
-import type { Interval } from './nightSky';
-
 const MINUTE = 60_000;
 
 export const LOUPE_SPAN = 45 * MINUTE;
@@ -29,7 +27,7 @@ export function loupeX(time: number, center: number, loupeWidth: number): number
   return ((time - center) / LOUPE_SPAN + 0.5) * loupeWidth;
 }
 
-export function loupeLabelTimes(range: Interval): number[] {
+export function loupeLabelTimes(range: { from: number; to: number }): number[] {
   const times: number[] = [];
   const first = Math.ceil((range.from - LOUPE_SPAN) / LOUPE_LABEL_EVERY) * LOUPE_LABEL_EVERY;
   for (let time = first; time <= range.to + LOUPE_SPAN; time += LOUPE_LABEL_EVERY) {

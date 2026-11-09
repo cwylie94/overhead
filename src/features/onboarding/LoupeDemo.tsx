@@ -13,22 +13,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import {
-  Loupe,
-  LOUPE_HEIGHT,
-  LOUPE_MAX_WIDTH,
-  LoupeBracket,
-  type ScrubPass,
-} from '@/features/tonight/Loupe';
-import {
-  LOUPE_SPAN,
-  loupeLabelTimes,
-  loupeLeft,
-  nearestStart,
-} from '@/features/tonight/timelineScrub';
 import { formatPassTime } from '@/translations/format';
+import { Loupe, LOUPE_HEIGHT, LOUPE_MAX_WIDTH, LoupeBracket, type ScrubPass } from '@/ui/Loupe';
 import { useReduceMotion } from '@/ui/motion';
 import { brightnessMarkColors, colors, radius, spacing } from '@/ui/theme';
+import { LOUPE_SPAN, loupeLabelTimes, loupeLeft, nearestStart } from '@/ui/timelineScrub';
 
 import {
   DEMO_PASSES,

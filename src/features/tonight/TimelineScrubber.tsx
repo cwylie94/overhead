@@ -5,16 +5,16 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 import { haptics } from '@/ui/haptics';
+import { Loupe, LOUPE_MAX_WIDTH, LoupeBracket, type ScrubLabel, type ScrubPass } from '@/ui/Loupe';
 import { spacing } from '@/ui/theme';
+import { LOUPE_SPAN, loupeLeft, nearestStart } from '@/ui/timelineScrub';
 
-import { Loupe, LOUPE_MAX_WIDTH, LoupeBracket, type ScrubLabel, type ScrubPass } from './Loupe';
 import { axisScale, timeAtX, type TimelineAxis } from './timelineLayout';
-import { LOUPE_SPAN, loupeLeft, nearestStart } from './timelineScrub';
 
 const ACTIVATE_AFTER = 8;
 const VERTICAL_ESCAPE = 14;
 
-export type { ScrubLabel, ScrubPass } from './Loupe';
+export type { ScrubLabel, ScrubPass } from '@/ui/Loupe';
 
 type TimelineScrubberProps = {
   width: number;

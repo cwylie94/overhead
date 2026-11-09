@@ -2,7 +2,7 @@ import * as Location from 'expo-location';
 import { useEffect } from 'react';
 import { useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
 
-import { unwrapHeading } from './projection';
+import { unwrapHeading } from '@/ui/domeProjection';
 
 const SETTLE_MS = 400;
 

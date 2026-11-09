@@ -1,5 +1,5 @@
 import type { BrightnessTier } from '@/domain/brightness';
-import { LOUPE_SPAN } from '@/features/tonight/timelineScrub';
+import { LOUPE_SPAN } from '@/ui/timelineScrub';
 
 const MINUTE = 60_000;
 const TRACK_SHARE_MAGNIFIED = 0.12;

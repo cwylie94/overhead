@@ -7,11 +7,11 @@ import type { Collection, CollectionSetProgress } from '@/domain/collection';
 import type { CollectionSet } from '@/domain/collectionSets';
 import type { Rarity } from '@/domain/types';
 import type { Reminders } from '@/reminders/useReminders';
+import { CollectionCard, type CardNumber } from '@/ui/CollectionCard';
 import { Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import { CatchTonightStrip } from './CatchTonightStrip';
-import { CollectionCard, type CardNumber } from './CollectionCard';
 import { CollectionHeader } from './CollectionHeader';
 import { filterCollection, rows, type CollectionFilters } from './filterCollection';
 

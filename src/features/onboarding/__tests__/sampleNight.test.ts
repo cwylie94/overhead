@@ -1,4 +1,4 @@
-import { LOUPE_SPAN, nearestStart } from '@/features/tonight/timelineScrub';
+import { LOUPE_SPAN, nearestStart } from '@/ui/timelineScrub';
 
 import { DEMO_PASSES, DEMO_SPAN, DEMO_START, demoCenter, progressAt } from '../sampleNight';
 

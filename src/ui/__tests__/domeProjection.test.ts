@@ -1,4 +1,4 @@
-import { domeToSky, projectToDome, unwrapHeading } from '../projection';
+import { domeToSky, projectToDome, unwrapHeading } from '../domeProjection';
 
 const layout = { centerX: 200, centerY: 200, radius: 180 };
 

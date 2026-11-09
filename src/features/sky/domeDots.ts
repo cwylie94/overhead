@@ -1,7 +1,6 @@
 import type { SkyPass } from '@/data/queries';
 import { positionOnTrack } from '@/domain/sky';
-
-import { projectToDome, type DomeLayout, type DomePoint } from './projection';
+import { projectToDome, type DomeLayout, type DomePoint } from '@/ui/domeProjection';
 
 export type DomeDot = DomePoint & { noradId: number };
 
