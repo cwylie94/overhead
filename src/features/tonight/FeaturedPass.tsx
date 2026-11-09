@@ -17,7 +17,8 @@ import {
 import { Countdown } from './Countdown';
 import type { FeaturedReason } from './featured';
 import type { NightLabel } from './nights';
-import { CatchButton, ReminderButton, usePathText, type ReminderControl } from './PassRow';
+import { CatchButton, usePathText } from './PassRow';
+import { ReminderButton, type ReminderControl } from './ReminderButton';
 import { SkyGlyph } from './SkyGlyph';
 
 const MINUTE = 60_000;

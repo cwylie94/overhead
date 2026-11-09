@@ -1,4 +1,3 @@
-import { SymbolView } from 'expo-symbols';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -19,11 +18,10 @@ import {
 } from '@/ui/theme';
 
 import { Countdown } from './Countdown';
+import { ReminderButton, type ReminderControl } from './ReminderButton';
 import { SkyGlyph } from './SkyGlyph';
 
 const SOON = 60 * 60_000;
-
-export type ReminderControl = { isSet: boolean; onToggle(): void };
 
 export function usePathText(pass: UpcomingPass): string | null {
   const { t } = useTranslation(['tonight', 'common']);
@@ -56,34 +54,6 @@ export function CatchButton({ pass, onCatch }: { pass: UpcomingPass; onCatch(): 
       <Text style={[styles.actionText, styles.actionTextOn]}>
         {live ? t('catch') : t('getReady')}
       </Text>
-    </Pressable>
-  );
-}
-
-type ReminderButtonProps = { reminder: ReminderControl; compact?: boolean };
-
-export function ReminderButton({ reminder, compact = false }: ReminderButtonProps) {
-  const { t } = useTranslation('tonight');
-  return (
-    <Pressable
-      accessibilityRole="switch"
-      accessibilityState={{ checked: reminder.isSet }}
-      accessibilityLabel={t('reminder.add')}
-      hitSlop={spacing.sm}
-      onPress={reminder.onToggle}
-      style={compact ? styles.bell : [styles.action, reminder.isSet && styles.actionOn]}>
-      {compact ? (
-        <SymbolView
-          name={reminder.isSet ? 'bell.fill' : 'bell'}
-          size={18}
-          tintColor={reminder.isSet ? colors.accent : colors.textMuted}
-          fallback={<Text style={styles.actionText}>{reminder.isSet ? '●' : '○'}</Text>}
-        />
-      ) : (
-        <Text style={[styles.actionText, reminder.isSet && styles.actionTextOn]}>
-          {reminder.isSet ? t('reminder.set') : t('reminder.add')}
-        </Text>
-      )}
     </Pressable>
   );
 }
@@ -201,10 +171,6 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-  },
-  bell: {
-    width: 28,
-    alignItems: 'center',
   },
   action: {
     borderRadius: radius.sm,

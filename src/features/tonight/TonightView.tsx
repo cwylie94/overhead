@@ -15,7 +15,8 @@ import { FeaturedPass } from './FeaturedPass';
 import { groupByNight, nightNoon, type NightLabel } from './nights';
 import { nightSky } from './nightSky';
 import { NightTimeline } from './NightTimeline';
-import { PassRow, type ReminderControl } from './PassRow';
+import { PassRow } from './PassRow';
+import type { ReminderControl } from './ReminderButton';
 import { canRemind } from './reminders';
 import type { Reminders } from './useReminders';
 

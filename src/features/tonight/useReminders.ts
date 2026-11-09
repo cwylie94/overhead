@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import type { UpcomingPass } from '@/data/queries';
@@ -26,19 +27,21 @@ export function useReminders(): Reminders | null {
   const { t } = useTranslation(['tonight', 'common']);
   const [ids, setIds] = useState<ReadonlySet<string>>(new Set());
 
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-    let active = true;
-    scheduledReminderIds().then(
-      (scheduled) => active && setIds(scheduled),
-      () => {},
-    );
-    return () => {
-      active = false;
-    };
-  }, [enabled]);
+  useFocusEffect(
+    useCallback(() => {
+      if (!enabled) {
+        return;
+      }
+      let active = true;
+      scheduledReminderIds().then(
+        (scheduled) => active && setIds(scheduled),
+        () => {},
+      );
+      return () => {
+        active = false;
+      };
+    }, [enabled]),
+  );
 
   const toggle = useCallback(
     async (pass: UpcomingPass) => {
