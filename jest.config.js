@@ -49,7 +49,7 @@ module.exports = {
   ],
   coverageReporters: ['text', 'text-summary', 'html'],
   coverageThreshold: {
-    global: { statements: 58, branches: 63, functions: 52, lines: 58 },
+    global: { statements: 65, branches: 69, functions: 60, lines: 65 },
     './src/domain/': { statements: 98, branches: 94, functions: 100, lines: 98 },
     './src/stores/': { statements: 97, branches: 95, functions: 96, lines: 96 },
     './src/sync/': { statements: 98, branches: 90, functions: 100, lines: 98 },
