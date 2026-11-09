@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import type { UpcomingPass } from '@/data/queries';
+import { nightNoon, nightOf } from '@/domain/nights';
 import { ClockProvider } from '@/environment/clock';
 
-import { nightNoon, nightOf } from '../nights';
 import { nightSky } from '../nightSky';
 import { staleDaysFor } from '../staleness';
 import { timelineAxis, timelineRange, xOfTime } from '../timelineLayout';

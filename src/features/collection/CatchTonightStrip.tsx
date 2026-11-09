@@ -3,8 +3,9 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
+import type { CatchTonight } from '@/domain/catchTonight';
 import { catchWindow } from '@/domain/catchWindow';
-import type { NightLabel } from '@/features/tonight/nights';
+import type { NightLabel } from '@/domain/nights';
 import { ReminderButton, type ReminderControl } from '@/reminders/ReminderButton';
 import { canRemind } from '@/reminders/reminders';
 import type { Reminders } from '@/reminders/useReminders';
@@ -18,8 +19,6 @@ import {
   spacing,
   typography,
 } from '@/ui/theme';
-
-import type { CatchTonight } from './catchTonight';
 
 type CatchTonightStripProps = {
   chances: CatchTonight<UpcomingPass>;

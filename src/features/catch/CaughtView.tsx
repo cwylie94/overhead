@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import type { ChancePass } from '@/domain/catchTonight';
 import type { CollectionCard as Card } from '@/domain/collection';
 import type { Rarity } from '@/domain/types';
-import type { ChancePass } from '@/features/collection/catchTonight';
 import { CollectionCard } from '@/features/collection/CollectionCard';
 import { formatCountdown, formatPassTime } from '@/translations/format';
 import { HOLO_COLORS } from '@/ui/CardFinish';

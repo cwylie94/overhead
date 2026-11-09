@@ -1,6 +1,5 @@
-import type { SkyPosition } from '@/domain/sky';
-
-import { wrapDegrees } from './pointing';
+import { wrapDegrees } from './geometry';
+import type { SkyPosition } from './sky';
 
 export const MAX_CALIBRATION_OFFSET = 45;
 export const MIN_MOON_ELEVATION = 3;

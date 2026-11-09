@@ -1,8 +1,8 @@
+import type { ChancePass } from '@/domain/catchTonight';
 import type { Collection, CollectionCard } from '@/domain/collection';
 import type { CollectionSet } from '@/domain/collectionSets';
+import { matchesFilter } from '@/domain/featured';
 import type { Rarity } from '@/domain/types';
-import type { ChancePass } from '@/features/collection/catchTonight';
-import { matchesFilter } from '@/features/tonight/featured';
 
 export const NEXT_CATCH_WITHIN = 10 * 60_000;
 

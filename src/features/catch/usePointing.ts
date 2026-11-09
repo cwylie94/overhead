@@ -4,10 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import { useSharedValue, type SharedValue } from 'react-native-reanimated';
 
+import { applyOffset, NO_OFFSET } from '@/domain/calibration';
 import type { SkyPosition } from '@/domain/sky';
 import { useCalibrationStore } from '@/stores/calibrationStore';
 
-import { applyOffset, NO_OFFSET } from './calibration';
 import { cameraAzimuth } from './cameraHeading';
 import { rollFromGravity } from './cameraProjection';
 import { elevationFromGravity, smoothVector, type Vector } from './pointing';

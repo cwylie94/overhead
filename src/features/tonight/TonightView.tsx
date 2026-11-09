@@ -4,6 +4,8 @@ import { Pressable, RefreshControl, SectionList, StyleSheet, View } from 'react-
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
+import { featuredPass, matchesFilter, PASS_FILTERS, type PassFilter } from '@/domain/featured';
+import { groupByNight, nightNoon, type NightLabel } from '@/domain/nights';
 import type { LocationState } from '@/environment/location';
 import type { ReminderControl } from '@/reminders/ReminderButton';
 import { canRemind } from '@/reminders/reminders';
@@ -14,9 +16,7 @@ import { Icon } from '@/ui/Icon';
 import { Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
-import { featuredPass, matchesFilter, PASS_FILTERS, type PassFilter } from './featured';
 import { FeaturedPass } from './FeaturedPass';
-import { groupByNight, nightNoon, type NightLabel } from './nights';
 import { nightSky } from './nightSky';
 import { NightTimeline } from './NightTimeline';
 import { PassRow } from './PassRow';

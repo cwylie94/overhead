@@ -1,6 +1,6 @@
-import { brightnessTier, NAKED_EYE_LIMIT } from '@/domain/brightness';
-import { catchWindow } from '@/domain/catchWindow';
-import type { Rarity } from '@/domain/types';
+import { brightnessTier, NAKED_EYE_LIMIT } from './brightness';
+import { catchWindow } from './catchWindow';
+import type { Rarity } from './types';
 
 export type RankedPass = {
   startAt: number;

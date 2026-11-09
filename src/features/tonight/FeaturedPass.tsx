@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
+import type { FeaturedReason } from '@/domain/featured';
+import type { NightLabel } from '@/domain/nights';
 import { useNow } from '@/environment/clock';
 import { ReminderButton, type ReminderControl } from '@/reminders/ReminderButton';
 import { formatCountdown, formatPassTime } from '@/translations/format';
@@ -17,9 +19,7 @@ import {
   typography,
 } from '@/ui/theme';
 
-import type { FeaturedReason } from './featured';
 import { LookDial } from './LookDial';
-import type { NightLabel } from './nights';
 import { CatchButton } from './PassRow';
 import { lookStage, whereToLook, type LookGuide } from './whereToLook';
 

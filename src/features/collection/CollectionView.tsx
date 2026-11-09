@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, SectionList, StyleSheet, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
+import type { CatchTonight } from '@/domain/catchTonight';
 import type { Collection, CollectionSetProgress } from '@/domain/collection';
 import type { CollectionSet } from '@/domain/collectionSets';
 import type { Rarity } from '@/domain/types';
@@ -9,7 +10,6 @@ import type { Reminders } from '@/reminders/useReminders';
 import { Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
-import type { CatchTonight } from './catchTonight';
 import { CatchTonightStrip } from './CatchTonightStrip';
 import { CollectionCard, type CardNumber } from './CollectionCard';
 import { CollectionHeader } from './CollectionHeader';

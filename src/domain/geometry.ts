@@ -25,3 +25,8 @@ export function normalizeDegrees(degrees: number): number {
   const wrapped = degrees % 360;
   return wrapped < 0 ? wrapped + 360 : wrapped;
 }
+
+export function wrapDegrees(delta: number): number {
+  'worklet';
+  return ((((delta + 180) % 360) + 360) % 360) - 180;
+}

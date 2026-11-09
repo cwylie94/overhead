@@ -1,3 +1,4 @@
+import { wrapDegrees } from '@/domain/geometry';
 import type { SkyPosition } from '@/domain/sky';
 
 import type { PointingMode } from './usePointing';
@@ -25,11 +26,6 @@ export function smoothVector(previous: Vector | null, next: Vector, weight: numb
     y: previous.y + (next.y - previous.y) * weight,
     z: previous.z + (next.z - previous.z) * weight,
   };
-}
-
-export function wrapDegrees(delta: number): number {
-  'worklet';
-  return ((((delta + 180) % 360) + 360) % 360) - 180;
 }
 
 export type SkyOffset = { right: number; up: number };

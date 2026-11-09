@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import type { CalibrationOffset } from '@/features/catch/calibration';
+import type { CalibrationOffset } from '@/domain/calibration';
 
 type CalibrationState = {
   offset: CalibrationOffset | null;

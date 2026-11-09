@@ -10,6 +10,7 @@ import {
   sightingRecordsQuery,
   upcomingPassesQuery,
 } from '@/data/queries';
+import { catchTonight } from '@/domain/catchTonight';
 import { catchWindow } from '@/domain/catchWindow';
 import { deriveCollection } from '@/domain/collection';
 import { dockingHosts } from '@/domain/docking';
@@ -17,7 +18,6 @@ import { useNow } from '@/environment/clock';
 import { useReminders } from '@/reminders/useReminders';
 import { Screen } from '@/ui/Screen';
 
-import { catchTonight } from './catchTonight';
 import { CollectionView } from './CollectionView';
 import type { CollectionFilters } from './filterCollection';
 
