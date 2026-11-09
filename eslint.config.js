@@ -14,7 +14,6 @@ module.exports = defineConfig([
       'expo-env.d.ts',
       'src/data/migrations/*',
       'vendor/*',
-      '**/.wrangler/*',
     ],
   },
   {

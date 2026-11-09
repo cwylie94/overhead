@@ -8,5 +8,4 @@ src/data/migrations
 vendor
 src/data/snapshot/*.json
 src/domain/__fixtures__
-.wrangler
 src/data/cities/cities.json

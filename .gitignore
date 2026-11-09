@@ -50,5 +50,3 @@ example
 /tools/fixtures/.cache
 __pycache__/
 
-# Cloudflare
-.wrangler/

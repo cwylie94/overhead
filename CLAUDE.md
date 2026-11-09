@@ -27,7 +27,6 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - i18n: i18next, react-i18next and expo-localization
 - Animation: Reanimated, Gesture Handler and Skia
 - Device: expo-haptics, expo-notifications, NetInfo and device sensors
-- Backend: Hono on Cloudflare Workers with D1
 - Tests: Jest, React Native Testing Library and Maestro
 
 ## Working with Expo
@@ -38,18 +37,18 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - `ios/` and `android/` are generated (Continuous Native Generation) and git-ignored. Configure native behaviour through `app.json` and config plugins, never by editing those folders.
 - The app runs as a development build (`expo-dev-client`), not Expo Go, because MMKV has native code Expo Go doesn't include. `npm run ios` builds and launches it. Rebuild only after adding or changing a native dependency or `app.json`. For JS-only changes, `npm start` is enough.
 - CocoaPods is pinned per project in `Gemfile` and installed into `vendor/bundle`. It needs Ruby 3.3 or later, and this Mac's is Homebrew's keg-only Ruby at `/opt/homebrew/opt/ruby/bin`. Put that first on `PATH` for iOS builds. Never upgrade the global `pod` or system Ruby.
-- Real-iPhone builds: `npm run ios:device` (Release, no dev server). The team ID comes from `APPLE_TEAM_ID` in `.env.local` through `app.config.ts`, so it stays out of git. Build with `EXPO_PUBLIC_SYNC_URL=` empty, because the local Worker's `127.0.0.1` means the phone itself. A new profile needs `xcodebuild … -allowProvisioningUpdates` once, which `expo run:ios` doesn't pass.
+- Real-iPhone builds: `npm run ios:device` (Release, no dev server). The team ID comes from `APPLE_TEAM_ID` in `.env.local` through `app.config.ts`, so it stays out of git. A new profile needs `xcodebuild … -allowProvisioningUpdates` once, which `expo run:ios` doesn't pass.
 - Routes live in `src/app/` and stay thin: each route file re-exports a screen from `src/features/`.
 - Run `npm run lint`, `npm run typecheck` and the tests before calling a task done.
 
 ## Architecture rules
 
 - SQLite is the single source of truth for data. Database rows never go into Zustand. Screens read them with Drizzle live queries.
-- Only the sync engine talks to the network. Screens never call an API directly.
+- There is no backend. The only network access is the CelesTrak orbit refresh in `src/sync/`; screens never call an API directly. Sightings stay on the phone.
 - All orbit maths lives in the pure `domain/` layer and takes a clock and a location as inputs. Never call `Date.now()` or read sensors inside `domain/`.
 - Fast-changing sensor data (compass heading, tilt) stays in Reanimated shared values, never in Zustand.
 - Components subscribe to stores with selectors, e.g. `useSkyStore(s => s.selectedNoradId)`.
-- Stores in `src/stores/` hold UI and session state only. `settingsStore` and `syncStore` (last sync time and account ID) persist to MMKV via `persistStorage`, with `partialize` listing exactly what is saved. Pure logic, such as the catch state machine, lives in `src/domain/`, and its store only dispatches events to it. Actions that change nothing must return the same state, so subscribers aren't notified.
+- Stores in `src/stores/` hold UI and session state only. `settingsStore` and `orbitRefreshStore` (last orbit check) persist to MMKV via `persistStorage`, with `partialize` listing exactly what is saved. Pure logic, such as the catch state machine, lives in `src/domain/`, and its store only dispatches events to it. Actions that change nothing must return the same state, so subscribers aren't notified.
 - Test stores by calling actions directly, resetting with `useXStore.setState(useXStore.getInitialState())`. Jest swaps MMKV for its in-memory mock in `jest.setup.ts`.
 - Time and place are injected through `src/environment/`: `ClockProvider` / `useClock` / `useNow` and `LocationProvider` / `useLocation`. Never call `Date.now()` in components or hooks. `LocationProvider` takes a `fixed` observer (the demo location, or a city chosen in Settings as `customLocation`) and otherwise uses GPS. It's one component either way, so switching never remounts the navigation; keep it that way, because swapping provider components resets the Stack.
 - The city picker searches `src/data/cities/cities.json` (GeoNames, CC BY 4.0, cities of 100,000 or more plus capitals, English names only) with `searchCities`. Refresh it with `npm run cities:update`. The credit must stay visible in the app; it lives under About in Settings. The last location is saved, rounded to about 1 km, in `settingsStore`, so an offline launch still has an observer.
@@ -83,12 +82,11 @@ It is an interview showcase project, so code quality, tests and a working demo m
 src/
   domain/    pure TS: pass finder, visibility, angle maths, rarity, collection rules
   data/      Drizzle schema, repositories, migrations
-  sync/      outbox, push/pull, CelesTrak fetcher, refresh rules
-  stores/    Zustand: settingsStore, skyStore, catchStore, syncStore
+  sync/      CelesTrak fetcher, refresh rules and triggers
+  stores/    Zustand: settingsStore, skyStore, catchStore, orbitRefreshStore
   i18n/      i18next setup, typed keys, locales/{en,es}/*.json
   features/  tonight/, sky/, catch/, collection/, settings/
   ui/        shared components, Skia primitives, haptics
-server/      Hono Worker with D1: the sync API, its migrations and tests
 ```
 
 ## Data model
@@ -98,9 +96,8 @@ server/      Hono Worker with D1: the sync API, its migrations and tests
 | `satellites` | NORAD ID, name, type, owner, launch date and rarity, from the bundled catalogue        |
 | `orbits`     | One OMM JSON row per satellite, replaced on refresh                                    |
 | `passes`     | Cached predictions with track points, recalculated when orbit data or location changes |
-| `sightings`  | UUIDv7 ID, verified flag, angle error and note. Never edited except the note           |
-| `outbox`     | Changes waiting to sync                                                                |
-| `sync_meta`  | Pull cursor and last fetch time per CelesTrak group                                    |
+| `sightings`  | UUIDv7 ID, angle error and note. Never edited except the note                          |
+| `sync_meta`  | CelesTrak failure counts and retry times per group                                     |
 
 There is no collection table. The collection is derived from sightings.
 
@@ -110,7 +107,7 @@ There is no collection table. The collection is derived from sightings.
 
 ## Domain rules
 
-- **Catch:** only inside a predicted visible pass window, with the aim (heading plus tilt) within about 10° of the predicted position for 2 s, in any aiming mode (sensors, camera or drag-to-aim). Every catch adds to the collection, and there is no separate "seen" state. The `verified` column stays in the schema and the sync protocol so older clients keep working; new sightings always set it.
+- **Catch:** only inside a predicted visible pass window, with the aim (heading plus tilt) within about 10° of the predicted position for 2 s, in any aiming mode (sensors, camera or drag-to-aim). Every catch adds to the collection, and there is no separate "seen" state.
 - **Catch state machine** (in `catchStore`): idle → aiming → locked → caught / failed.
 - **Visibility:** the sun is more than 6° below the horizon, the satellite is in sunlight, and the elevation is above the user's minimum.
 - **Rarity** is a fixed function of catalogue data, so every device agrees. It forms a pyramid, each tier larger than the one above (18 / 28 / 57 / 69 in the current snapshot):
@@ -130,25 +127,14 @@ There is no collection table. The collection is derived from sightings.
   - All the constants are starting points to tune against real observations.
 - After changing the rarity or set rules, bump `CATALOGUE_RULES_VERSION` in `src/domain/catalogue.ts` so existing installs re-sort their catalogue. A bundled-snapshot test fails if a refresh breaks the rarity pyramid or leaves a set empty.
 
-## Network and sync
+## Network
 
 - CelesTrak only, for two groups (`visual`, `stations`) and SATCAT. Never fetch the full active catalogue.
 - Wait at least 2 hours between fetches per group, because CelesTrak returns HTTP 403 when you download too soon. Back off exponentially on errors and never retry immediately.
 - A bundled snapshot of both groups and their SATCAT records lives in `src/data/snapshot/*.json`, so the first launch works offline. `prepareDatabase()` runs the migrations and then `importSnapshot` on every launch. The import is idempotent: it reloads the catalogue only when the snapshot or the rarity rules have changed since the last import, and a group's orbits only when the snapshot is newer than the stored ones. Refresh it with `npm run snapshot:update` (one request per endpoint, so it respects CelesTrak's limits), then commit the JSON.
 - Show a staleness banner when orbit data is several days old.
 - CelesTrak refresh (`src/sync/celestrak.ts`) keeps per-group failure counts and retry times in `sync_meta`. Backoff starts at 5 minutes and doubles up to 6 hours; a 403 waits the full 2 hours. A failed or malformed response never replaces stored orbits.
-- Writing a sighting and its outbox entry happens in one transaction. Push is idempotent (the server inserts or ignores by ID). Delete outbox entries only after the server confirms them.
-- Identity is an anonymous account ID (UUIDv7) generated on the device and kept in `syncStore`. Once set it is never replaced. There is no login.
-- Sync (`src/sync/`):
-  - `runSync` pushes the outbox, pulls changes, then refreshes orbits, and refreshes passes if orbits changed. `SyncProvider` runs it on launch, on returning to the foreground, on reconnecting and from Sync now in Settings, one run at a time.
-  - Push sends up to `MAX_PUSH_BATCH` changes and deletes only the entries the server lists in `accepted`. A sighting is marked synced only when none of its changes are still pending.
-  - The server bumps a per-account version for every push and stamps each changed row with it. Pull returns rows above the cursor in version order, `PULL_PAGE_SIZE` at a time; the cursor is stored in `sync_meta` under `sync.pullCursor`.
-  - Only the note can change after a sighting is logged. The last note edit to reach the server wins, and a pull never overwrites a sighting with a pending local change.
-  - The wire types live in `server/src/protocol.ts` and are shared by the app and the Worker. Change them in one place, and keep old clients working.
-- The server (`server/`) is its own npm package. Run `npm install` and `npm run db:migrate:local` there once, then `npm run dev` serves it on port 8787. The app syncs only when `EXPO_PUBLIC_SYNC_URL` is set (in `.env.local`, see `.env.example`). Without it, sightings stay on the device and orbits still refresh. Restart Metro after changing it, because `EXPO_PUBLIC_` values are inlined at bundle time.
-- Server routes take a structural `D1Like` type, so tests run the real app against `fakeD1` (better-sqlite3). The root `tsconfig.json` excludes `server/`, which has its own type check against the Workers types (`npm run typecheck` in `server/`).
-- Deploying needs a Cloudflare account: create the D1 database, put its ID in `server/wrangler.toml` in place of the placeholder, run `npm run db:migrate:remote`, then `npm run deploy`.
-- Pass fixtures come from Skyfield, never a live API. N2YO isn't used.
+- `OrbitRefreshProvider` runs `refreshOrbits` on launch, on returning to the foreground, on reconnecting and from Check for updates in Settings, one run at a time, and recomputes passes when a group was updated. `orbitRefreshStore` holds its status for the Orbit data section.
 
 ## i18n
 
@@ -162,7 +148,7 @@ There is no collection table. The collection is derived from sightings.
 ## Testing
 
 - Write domain tests first. Pass predictions use a fixed orbit snapshot, a London location and a fixed clock, and must match the Skyfield fixtures within ±2 s.
-- Sync tests run two simulated devices against the real Worker app over in-memory SQLite (`src/sync/__tests__/sync.test.ts`): push replay is harmless, the cursor advances, a crash mid-sync loses nothing, and note edits reach the other device. CelesTrak tests cover the 2-hour rule and backoff with a fake fetcher and clock.
+- CelesTrak tests cover the 2-hour rule and backoff with a fake fetcher and clock. Migration tests check that schema changes keep existing sightings.
 - Store tests call actions directly, with no rendering, and cover forbidden state transitions.
 - Translation tests fail if any locale is missing a key or a plural form its language needs (Spanish needs `_many` as well as `_one` and `_other`).
 - Maestro flows live in `.maestro/` and run with `npm run e2e` against a running build. They start from `clearState` and use the `overhead://demo` link for a known evening. Give elements a flow needs a `testID` (such as `catch-<noradId>`) rather than matching on text that changes. Flows that don't open the demo link start with `subflows/finish-onboarding.yaml`. Maestro can't hold a drag in place, so it can't complete an aimed catch.
@@ -172,7 +158,7 @@ There is no collection table. The collection is derived from sightings.
 - Turn it on with the Demo mode switch in Settings, by tapping the version five times, or with the `overhead://demo` link (`?enabled=0` turns it off). The flag is `demoMode` in `settingsStore`, so it survives a relaunch.
 - The demo pass is the first ISS pass over London after the snapshot was taken that peaks at 40° or higher and magnitude −2 or brighter (`src/demo/scenario.ts`). The clock starts a minute before it appears and then runs in real time. It's derived from the snapshot, so it still works after `npm run snapshot:update`; the tests fail if a refresh leaves no such pass.
 - Each start deletes and recreates `overhead-demo.db` and imports the bundled snapshot, so demo catches never touch the real collection.
-- In demo mode, sync, the CelesTrak refresh, reminders, the staleness banner and the pending-changes badge are off, and Catch mode forces drag-to-aim.
+- In demo mode, the CelesTrak refresh, reminders and the staleness banner are off, and Catch mode forces drag-to-aim.
 
 ## Build phases
 
@@ -181,7 +167,7 @@ There is no collection table. The collection is derived from sightings.
 3. Tonight screen
 4. Sky view
 5. Catch and collection
-6. Sync: outbox engine, Hono Worker, CelesTrak refresh
+6. CelesTrak refresh
 7. Polish: demo mode, haptics and reduce motion, Spanish, Maestro, README
 
-Never cut sync, tests or demo mode. Cut first: Arabic and right-to-left layout, achievements.
+Never cut tests or demo mode. Cut first: Arabic and right-to-left layout, achievements.

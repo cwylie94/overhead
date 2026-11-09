@@ -17,7 +17,7 @@ Demo mode replays a fixed evening so the app can be shown anywhere, any time. Tu
 
 - The clock starts a minute before a bright ISS pass over London, picked from the bundled orbit data, and runs in real time from there.
 - Catch mode uses drag-to-aim instead of the compass.
-- It runs on its own database, recreated each time the demo starts, so demo catches never reach your real collection or the sync server. Sync, reminders and the orbit refresh are off.
+- It runs on its own database, recreated each time the demo starts, so demo catches never reach your real collection. Reminders and the orbit refresh are off.
 
 ## Getting started
 
@@ -66,16 +66,15 @@ The first time, Xcode has to create a signing profile, which `expo run:ios` does
 src/
   domain/    pure TypeScript: pass finder, sun, look angles, rarity, sets, brightness, catch state machine
   data/      SQLite schema (Drizzle), repositories, migrations, bundled snapshot, pass cache
-  sync/      outbox push and pull, CelesTrak refresh, triggers
+  sync/      CelesTrak refresh and its triggers
   environment/  injected clock and location
   demo/      demo pass and the app session that swaps in demo mode
   features/  tonight, sky, catch, collection, satellite, settings
   stores/    Zustand for UI and session state, persisted to MMKV
   i18n/      i18next with typed keys, English and Spanish
-server/      Hono Worker with D1, the sync API
 ```
 
-- **SQLite is the single source of truth.** Screens read with Drizzle live queries, so a catch, a sync or a new pass list shows up everywhere without any state passed around. Zustand only holds UI state such as the selected satellite or the catch in progress.
+- **SQLite is the single source of truth.** Screens read with Drizzle live queries, so a catch or a new pass list shows up everywhere without any state passed around. Zustand only holds UI state such as the selected satellite or the catch in progress.
 - **Orbit maths is pure and injected.** Everything in `domain/` takes the time and the observer as arguments, and the app gets them from a `ClockProvider` and a location provider. That is what makes the tests deterministic and lets demo mode swap in a fixed evening without touching any screen.
 - **Passes are computed once and cached.** The pass cache works out 48 hours of passes for the whole catalogue in chunks that yield to the UI (one night takes about 1.2 s under Hermes) and stores each pass with a track point every 10 seconds. It reruns only when the orbits, the location or the minimum elevation change.
 - **The Sky view never re-renders while it moves.** Time, zoom and heading are Reanimated shared values, and the dome is drawn with Skia from worklets that interpolate the stored tracks, so scrubbing stays smooth.
@@ -85,32 +84,9 @@ server/      Hono Worker with D1, the sync API
 
 `findPasses` scans each satellite's orbit (SGP4, via satellite.js) at a coarse step, refines the peak with a golden-section search and the rise and set times by bisection, and skips ahead while the satellite is too far round the Earth to be seen. A pass counts as visible while the satellite is sunlit, above the minimum elevation and the sky is dark. Brightness is estimated from the satellite's radar cross-section, distance and sun angle.
 
-## Sync
+## Orbit data
 
-Sightings are written to SQLite with an outbox entry in the same transaction, so catching works offline. When a sync URL is set, the app pushes the outbox to a small [Hono](https://hono.dev/) Worker on Cloudflare with a D1 database, and pulls changes made on other devices. It syncs on launch, on returning to the foreground, when the network comes back, and from Sync now in Settings. There is no login: each install creates an anonymous account ID.
-
-- **Push is idempotent.** The server inserts sightings or ignores ones it already has, and the app deletes outbox entries only once the server confirms them, so a crash or a dropped response never loses or duplicates a catch.
-- **Pull uses a version cursor.** Every push bumps a per-account version, and pull returns everything after the device's cursor, a page at a time.
-- **Only notes change.** A sighting is never edited after it's logged except for its note, where the last edit to reach the server wins.
-
-The same sync run refreshes orbits from CelesTrak, at most once every 2 hours per group, because CelesTrak blocks clients that ask more often. After a failure it backs off from 5 minutes, doubling up to 6 hours, and keeps the existing orbits.
-
-To run the Worker locally:
-
-```bash
-cd server
-npm install
-npm run db:migrate:local
-npm run dev
-```
-
-Then point the app at it in `.env.local` (see `.env.example`) and restart the dev server:
-
-```ini
-EXPO_PUBLIC_SYNC_URL=http://127.0.0.1:8787
-```
-
-Deploying needs a Cloudflare account. Create a D1 database with `npx wrangler d1 create overhead`, put its ID in `server/wrangler.toml`, then run `npm run db:migrate:remote` and `npm run deploy` in `server/`.
+Everything stays on the phone; there is no account and no server. The only network access is CelesTrak. The app refreshes orbits on launch, on returning to the foreground, when the network comes back, and from Check for updates in Settings, at most once every 2 hours per group, because CelesTrak blocks clients that ask more often. After a failure it backs off from 5 minutes, doubling up to 6 hours, and keeps the existing orbits. Settings shows how old the orbit data is.
 
 ## Reference pass fixtures
 
@@ -126,9 +102,8 @@ npm run fixtures:passes
 
 ## Testing
 
-- **Jest** covers the domain maths, repositories (against in-memory SQLite with the real migrations), stores, sync, formatting, translations and the presentational views. Run `npm test`.
+- **Jest** covers the domain maths, repositories (against in-memory SQLite with the real migrations), schema migrations, stores, the CelesTrak refresh, formatting, translations and the presentational views. Run `npm test`.
 - **Pass predictions** are checked against Skyfield for every satellite in the snapshot, to within 2 seconds.
-- **Sync** tests run two simulated phones against the real Worker app, including a crash after the server saved a push and a replayed pull.
 - **Maestro** flows in `.maestro/` drive the demo evening, the demo toggle and the language switch on a simulator. Install the [Maestro CLI](https://docs.maestro.dev/getting-started/installing-maestro) (it needs Java 17 or later), start the app with `npm run ios`, then run `npm run e2e`. Maestro can't hold a drag in place, so the aim-and-hold catch itself is covered by the catch state machine's tests and by hand.
 
 ## Trade-offs
@@ -139,8 +114,7 @@ npm run fixtures:passes
 - **Brightness is an estimate.** Magnitudes come from radar cross-section, which is only a rough proxy for how much sunlight a satellite reflects, so they are good to about one magnitude. The constants are calibrated on the ISS and Hubble.
 - **Rarity and sets are rules, not a curated list.** Rarity follows a pyramid (few legendary, many common) from launch date, object type and whether it's a station or constellation member. Sets are mostly rules with two short named lists. That keeps a snapshot refresh from needing manual work, at the cost of the odd surprising choice.
 - **A bundled snapshot plus a cautious refresh.** The app ships with orbit data so the first launch works offline, and refreshes each CelesTrak group at most every 2 hours.
-- **No login.** Each install has an anonymous account ID, which keeps sync simple, but a lost phone means a lost collection.
-- **Last write wins for notes.** Notes are the only thing that changes after a sighting is logged, so a full merge strategy wasn't worth it.
+- **No server.** Catches live only on the phone, which keeps the app simple and private, but a lost phone means a lost collection.
 - **Camera mode corrects the compass instead of trusting it.** Phone compasses are often 5–15° off, which is more than the catch tolerance. Lining up the Moon, whose position the app works out to within 0.4°, measures that error directly. The correction lasts for the session, because the error changes as you move.
 - **Expo with development builds, not ejected.** Native code (MMKV, Skia, sensors) comes in through config plugins, so `ios/` and `android/` are generated and never edited.
 
@@ -150,9 +124,9 @@ npm run fixtures:passes
 - Calibrate on bright planets as well as the Moon, for nights when the Moon is down.
 - Calibrate brightness against real observations.
 - Group docked station modules (the ISS currently appears as ZARYA, NAUKA and POISK).
-- Let people move their collection to a new phone, for example with a transfer code for the account ID.
+- Let people move their collection to a new phone, for example with an export file.
 - Show times in a chosen city's own time zone, and accept local-language city names (Londres, Edimburgo).
-- Deploy the Worker, and add Arabic with right-to-left layout.
+- Add Arabic with right-to-left layout.
 
 ## Credits
 
