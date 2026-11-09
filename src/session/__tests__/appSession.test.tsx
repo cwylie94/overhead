@@ -5,17 +5,30 @@ import { DEMO_LEAD, DEMO_OBSERVER, findDemoPass } from '@/demo/scenario';
 import { DEMO_PASS } from '@/demo/testing/demoMocks';
 import type { Clock } from '@/environment/clock';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { refreshOrbits, type RefreshOutcome } from '@/sync/celestrak';
 
-import { useAppSession, useDemo, useSessionFeatures, type AppSession } from '../appSession';
+import {
+  useAppSession,
+  useDemo,
+  useOrbitRefreshStatus,
+  useSessionFeatures,
+  type AppSession,
+} from '../appSession';
 import { DEMO_FEATURES, DEVICE_FEATURES } from '../features';
 
 jest.mock('@/data/client', () => {
   let demoRuns = 0;
+  const passCacheRunner = { refresh: jest.fn(async () => {}) };
   return {
-    deviceData: jest.fn(() => ({ key: 'device' })),
-    freshDemoData: jest.fn(() => ({ key: `demo-${++demoRuns}` })),
+    deviceData: jest.fn(() => ({ key: 'device', passCacheRunner })),
+    freshDemoData: jest.fn(() => ({ key: `demo-${++demoRuns}`, passCacheRunner })),
   };
 });
+
+jest.mock('@/sync/celestrak', () => ({
+  ...jest.requireActual('@/sync/celestrak'),
+  refreshOrbits: jest.fn(),
+}));
 
 jest.mock('@/data/snapshot', () => ({ bundledSnapshot: {} }));
 
@@ -61,7 +74,7 @@ describe('useAppSession', () => {
       });
 
       test('then it stays on the device database', () => {
-        expect(session.current).toEqual({
+        expect(session.current).toMatchObject({
           data: { key: 'device' },
           demo: null,
           features: DEVICE_FEATURES,
@@ -83,7 +96,7 @@ describe('useAppSession', () => {
       });
 
       test('then it uses the device database', () => {
-        expect(session.current.data).toEqual({ key: 'device' });
+        expect(session.current.data.key).toBe('device');
       });
 
       test('then there is no demo', () => {
@@ -148,7 +161,7 @@ describe('useAppSession', () => {
       });
 
       test('then it goes back to the device database', () => {
-        expect(session.current).toEqual({
+        expect(session.current).toMatchObject({
           data: { key: 'device' },
           demo: null,
           features: DEVICE_FEATURES,
@@ -247,6 +260,60 @@ describe('useSessionFeatures', () => {
 
       test('then the demo features apply', () => {
         expect(features.current).toEqual(DEMO_FEATURES);
+      });
+    });
+  });
+});
+
+describe('useOrbitRefreshStatus', () => {
+  describe('given demo mode is off and the orbit check status is being watched', () => {
+    let status: { current: ReturnType<typeof useOrbitRefreshStatus> };
+    let session: { current: AppSession };
+
+    beforeEach(async () => {
+      jest.mocked(refreshOrbits).mockReturnValue(new Promise(() => {}));
+      ({ result: session } = await renderHook(() => useAppSession()));
+      ({ result: status } = await renderHook(() => useOrbitRefreshStatus()));
+    });
+
+    test('then no check is running', () => {
+      expect(status.current).toBe('idle');
+    });
+
+    describe('when the session checks for new orbits', () => {
+      beforeEach(async () => {
+        await act(async () => {
+          session.current.orbitRefresher.refresh();
+        });
+      });
+
+      test('then it shows that a check is running', () => {
+        expect(status.current).toBe('checking');
+      });
+    });
+  });
+});
+
+describe('the session’s orbit refresher', () => {
+  describe('given the demo has started', () => {
+    let session: { current: AppSession };
+
+    beforeEach(async () => {
+      session = await openSession();
+      await setDemoMode(true);
+    });
+
+    describe('when new orbits arrive', () => {
+      beforeEach(async () => {
+        const outcomes: Record<string, RefreshOutcome> = { visual: 'updated' };
+        jest.mocked(refreshOrbits).mockResolvedValue(outcomes);
+        await act(() => session.current.orbitRefresher.refresh());
+      });
+
+      test('then it recomputes the passes at the demo time', () => {
+        expect(session.current.data.passCacheRunner.refresh).toHaveBeenCalledWith(
+          DEMO_PASS.startAt - DEMO_LEAD,
+        );
       });
     });
   });

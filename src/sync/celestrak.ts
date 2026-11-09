@@ -23,7 +23,7 @@ export type OrbitFetcher = (group: CelestrakGroup) => Promise<OmmRecord[]>;
 
 export type RefreshOutcome = 'updated' | 'fresh' | 'backingOff' | 'failed';
 
-type RefreshRepositories = Pick<Repositories, 'orbits' | 'syncMeta'>;
+export type RefreshRepositories = Pick<Repositories, 'orbits' | 'syncMeta'>;
 
 const failuresKey = (group: CelestrakGroup) => `celestrak.${group}.failures`;
 const retryAtKey = (group: CelestrakGroup) => `celestrak.${group}.retryAt`;

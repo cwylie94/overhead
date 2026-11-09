@@ -6,6 +6,12 @@ import { DEMO_OBSERVER, demoStartTime, findDemoPass, type DemoPass } from '@/dem
 import type { Observer } from '@/domain/observer';
 import { systemClock, type Clock } from '@/environment/clock';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { httpOrbitFetcher } from '@/sync/celestrak';
+import {
+  createOrbitRefresher,
+  type OrbitRefresher,
+  type RefreshStatus,
+} from '@/sync/orbitRefresher';
 
 import { DEMO_FEATURES, DEVICE_FEATURES, type SessionFeatures } from './features';
 
@@ -20,6 +26,7 @@ export type AppSession = {
   data: AppData;
   demo: DemoEnvironment | null;
   features: SessionFeatures;
+  orbitRefresher: OrbitRefresher;
 };
 
 let demoPass: DemoPass | null | undefined;
@@ -39,11 +46,25 @@ function startDemo(): DemoEnvironment | null {
   };
 }
 
+function orbitRefresherFor(data: AppData, clock: Clock): OrbitRefresher {
+  return createOrbitRefresher({
+    repositories: data.repositories,
+    fetchOrbits: httpOrbitFetcher(),
+    clock,
+    onOrbitsChanged: () => data.passCacheRunner.refresh(clock.now()),
+  });
+}
+
 function createSession(demoMode: boolean): AppSession {
   const demo = demoMode ? startDemo() : null;
-  return demo
-    ? { data: freshDemoData(), demo, features: DEMO_FEATURES }
-    : { data: deviceData(), demo: null, features: DEVICE_FEATURES };
+  const data = demo ? freshDemoData() : deviceData();
+  const clock = demo?.clock ?? systemClock;
+  return {
+    data,
+    demo,
+    features: demo ? DEMO_FEATURES : DEVICE_FEATURES,
+    orbitRefresher: orbitRefresherFor(data, clock),
+  };
 }
 
 let session: AppSession | null = null;
@@ -76,4 +97,9 @@ export function useDemo(): DemoEnvironment | null {
 
 export function useSessionFeatures(): SessionFeatures {
   return useAppSession().features;
+}
+
+export function useOrbitRefreshStatus(): RefreshStatus {
+  const { orbitRefresher } = useAppSession();
+  return useSyncExternalStore(orbitRefresher.subscribe, orbitRefresher.getStatus);
 }

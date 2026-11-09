@@ -28,6 +28,7 @@ function fakeRunner() {
   const listeners = new Set<() => void>();
   return {
     request: jest.fn<Promise<void>, Parameters<PassCacheRunner['request']>>(async () => {}),
+    refresh: jest.fn<Promise<void>, [number]>(async () => {}),
     subscribe: (listener: () => void) => {
       listeners.add(listener);
       return () => listeners.delete(listener);
@@ -203,31 +204,35 @@ describe('usePassCache', () => {
         await act(() => hook.result.current.refresh());
       });
 
-      test('then it has nothing to refresh', () => {
-        expect(runner.request).not.toHaveBeenCalled();
+      test('then it asks the runner to recompute for now', () => {
+        expect(runner.refresh.mock.calls).toEqual([[now]]);
       });
     });
   });
 
-  describe('given the hook is in use in London with a minimum elevation of 10°', () => {
+  describe('given the hook is in use', () => {
     let hook: PassCacheHook;
+    let first: () => Promise<void>;
 
     beforeEach(async () => {
-      mockLocation = { status: 'ready', observer: LONDON };
-      useSettingsStore.setState({ minElevation: 10 });
       hook = await renderPassCacheHook();
+      first = hook.result.current.refresh;
     });
 
-    describe('when the user refreshes', () => {
+    describe('when the runner state changes', () => {
       beforeEach(async () => {
-        await act(() => hook.result.current.refresh());
+        await act(async () =>
+          runner.publish({
+            status: 'computing',
+            computedAt: null,
+            settledAt: null,
+            replacing: false,
+          }),
+        );
       });
 
-      test('then it forces a recompute', () => {
-        expect(runner.request).toHaveBeenLastCalledWith(
-          { observer: LONDON, minElevation: 10, now },
-          true,
-        );
+      test('then refresh stays the same function', () => {
+        expect(hook.result.current.refresh).toBe(first);
       });
     });
   });

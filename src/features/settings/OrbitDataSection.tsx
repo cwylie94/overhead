@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import type { RefreshStatus } from '@/stores/orbitRefreshStore';
+import type { RefreshStatus } from '@/sync/orbitRefresher';
 import { formatCountdown } from '@/translations/format';
 import { Text } from '@/ui/Text';
 import { colors } from '@/ui/theme';

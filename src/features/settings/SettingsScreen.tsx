@@ -9,8 +9,7 @@ import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import { orbitFreshnessQuery } from '@/data/queries';
 import { useNow } from '@/environment/clock';
 import { cancelAllReminders } from '@/reminders/reminders';
-import { useDemo, useSessionFeatures } from '@/session/appSession';
-import { useOrbitRefreshStore } from '@/stores/orbitRefreshStore';
+import { useDemo, useOrbitRefreshStatus, useSessionFeatures } from '@/session/appSession';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Screen } from '@/ui/Screen';
 import { spacing } from '@/ui/theme';
@@ -70,7 +69,7 @@ function usePreferences() {
 export function SettingsScreen() {
   const { t } = useTranslation();
   const now = useNow(30_000);
-  const refreshStatus = useOrbitRefreshStore((refresh) => refresh.status);
+  const refreshStatus = useOrbitRefreshStatus();
   const orbitsUpdatedAt = useOrbitsUpdatedAt();
   const { preferences, actions } = usePreferences();
   const demo = useDemo();

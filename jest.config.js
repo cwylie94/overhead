@@ -51,8 +51,8 @@ module.exports = {
   coverageThreshold: {
     global: { statements: 65, branches: 69, functions: 60, lines: 65 },
     './src/domain/': { statements: 98, branches: 94, functions: 100, lines: 98 },
-    './src/stores/': { statements: 97, branches: 95, functions: 96, lines: 96 },
-    './src/sync/': { statements: 98, branches: 90, functions: 100, lines: 98 },
+    './src/stores/': { statements: 100, branches: 100, functions: 100, lines: 100 },
+    './src/sync/': { statements: 100, branches: 93, functions: 100, lines: 100 },
     './src/data/repositories/': { statements: 100, branches: 100, functions: 100, lines: 100 },
     './src/demo/': { statements: 100, branches: 100, functions: 100, lines: 100 },
     './src/session/': { statements: 100, branches: 100, functions: 100, lines: 100 },

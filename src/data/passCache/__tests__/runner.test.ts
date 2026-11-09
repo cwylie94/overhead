@@ -6,6 +6,7 @@ import { createTestDatabase } from '../../testing/createTestDatabase';
 import { SATELLITES_PER_CHUNK } from '../passCache';
 import { createPassCacheRunner, type PassCacheRunner } from '../runner';
 
+const HOUR = 60 * 60_000;
 const input = { observer: london, minElevation: 10, now: skyfield.window.start };
 const REYKJAVIK_INPUT = { ...input, observer: { ...input.observer, latitude: 64.1 } };
 const SMALL_SNAPSHOT: Snapshot = {
@@ -199,6 +200,46 @@ describe('createPassCacheRunner', () => {
 
       test('then it computes again', () => {
         expect(listener).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe('given a runner that has not been asked for passes, with a listener', () => {
+    let runner: PassCacheRunner;
+    let listener: jest.Mock;
+
+    beforeAll(() => {
+      runner = runnerFor(setup());
+      listener = jest.fn();
+      runner.subscribe(listener);
+    });
+
+    describe('when it is asked to refresh', () => {
+      beforeAll(async () => {
+        await runner.refresh(input.now);
+      });
+
+      test('then it has no place to compute for', () => {
+        expect(listener).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('given a runner that has computed passes for London', () => {
+    let runner: PassCacheRunner;
+
+    beforeAll(async () => {
+      runner = runnerFor(setup());
+      await runner.request(input);
+    });
+
+    describe('when it is asked to refresh an hour later', () => {
+      beforeAll(async () => {
+        await runner.refresh(input.now + HOUR);
+      });
+
+      test('then it recomputes for London at the new time', () => {
+        expect(runner.getState()).toMatchObject({ status: 'idle', computedAt: input.now + HOUR });
       });
     });
   });

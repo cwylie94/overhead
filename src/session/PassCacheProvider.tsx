@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useSyncExternalStore, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 
 import type { PassCacheRunner, PassCacheState } from '@/data/passCache/runner';
 import { useClock, useNow } from '@/environment/clock';
@@ -50,19 +57,7 @@ function useRunner(): PassCacheRunner {
 export function usePassCache(): { state: PassCacheState; refresh(): Promise<void> } {
   const runner = useRunner();
   const state = useSyncExternalStore(runner.subscribe, runner.getState);
-  const location = useLocation();
-  const minElevation = useSettingsStore((settings) => settings.minElevation);
   const clock = useClock();
-
-  return {
-    state,
-    refresh: async () => {
-      if (location.state.status === 'ready') {
-        await runner.request(
-          { observer: location.state.observer, minElevation, now: clock.now() },
-          true,
-        );
-      }
-    },
-  };
+  const refresh = useCallback(() => runner.refresh(clock.now()), [runner, clock]);
+  return { state, refresh };
 }

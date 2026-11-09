@@ -226,6 +226,34 @@ describe('useSettingsStore', () => {
     });
   });
 
+  describe('given the user has not finished onboarding', () => {
+    describe('when they finish it', () => {
+      beforeEach(() => {
+        useSettingsStore.getState().setOnboardingComplete(true);
+      });
+
+      test('then it saves that onboarding is done', () => {
+        expect(persisted().state.onboardingComplete).toBe(true);
+      });
+    });
+  });
+
+  describe('given settings have been saved', () => {
+    beforeEach(() => {
+      useSettingsStore.getState().setHapticsEnabled(false);
+    });
+
+    describe('when the saved settings are cleared', () => {
+      beforeEach(() => {
+        useSettingsStore.persist.clearStorage();
+      });
+
+      test('then nothing is saved', () => {
+        expect(persisted()).toBeNull();
+      });
+    });
+  });
+
   describe('given an install from before onboarding that already has a location', () => {
     beforeEach(() => {
       saveVersion1Settings({ lastLocation: { latitude: 1, longitude: 2, altitude: 0 } });
@@ -266,6 +294,12 @@ describe('migrateSettings', () => {
         units: 'metric',
         onboardingComplete: false,
       });
+    });
+  });
+
+  describe('given nothing was saved', () => {
+    test('then onboarding has not been done', () => {
+      expect(migrateSettings(undefined, 1)).toEqual({ onboardingComplete: false });
     });
   });
 

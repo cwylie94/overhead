@@ -12,9 +12,9 @@ import { LocationProvider } from '@/environment/location';
 import { configureNotificationHandler } from '@/reminders/reminders';
 import { useAppSession, type DemoEnvironment } from '@/session/appSession';
 import { DatabaseGate } from '@/session/DatabaseGate';
+import { OrbitUpdates } from '@/session/OrbitUpdates';
 import { PassCacheProvider } from '@/session/PassCacheProvider';
 import { useSettingsStore } from '@/stores/settingsStore';
-import { OrbitRefreshProvider } from '@/sync/OrbitRefreshProvider';
 import { MotionConfig } from '@/ui/motion';
 import { colors } from '@/ui/theme';
 
@@ -42,7 +42,7 @@ function useFixedLocation(demo: DemoEnvironment | null) {
 }
 
 export default function RootLayout() {
-  const { data, demo, features } = useAppSession();
+  const { data, demo } = useAppSession();
   const fixedLocation = useFixedLocation(demo);
 
   return (
@@ -55,24 +55,20 @@ export default function RootLayout() {
             <LocationProvider fixed={fixedLocation}>
               <DatabaseGate>
                 <PassCacheProvider runner={data.passCacheRunner}>
-                  <OrbitRefreshProvider enabled={features.orbitUpdates}>
-                    <Stack screenOptions={{ headerShown: false }}>
-                      <Stack.Screen name="(tabs)" />
-                      <Stack.Screen
-                        name="onboarding"
-                        options={{ gestureEnabled: false, animation: 'fade' }}
-                      />
-                      <Stack.Screen
-                        name="catch/[passId]"
-                        options={{ presentation: 'fullScreenModal' }}
-                      />
-                      <Stack.Screen name="location" options={{ presentation: 'modal' }} />
-                      <Stack.Screen
-                        name="satellite/[noradId]"
-                        options={{ presentation: 'modal' }}
-                      />
-                    </Stack>
-                  </OrbitRefreshProvider>
+                  <OrbitUpdates />
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="(tabs)" />
+                    <Stack.Screen
+                      name="onboarding"
+                      options={{ gestureEnabled: false, animation: 'fade' }}
+                    />
+                    <Stack.Screen
+                      name="catch/[passId]"
+                      options={{ presentation: 'fullScreenModal' }}
+                    />
+                    <Stack.Screen name="location" options={{ presentation: 'modal' }} />
+                    <Stack.Screen name="satellite/[noradId]" options={{ presentation: 'modal' }} />
+                  </Stack>
                 </PassCacheProvider>
               </DatabaseGate>
             </LocationProvider>
