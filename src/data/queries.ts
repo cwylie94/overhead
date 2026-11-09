@@ -5,20 +5,22 @@ import { NAKED_EYE_LIMIT } from '@/domain/brightness';
 import type { Database } from './database';
 import { orbits, passes, satellites, sightings } from './schema';
 
+const passWithSatellite = {
+  id: passes.id,
+  noradId: passes.noradId,
+  startAt: passes.startAt,
+  peakAt: passes.peakAt,
+  endAt: passes.endAt,
+  maxElevation: passes.maxElevation,
+  peakMagnitude: passes.peakMagnitude,
+  track: passes.track,
+  name: satellites.name,
+  rarity: satellites.rarity,
+};
+
 export function upcomingPassesQuery(db: Database, now: number) {
   return db
-    .select({
-      id: passes.id,
-      noradId: passes.noradId,
-      startAt: passes.startAt,
-      peakAt: passes.peakAt,
-      endAt: passes.endAt,
-      maxElevation: passes.maxElevation,
-      peakMagnitude: passes.peakMagnitude,
-      track: passes.track,
-      name: satellites.name,
-      rarity: satellites.rarity,
-    })
+    .select(passWithSatellite)
     .from(passes)
     .innerJoin(satellites, eq(passes.noradId, satellites.noradId))
     .where(and(gt(passes.endAt, now), lte(passes.peakMagnitude, NAKED_EYE_LIMIT)))
@@ -40,17 +42,7 @@ export function dockedObjectsQuery(db: Database) {
 
 export function skyPassesQuery(db: Database, from: number, to: number) {
   return db
-    .select({
-      id: passes.id,
-      noradId: passes.noradId,
-      startAt: passes.startAt,
-      endAt: passes.endAt,
-      maxElevation: passes.maxElevation,
-      peakMagnitude: passes.peakMagnitude,
-      track: passes.track,
-      name: satellites.name,
-      rarity: satellites.rarity,
-    })
+    .select(passWithSatellite)
     .from(passes)
     .innerJoin(satellites, eq(passes.noradId, satellites.noradId))
     .where(
@@ -63,22 +55,9 @@ export function skyPassesQuery(db: Database, from: number, to: number) {
     .orderBy(asc(passes.startAt));
 }
 
-export type SkyPass = Awaited<ReturnType<typeof skyPassesQuery>>[number];
-
 export function passWithSatelliteQuery(db: Database, id: number) {
   return db
-    .select({
-      id: passes.id,
-      noradId: passes.noradId,
-      startAt: passes.startAt,
-      peakAt: passes.peakAt,
-      endAt: passes.endAt,
-      maxElevation: passes.maxElevation,
-      peakMagnitude: passes.peakMagnitude,
-      track: passes.track,
-      name: satellites.name,
-      rarity: satellites.rarity,
-    })
+    .select(passWithSatellite)
     .from(passes)
     .innerJoin(satellites, eq(passes.noradId, satellites.noradId))
     .where(eq(passes.id, id));

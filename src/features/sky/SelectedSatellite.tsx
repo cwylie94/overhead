@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import type { SkyPass } from '@/data/queries';
+import type { UpcomingPass } from '@/data/queries';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { formatPassTime } from '@/translations/format';
@@ -11,7 +11,7 @@ import { Text } from '@/ui/Text';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 
 type SelectedSatelliteProps = {
-  passes: SkyPass[];
+  passes: UpcomingPass[];
   selectedId: number | null;
   time: number;
   live: boolean;

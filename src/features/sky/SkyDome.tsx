@@ -18,7 +18,7 @@ import {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import type { SkyPass } from '@/data/queries';
+import type { UpcomingPass } from '@/data/queries';
 import { projectToDome, type DomeLayout } from '@/ui/domeProjection';
 import { colors } from '@/ui/theme';
 
@@ -41,7 +41,7 @@ export type CompassLabels = { N: string; E: string; S: string; W: string };
 
 type SkyDomeProps = {
   size: number;
-  passes: SkyPass[];
+  passes: UpcomingPass[];
   time: SharedValue<number>;
   rotation: SharedValue<number>;
   selectedId: number | null;

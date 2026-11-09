@@ -1,6 +1,6 @@
 import { Skia, type SkPath } from '@shopify/react-native-skia';
 
-import type { SkyPass } from '@/data/queries';
+import type { UpcomingPass } from '@/data/queries';
 import { projectToDome, type DomeLayout } from '@/ui/domeProjection';
 
 import type { DomeDot } from './domeDots';
@@ -9,7 +9,7 @@ export const PATH_LOOKBACK = 2 * 60_000;
 export const PATH_LOOKAHEAD = 20 * 60_000;
 
 export function pathsNear(
-  passes: SkyPass[],
+  passes: UpcomingPass[],
   time: number,
   layout: DomeLayout,
   rotation: number,

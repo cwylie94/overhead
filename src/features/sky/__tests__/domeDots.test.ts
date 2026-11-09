@@ -1,14 +1,15 @@
-import type { SkyPass } from '@/data/queries';
+import type { UpcomingPass } from '@/data/queries';
 
 import { activeDots, nearestDot } from '../domeDots';
 
 const layout = { centerX: 100, centerY: 100, radius: 90 };
 
-function pass(noradId: number, startAt: number, endAt: number): SkyPass {
+function pass(noradId: number, startAt: number, endAt: number): UpcomingPass {
   return {
     id: noradId,
     noradId,
     startAt,
+    peakAt: (startAt + endAt) / 2,
     endAt,
     maxElevation: 60,
     peakMagnitude: 2,

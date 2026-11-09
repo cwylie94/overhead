@@ -1,11 +1,11 @@
-import type { SkyPass } from '@/data/queries';
+import type { UpcomingPass } from '@/data/queries';
 import { positionOnTrack } from '@/domain/sky';
 import { projectToDome, type DomeLayout, type DomePoint } from '@/ui/domeProjection';
 
 export type DomeDot = DomePoint & { noradId: number };
 
 export function activeDots(
-  passes: SkyPass[],
+  passes: UpcomingPass[],
   time: number,
   layout: DomeLayout,
   rotation: number,
