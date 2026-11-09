@@ -1,4 +1,4 @@
-import { eq, max } from 'drizzle-orm';
+import { eq, isNotNull, max } from 'drizzle-orm';
 
 import { dockingHosts } from '@/domain/docking';
 
@@ -6,6 +6,20 @@ import type { Database } from '../database';
 import { orbits } from '../schema';
 import { chunk, excluded } from './helpers';
 import type { OrbitRepository } from './types';
+
+function refreshDockingHosts(db: Database): void {
+  const stored = db
+    .select({ noradId: orbits.noradId, omm: orbits.omm, dockedTo: orbits.dockedTo })
+    .from(orbits)
+    .all();
+  const hosts = dockingHosts(stored.map((row) => row.omm));
+  for (const { noradId, dockedTo } of stored) {
+    const host = hosts.get(noradId) ?? null;
+    if (host !== dockedTo) {
+      db.update(orbits).set({ dockedTo: host }).where(eq(orbits.noradId, noradId)).run();
+    }
+  }
+}
 
 export function createOrbitRepository(db: Database): OrbitRepository {
   return {
@@ -26,6 +40,7 @@ export function createOrbitRepository(db: Database): OrbitRepository {
             })
             .run();
         }
+        refreshDockingHosts(tx);
       });
     },
 
@@ -38,13 +53,16 @@ export function createOrbitRepository(db: Database): OrbitRepository {
     },
 
     dockingHosts() {
-      return dockingHosts(
-        db
-          .select({ omm: orbits.omm })
-          .from(orbits)
-          .all()
-          .map((row) => row.omm),
-      );
+      const docked = db
+        .select({ noradId: orbits.noradId, dockedTo: orbits.dockedTo })
+        .from(orbits)
+        .where(isNotNull(orbits.dockedTo))
+        .all();
+      return new Map(docked.map((row) => [row.noradId, row.dockedTo!]));
+    },
+
+    refreshDockingHosts() {
+      db.transaction((tx) => refreshDockingHosts(tx));
     },
 
     latestFetchedAt(group) {

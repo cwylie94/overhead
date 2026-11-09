@@ -1,0 +1,1 @@
+ALTER TABLE `orbits` ADD `docked_to` integer;

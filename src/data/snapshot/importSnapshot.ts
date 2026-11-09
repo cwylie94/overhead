@@ -60,6 +60,9 @@ export function importSnapshot(
       })),
     );
   }
+  if (groups.length === 0) {
+    orbits.refreshDockingHosts();
+  }
 
   return { catalogue, groups };
 }

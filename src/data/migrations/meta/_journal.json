@@ -29,6 +29,13 @@
       "when": 1794233413848,
       "tag": "0003_drop_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1794263524677,
+      "tag": "0004_docking_host",
+      "breakpoints": true
     }
   ]
 }

@@ -1,11 +1,12 @@
 import { createRepositories } from '..';
 import type { Database } from '../../database';
-import type { NewOrbit } from '../../schema';
+import { orbits, type NewOrbit } from '../../schema';
 import { bundledSnapshot, importSnapshot } from '../../snapshot';
 import { createTestDatabase } from '../../testing/createTestDatabase';
 import {
   HUBBLE_NORAD_ID,
   ISS_NORAD_ID,
+  makeOmm,
   makeOrbit,
   makePass,
   makeSatellite,
@@ -148,6 +149,54 @@ describe('createOrbitRepository', () => {
 
     test('then the ISS is not folded into anything', () => {
       expect(createRepositories(db).orbits.dockingHosts().has(25544)).toBe(false);
+    });
+  });
+
+  describe('given the bundled snapshot was imported before docking hosts were stored', () => {
+    beforeEach(() => {
+      importSnapshot(createRepositories(db), bundledSnapshot);
+      db.update(orbits).set({ dockedTo: null }).run();
+    });
+
+    describe('when the app launches and imports the snapshot again', () => {
+      beforeEach(() => {
+        importSnapshot(createRepositories(db), bundledSnapshot);
+      });
+
+      test('then a bundled ISS module is folded into the ISS', () => {
+        expect(createRepositories(db).orbits.dockingHosts().get(49044)).toBe(25544);
+      });
+    });
+  });
+
+  describe('given a capsule that shares the ISS orbit', () => {
+    const CAPSULE = 100882;
+
+    beforeEach(() => {
+      createOrbitRepository(db).replaceGroup('stations', [
+        makeOrbit(),
+        makeOrbit({ noradId: CAPSULE }),
+      ]);
+    });
+
+    test('then the capsule is folded into the ISS', () => {
+      expect(createOrbitRepository(db).dockingHosts()).toEqual(new Map([[CAPSULE, ISS_NORAD_ID]]));
+    });
+
+    describe('when the capsule undocks and gets an orbit of its own', () => {
+      beforeEach(() => {
+        createOrbitRepository(db).replaceGroup('stations', [
+          makeOrbit(),
+          makeOrbit({
+            noradId: CAPSULE,
+            omm: makeOmm({ NORAD_CAT_ID: CAPSULE, MEAN_ANOMALY: 10 }),
+          }),
+        ]);
+      });
+
+      test('then nothing is folded', () => {
+        expect(createOrbitRepository(db).dockingHosts().size).toBe(0);
+      });
     });
   });
 });

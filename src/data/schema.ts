@@ -28,6 +28,7 @@ export const orbits = sqliteTable('orbits', {
   omm: text('omm', { mode: 'json' }).$type<OmmRecord>().notNull(),
   epoch: integer('epoch').notNull(),
   fetchedAt: integer('fetched_at').notNull(),
+  dockedTo: integer('docked_to'),
 });
 
 export const passes = sqliteTable(
