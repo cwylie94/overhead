@@ -13,26 +13,69 @@ const noAim: SightingListItem = {
   angleError: null,
 };
 
+async function showSightings(sightings: SightingListItem[], onDelete: jest.Mock) {
+  await render(<SightingList sightings={sightings} onDelete={onDelete} />);
+}
+
 describe('SightingList', () => {
-  test('shows nothing when there are no sightings', async () => {
-    await render(<SightingList sightings={[]} onDelete={jest.fn()} />);
+  let sightings: SightingListItem[];
+  let onDelete: jest.Mock;
 
-    expect(screen.queryByText('Your sightings')).toBeNull();
+  describe('given no sightings', () => {
+    beforeEach(() => {
+      sightings = [];
+      onDelete = jest.fn();
+    });
+
+    describe('when the list shows', () => {
+      beforeEach(async () => {
+        await showSightings(sightings, onDelete);
+      });
+
+      test('then it shows nothing', () => {
+        expect(screen.queryByText('Your sightings')).toBeNull();
+      });
+    });
   });
 
-  test('lists each sighting with how good the aim was', async () => {
-    await render(<SightingList sightings={[aimed, noAim]} onDelete={jest.fn()} />);
+  describe('given a sighting with an aim and one without', () => {
+    beforeEach(() => {
+      sightings = [aimed, noAim];
+      onDelete = jest.fn();
+    });
 
-    expect(screen.getByText('Caught, 3.1° off')).toBeOnTheScreen();
-    expect(screen.getByText('Caught')).toBeOnTheScreen();
+    describe('when the list shows', () => {
+      beforeEach(async () => {
+        await showSightings(sightings, onDelete);
+      });
+
+      test('then the aimed sighting says how far off the aim was', () => {
+        expect(screen.getByText('Caught, 3.1° off')).toBeOnTheScreen();
+      });
+
+      test('then the other sighting just says it was caught', () => {
+        expect(screen.getByText('Caught')).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('asks to delete the sighting that was tapped', async () => {
-    const onDelete = jest.fn();
-    await render(<SightingList sightings={[aimed, noAim]} onDelete={onDelete} />);
+  describe('given the list is showing a sighting with an aim and one without', () => {
+    beforeEach(async () => {
+      sightings = [aimed, noAim];
+      onDelete = jest.fn();
+      await showSightings(sightings, onDelete);
+    });
 
-    await fireEvent.press(screen.getAllByRole('button', { name: /^Delete the sighting from/ })[1]!);
+    describe('when the user presses delete on the second sighting', () => {
+      beforeEach(async () => {
+        await fireEvent.press(
+          screen.getAllByRole('button', { name: /^Delete the sighting from/ })[1]!,
+        );
+      });
 
-    expect(onDelete).toHaveBeenCalledWith(noAim);
+      test('then it asks to delete that sighting', () => {
+        expect(onDelete).toHaveBeenCalledWith(noAim);
+      });
+    });
   });
 });
