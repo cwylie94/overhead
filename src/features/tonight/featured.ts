@@ -21,7 +21,7 @@ export const LOW_ELEVATION = 30;
 
 export function passScore(pass: RankedPass): number {
   const magnitude = pass.peakMagnitude ?? NAKED_EYE_LIMIT;
-  return (NAKED_EYE_LIMIT - magnitude) * 2 + RARITY_BONUS[pass.rarity] + pass.maxElevation / 30;
+  return (NAKED_EYE_LIMIT - magnitude) * 3 + RARITY_BONUS[pass.rarity] + pass.maxElevation / 30;
 }
 
 export type FeaturedReason = 'live' | 'soon' | 'best';

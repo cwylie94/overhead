@@ -28,6 +28,13 @@ describe('passScore', () => {
     expect(passScore(pass({ maxElevation: 80 }))).toBeGreaterThan(passScore(pass()));
   });
 
+  test('a brilliant common pass beats a fainter legendary one', () => {
+    const brilliant = pass({ peakMagnitude: -0.5, maxElevation: 20 });
+    const legendary = pass({ peakMagnitude: 2.5, maxElevation: 84, rarity: 'legendary' });
+
+    expect(passScore(brilliant)).toBeGreaterThan(passScore(legendary));
+  });
+
   test('brightness outweighs height', () => {
     const bright = pass({ peakMagnitude: 1, maxElevation: 20 });
     const high = pass({ peakMagnitude: 4, maxElevation: 85 });
