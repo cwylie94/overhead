@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import type { SkyPass } from '@/data/queries';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
-import { formatPassTime } from '@/i18n/format';
+import { formatPassTime } from '@/translations/format';
 import { Chip } from '@/ui/Chip';
 import { Text } from '@/ui/Text';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';

@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
 import { useNow } from '@/environment/clock';
-import { formatCountdown, formatPassTime } from '@/i18n/format';
+import { formatCountdown, formatPassTime } from '@/translations/format';
 import { Chip } from '@/ui/Chip';
 import { Text } from '@/ui/Text';
 import {

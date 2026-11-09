@@ -7,7 +7,7 @@ import { catchWindow } from '@/domain/catchWindow';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useNow } from '@/environment/clock';
-import { formatPassTime } from '@/i18n/format';
+import { formatPassTime } from '@/translations/format';
 import { Text } from '@/ui/Text';
 import {
   brightnessMarkColors,

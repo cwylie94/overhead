@@ -10,8 +10,13 @@ import { satelliteSightingsQuery } from '@/data/queries';
 import { perigeeAltitudeKm, apogeeAltitudeKm, periodMinutes } from '@/domain/orbit';
 import { silhouetteFor } from '@/domain/silhouette';
 import { useNow } from '@/environment/clock';
-import { formatCalendarDate, formatDistance, formatNightDate, formatPassTime } from '@/i18n/format';
 import { useSettingsStore } from '@/stores/settingsStore';
+import {
+  formatCalendarDate,
+  formatDistance,
+  formatNightDate,
+  formatPassTime,
+} from '@/translations/format';
 import { Chip } from '@/ui/Chip';
 import { SilhouetteArt } from '@/ui/SilhouetteArt';
 import { Text } from '@/ui/Text';

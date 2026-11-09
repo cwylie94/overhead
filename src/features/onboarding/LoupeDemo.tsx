@@ -26,7 +26,7 @@ import {
   loupeLeft,
   nearestStart,
 } from '@/features/tonight/timelineScrub';
-import { formatPassTime } from '@/i18n/format';
+import { formatPassTime } from '@/translations/format';
 import { useReduceMotion } from '@/ui/motion';
 import { brightnessMarkColors, colors, radius, spacing } from '@/ui/theme';
 

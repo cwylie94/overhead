@@ -10,7 +10,7 @@ import {
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier, type BrightnessTier } from '@/domain/brightness';
-import { formatHour, formatPassTime } from '@/i18n/format';
+import { formatHour, formatPassTime } from '@/translations/format';
 import { Text } from '@/ui/Text';
 import { brightnessMarkColors, colors, radius, spacing, typography } from '@/ui/theme';
 

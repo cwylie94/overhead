@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 
 import type { Observer } from '@/domain/observer';
 import type { UnitSystem } from '@/domain/types';
-import type { Language } from '@/i18n/resources';
+import type { Language } from '@/translations/resources';
 
 import { persistStorage } from './storage';
 

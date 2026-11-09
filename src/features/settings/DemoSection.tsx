@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { formatNightDate, formatPassTime } from '@/i18n/format';
+import { formatNightDate, formatPassTime } from '@/translations/format';
 import { Text } from '@/ui/Text';
 
 import { Row, Section, sectionStyles, Toggle } from './controls';

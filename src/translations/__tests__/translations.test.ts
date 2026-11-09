@@ -2,7 +2,7 @@ import { BRIGHTNESS_TIERS } from '@/domain/brightness';
 import { COLLECTION_SETS } from '@/domain/collectionSets';
 import { COMPASS_POINTS } from '@/domain/compass';
 import { RARITIES } from '@/domain/types';
-import i18n from '@/i18n';
+import i18n from '@/translations';
 
 import { FALLBACK_LANGUAGE, resources, SUPPORTED_LANGUAGES } from '../resources';
 

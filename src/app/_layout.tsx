@@ -1,4 +1,4 @@
-import '@/i18n';
+import '@/translations';
 
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';

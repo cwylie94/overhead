@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next';
 
 import type { UnitSystem } from '@/domain/types';
-import { SUPPORTED_LANGUAGES, type Language } from '@/i18n/resources';
 import {
   MIN_ELEVATION_LIMITS,
   MOTION_PREFERENCES,
   type MotionPreference,
   type SettingsState,
 } from '@/stores/settingsStore';
+import { SUPPORTED_LANGUAGES, type Language } from '@/translations/resources';
 
 import { Row, Section, Segmented, Stepper, Toggle } from './controls';
 

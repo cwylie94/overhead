@@ -25,7 +25,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - State: Zustand (UI and session state only), with persist and MMKV on `settingsStore`
 - Data: expo-sqlite and Drizzle ORM, using live queries for reads
 - Orbits: satellite.js, loaded from OMM JSON with `json2satrec`
-- i18n: i18next, react-i18next and expo-localization
+- Translations: i18next, react-i18next and expo-localization
 - Animation: Reanimated, Gesture Handler and Skia
 - Device: expo-haptics, expo-notifications, NetInfo and device sensors
 - Tests: Jest, React Native Testing Library and Maestro
@@ -41,7 +41,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Android: `npx expo prebuild --platform android`, then `./gradlew app:assembleDebug` (or `assembleRelease`) in `android/` with `JAVA_HOME` set to Android Studio's bundled JBR. The `Pixel_9_API_37` emulator (Android 17, 6 GB RAM) is set up for testing; its virtual sensors can be posed with `adb emu sensor set acceleration|magnetic-field`. The debug build's "nearby devices" prompt comes from `expo-dev-launcher` and isn't in release builds.
 - Real-iPhone builds: `npm run ios:device` (Release, no dev server). The team ID comes from `APPLE_TEAM_ID` in `.env.local` through `app.config.ts`, so it stays out of git. A new profile needs `xcodebuild … -allowProvisioningUpdates` once, which `expo run:ios` doesn't pass.
 - Routes live in `src/app/` and stay thin: each route file re-exports a screen from `src/features/`.
-- Run `npm run lint`, `npm run typecheck` and the tests before calling a task done. `npm run test:coverage` adds a coverage report (HTML in `coverage/`, git-ignored) and fails below the thresholds in `jest.config.js`: a global floor plus stricter ones for `domain/`, `stores/`, `sync/`, `data/repositories/`, `demo/` and `i18n/`. Raise them when coverage goes up; never lower them to make a run pass. Shared test helpers live in `testing/` folders, which coverage ignores. Reanimated won't load in Jest (nor will its own mock), so hook tests replace it with `src/testing/reanimated.ts`: `jest.mock('react-native-reanimated', () => jest.requireActual('@/testing/reanimated'))`. `jest.config.js` exits early below the `.nvmrc` Node version, because better-sqlite3 segfaults Jest workers on Node 20.
+- Run `npm run lint`, `npm run typecheck` and the tests before calling a task done. `npm run test:coverage` adds a coverage report (HTML in `coverage/`, git-ignored) and fails below the thresholds in `jest.config.js`: a global floor plus stricter ones for `domain/`, `stores/`, `sync/`, `data/repositories/`, `demo/` and `translations/`. Raise them when coverage goes up; never lower them to make a run pass. Shared test helpers live in `testing/` folders, which coverage ignores. Reanimated won't load in Jest (nor will its own mock), so hook tests replace it with `src/testing/reanimated.ts`: `jest.mock('react-native-reanimated', () => jest.requireActual('@/testing/reanimated'))`. `jest.config.js` exits early below the `.nvmrc` Node version, because better-sqlite3 segfaults Jest workers on Node 20.
 
 ## Architecture rules
 
@@ -62,7 +62,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Sky view (`src/features/sky/`): time, paths, dots, zoom and heading all live in Reanimated shared values. Their maths is worklets (`projection.ts`, `timeline.ts`, `domeDots.ts`, `domeGeometry.ts`) that take the precomputed tracks, so nothing re-renders while scrubbing. Keep anything that imports Skia out of the files tests need, because Skia's native module doesn't load in Jest.
 - Read and write shared values with `.get()` / `.set()`, not `.value`. The React Compiler lint treats `.value =` in gesture callbacks as mutation.
 - Skia 2 paths are built with `Skia.PathBuilder.Make()…build()`. A `Group` applies `transform` before `clip`, so to clip zoomed content, put the clip on an outer group and the transform on an inner one.
-- If the device reports a function as undefined right after you've added it, Metro's cache is probably stale. Restart it with `npx expo start --dev-client --clear` before debugging further. After editing a module the root layout loads at start-up (`src/demo/session.ts`, `src/i18n/`, the translation files), relaunch the app rather than trusting Fast Refresh, which can leave the screen frozen and ignoring taps.
+- If the device reports a function as undefined right after you've added it, Metro's cache is probably stale. Restart it with `npx expo start --dev-client --clear` before debugging further. After editing a module the root layout loads at start-up (`src/demo/session.ts` and anything in `src/translations/`, including the translation files), relaunch the app rather than trusting Fast Refresh, which can leave the screen frozen and ignoring taps.
 - Catch mode (`src/features/catch/`):
   - Pointing is the compass heading from `expo-location` plus the camera's elevation and roll from `DeviceMotion` gravity (smoothed), in shared values (`usePointing`). Expo reports gravity pointing down in device coordinates on both platforms: lying flat with the screen up gives z = −g. Don't use `DeviceMotion.rotation`: its Euler angles break down with the phone held upright.
   - On Android the heading is worked out from gravity and the `Magnetometer` (`cameraAzimuth` in `cameraHeading.ts`), because `expo-location`'s Android heading is the direction of the phone's top edge (180° off with the phone tilted back at the sky), needs location permission and only reports after a 2° change from north. Its heading is still read for magnetic declination and the calibration hint.
@@ -84,13 +84,13 @@ It is an interview showcase project, so code quality, tests and a working demo m
 
 ```
 src/
-  domain/    pure TS: pass finder, visibility, angle maths, rarity, collection rules
-  data/      Drizzle schema, repositories, migrations
-  sync/      CelesTrak fetcher, refresh rules and triggers
-  stores/    Zustand: settingsStore, skyStore, catchStore, orbitRefreshStore
-  i18n/      i18next setup, typed keys, locales/{en,es}/*.json
-  features/  tonight/, sky/, catch/, collection/, settings/
-  ui/        shared components, Skia primitives, haptics
+  domain/        pure TS: pass finder, visibility, angle maths, rarity, collection rules
+  data/          Drizzle schema, repositories, migrations
+  sync/          CelesTrak fetcher, refresh rules and triggers
+  stores/        Zustand: settingsStore, skyStore, catchStore, orbitRefreshStore
+  translations/  i18next setup, typed keys, locales/{en,es}/*.json
+  features/      tonight/, sky/, catch/, collection/, settings/
+  ui/            shared components, Skia primitives, haptics
 ```
 
 ## Data model
@@ -140,13 +140,13 @@ There is no collection table. The collection is derived from sightings.
 - CelesTrak refresh (`src/sync/celestrak.ts`) keeps per-group failure counts and retry times in `sync_meta`. Backoff starts at 5 minutes and doubles up to 6 hours; a 403 waits the full 2 hours. A failed or malformed response never replaces stored orbits.
 - `OrbitRefreshProvider` runs `refreshOrbits` on launch, on returning to the foreground, and on reconnecting, one run at a time, and recomputes passes when a group was updated. `orbitRefreshStore` holds its status for the Orbit data section.
 
-## i18n
+## Translations
 
 - English and Spanish, with Arabic and right-to-left layout as a stretch goal.
-- Strings live in `src/i18n/locales/<language>/<namespace>.json`: `common` for shared UI, plus one namespace per feature, added when that feature first needs strings. Register new namespaces and languages in `src/i18n/resources.ts`.
+- Strings live in `src/translations/locales/<language>/<namespace>.json`: `common` for shared UI, plus one namespace per feature, added when that feature first needs strings. Register new namespaces and languages in `src/translations/resources.ts`.
 - Keys are typed, so a missing or misspelt key fails `npm run typecheck`. Plurals use i18next's `_one` / `_other` suffixes with `count`.
-- Format times, countdowns and distances with the helpers in `src/i18n/format.ts`. Never build them by hand. Satellite names stay untranslated.
-- Hermes on iOS has no `Intl.PluralRules`, `Intl.RelativeTimeFormat` or `Intl.Locale`, and its `Intl.NumberFormat` silently converts units to the device region's system. `src/i18n/polyfills.ts` loads the `@formatjs` polyfills (forcing NumberFormat) and must stay the first import. When adding a language, add its locale data there too.
+- Format times, countdowns and distances with the helpers in `src/translations/format.ts`. Never build them by hand. Satellite names stay untranslated.
+- Hermes on iOS has no `Intl.PluralRules`, `Intl.RelativeTimeFormat` or `Intl.Locale`, and its `Intl.NumberFormat` silently converts units to the device region's system. `src/translations/polyfills.ts` loads the `@formatjs` polyfills (forcing NumberFormat) and must stay the first import. When adding a language, add its locale data there too.
 - Node has full `Intl`, so passing tests don't prove device behaviour. Check new formatting on a simulator. Hermes' own `Intl.DateTimeFormat` isn't polyfilled and lacks `formatToParts`, so use `format()` only.
 
 ## Testing

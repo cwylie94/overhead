@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-import { formatCountdown } from '@/i18n/format';
 import type { RefreshStatus } from '@/stores/orbitRefreshStore';
+import { formatCountdown } from '@/translations/format';
 import { Text } from '@/ui/Text';
 import { colors } from '@/ui/theme';
 

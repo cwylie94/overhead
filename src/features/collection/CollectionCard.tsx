@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { CollectionCard as Card } from '@/domain/collection';
 import { silhouetteFor } from '@/domain/silhouette';
-import { formatShortDate } from '@/i18n/format';
+import { formatShortDate } from '@/translations/format';
 import { CardFinish } from '@/ui/CardFinish';
 import { SilhouetteArt } from '@/ui/SilhouetteArt';
 import { Text } from '@/ui/Text';

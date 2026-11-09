@@ -1,4 +1,4 @@
-import '@/i18n';
+import '@/translations';
 
 import mockSafeAreaContext from 'react-native-safe-area-context/jest/mock';
 

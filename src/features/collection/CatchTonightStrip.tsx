@@ -8,7 +8,7 @@ import type { NightLabel } from '@/features/tonight/nights';
 import { ReminderButton, type ReminderControl } from '@/features/tonight/ReminderButton';
 import { canRemind } from '@/features/tonight/reminders';
 import type { Reminders } from '@/features/tonight/useReminders';
-import { formatCountdown, formatNightDate, formatPassTime } from '@/i18n/format';
+import { formatCountdown, formatNightDate, formatPassTime } from '@/translations/format';
 import { Text } from '@/ui/Text';
 import {
   brightnessMarkColors,

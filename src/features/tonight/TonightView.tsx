@@ -5,7 +5,7 @@ import { Pressable, RefreshControl, SectionList, StyleSheet, View } from 'react-
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
 import type { LocationState } from '@/environment/location';
-import { formatNightDate } from '@/i18n/format';
+import { formatNightDate } from '@/translations/format';
 import { Banner } from '@/ui/Banner';
 import { Icon } from '@/ui/Icon';
 import { Text } from '@/ui/Text';

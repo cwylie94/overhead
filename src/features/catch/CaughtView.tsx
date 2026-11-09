@@ -7,7 +7,7 @@ import type { CollectionCard as Card } from '@/domain/collection';
 import type { Rarity } from '@/domain/types';
 import type { ChancePass } from '@/features/collection/catchTonight';
 import { CollectionCard } from '@/features/collection/CollectionCard';
-import { formatCountdown, formatPassTime } from '@/i18n/format';
+import { formatCountdown, formatPassTime } from '@/translations/format';
 import { HOLO_COLORS } from '@/ui/CardFinish';
 import { Text } from '@/ui/Text';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';

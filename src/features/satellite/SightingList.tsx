@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { formatCalendarDate, formatPassTime } from '@/i18n/format';
+import { formatCalendarDate, formatPassTime } from '@/translations/format';
 import { Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 

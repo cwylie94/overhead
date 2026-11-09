@@ -66,14 +66,14 @@ The first time, Xcode has to create a signing profile, which `expo run:ios` does
 
 ```
 src/
-  domain/    pure TypeScript: pass finder, sun, look angles, rarity, sets, brightness, catch state machine
-  data/      SQLite schema (Drizzle), repositories, migrations, bundled snapshot, pass cache
-  sync/      CelesTrak refresh and its triggers
-  environment/  injected clock and location
-  demo/      demo pass and the app session that swaps in demo mode
-  features/  tonight, sky, catch, collection, satellite, settings
-  stores/    Zustand for UI and session state, persisted to MMKV
-  i18n/      i18next with typed keys, English and Spanish
+  domain/        pure TypeScript: pass finder, sun, look angles, rarity, sets, brightness, catch state machine
+  data/          SQLite schema (Drizzle), repositories, migrations, bundled snapshot, pass cache
+  sync/          CelesTrak refresh and its triggers
+  environment/   injected clock and location
+  demo/          demo pass and the app session that swaps in demo mode
+  features/      tonight, sky, catch, collection, satellite, settings
+  stores/        Zustand for UI and session state, persisted to MMKV
+  translations/  i18next with typed keys, English and Spanish
 ```
 
 - **SQLite is the single source of truth.** Screens read with Drizzle live queries, so a catch or a new pass list shows up everywhere without any state passed around. Zustand only holds UI state such as the selected satellite or the catch in progress.

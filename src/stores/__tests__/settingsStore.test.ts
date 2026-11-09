@@ -1,4 +1,4 @@
-import i18n from '@/i18n';
+import i18n from '@/translations';
 
 import {
   DEFAULT_MIN_ELEVATION,
