@@ -9,7 +9,7 @@ import { OnboardingScreen } from '../OnboardingScreen';
 const mockAskPermission = jest.fn<Promise<boolean>, []>();
 
 jest.mock('expo-router', () => ({ Redirect: () => null, router: { push: jest.fn() } }));
-jest.mock('@/demo/session', () => ({ useDemo: () => null }));
+jest.mock('@/session/appSession', () => ({ useDemo: () => null }));
 jest.mock('@/environment/location', () => ({
   useLocation: () => ({ state: { status: 'locating' }, askPermission: mockAskPermission }),
 }));

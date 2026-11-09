@@ -1,4 +1,4 @@
-import { useDemo } from '@/demo/session';
+import { useDemo } from '@/session/appSession';
 import { needsOnboarding, useSettingsStore } from '@/stores/settingsStore';
 
 export function useNeedsOnboarding(): boolean {

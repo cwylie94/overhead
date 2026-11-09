@@ -54,7 +54,8 @@ module.exports = {
     './src/stores/': { statements: 97, branches: 95, functions: 96, lines: 96 },
     './src/sync/': { statements: 98, branches: 90, functions: 100, lines: 98 },
     './src/data/repositories/': { statements: 100, branches: 100, functions: 100, lines: 100 },
-    './src/demo/': { statements: 97, branches: 100, functions: 100, lines: 97 },
+    './src/demo/': { statements: 100, branches: 100, functions: 100, lines: 100 },
+    './src/session/': { statements: 100, branches: 100, functions: 100, lines: 100 },
     './src/translations/': { statements: 100, branches: 91, functions: 100, lines: 100 },
   },
 };

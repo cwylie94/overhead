@@ -70,8 +70,8 @@ src/
   data/          SQLite schema (Drizzle), repositories, migrations, bundled snapshot, pass cache
   sync/          CelesTrak refresh and its triggers
   environment/   injected clock and location
-  session/       React wiring that starts the app's data
-  demo/          demo pass and the app session that swaps in demo mode
+  session/       the app session that swaps in demo mode, and the wiring that starts its data
+  demo/          the demo pass
   reminders/     pass reminders as local notifications
   features/      tonight, sky, catch, collection, satellite, location, onboarding, settings
   stores/        Zustand for UI and session state, persisted to MMKV

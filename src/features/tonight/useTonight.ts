@@ -5,10 +5,10 @@ import { useState } from 'react';
 import { useAppData } from '@/data/AppDataContext';
 import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import { orbitFreshnessQuery, upcomingPassesQuery } from '@/data/queries';
-import { useDemo } from '@/demo/session';
 import { useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
 import { useReminders } from '@/reminders/useReminders';
+import { useDemo } from '@/session/appSession';
 import { usePassCache } from '@/session/PassCacheProvider';
 import { useSettingsStore } from '@/stores/settingsStore';
 

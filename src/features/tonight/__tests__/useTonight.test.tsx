@@ -4,8 +4,8 @@ import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 
 import type { UpcomingPass } from '@/data/queries';
-import { useDemo, type DemoEnvironment } from '@/demo/session';
 import { ClockProvider } from '@/environment/clock';
+import { useDemo, type DemoEnvironment } from '@/session/appSession';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 import { useTonight } from '../useTonight';
@@ -37,7 +37,7 @@ jest.mock('@/session/PassCacheProvider', () => ({
     refresh: mockRefresh,
   }),
 }));
-jest.mock('@/demo/session', () => ({ useDemo: jest.fn() }));
+jest.mock('@/session/appSession', () => ({ useDemo: jest.fn() }));
 jest.mock('@/environment/location', () => ({
   useLocation: () => ({
     state: { status: 'ready', observer: { latitude: 51.5, longitude: -0.1, altitude: 0 } },

@@ -1,12 +1,12 @@
 import { act, renderHook } from '@testing-library/react-native';
 
 import { deviceData, freshDemoData } from '@/data/client';
+import { DEMO_LEAD, DEMO_OBSERVER, findDemoPass } from '@/demo/scenario';
+import { DEMO_PASS } from '@/demo/testing/demoMocks';
 import type { Clock } from '@/environment/clock';
 import { useSettingsStore } from '@/stores/settingsStore';
 
-import { DEMO_LEAD, DEMO_OBSERVER, findDemoPass } from '../scenario';
-import { useAppSession, useDemo, type AppSession } from '../session';
-import { DEMO_PASS } from '../testing/demoMocks';
+import { useAppSession, useDemo, type AppSession } from '../appSession';
 
 jest.mock('@/data/client', () => {
   let demoRuns = 0;
@@ -18,8 +18,8 @@ jest.mock('@/data/client', () => {
 
 jest.mock('@/data/snapshot', () => ({ bundledSnapshot: {} }));
 
-jest.mock('../scenario', () => ({
-  ...jest.requireActual('../scenario'),
+jest.mock('@/demo/scenario', () => ({
+  ...jest.requireActual('@/demo/scenario'),
   findDemoPass: jest.fn(),
 }));
 

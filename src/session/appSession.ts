@@ -2,11 +2,10 @@ import { useSyncExternalStore } from 'react';
 
 import { deviceData, freshDemoData, type AppData } from '@/data/client';
 import { bundledSnapshot } from '@/data/snapshot';
+import { DEMO_OBSERVER, demoStartTime, findDemoPass, type DemoPass } from '@/demo/scenario';
 import type { Observer } from '@/domain/observer';
 import { systemClock, type Clock } from '@/environment/clock';
 import { useSettingsStore } from '@/stores/settingsStore';
-
-import { DEMO_OBSERVER, demoStartTime, findDemoPass, type DemoPass } from './scenario';
 
 export type DemoEnvironment = {
   clock: Clock;
@@ -42,23 +41,28 @@ function createSession(demoMode: boolean): AppSession {
   return demo ? { data: freshDemoData(), demo } : { data: deviceData(), demo: null };
 }
 
-let session = createSession(useSettingsStore.getState().demoMode);
-const listeners = new Set<() => void>();
+let session: AppSession | null = null;
+let sessionDemoMode: boolean | null = null;
 
-useSettingsStore.subscribe((state, previous) => {
-  if (state.demoMode !== previous.demoMode) {
-    session = createSession(state.demoMode);
-    listeners.forEach((listener) => listener());
+function currentSession(): AppSession {
+  const { demoMode } = useSettingsStore.getState();
+  if (!session || demoMode !== sessionDemoMode) {
+    session = createSession(demoMode);
+    sessionDemoMode = demoMode;
   }
-});
+  return session;
+}
 
 function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+  return useSettingsStore.subscribe((state, previous) => {
+    if (state.demoMode !== previous.demoMode) {
+      listener();
+    }
+  });
 }
 
 export function useAppSession(): AppSession {
-  return useSyncExternalStore(subscribe, () => session);
+  return useSyncExternalStore(subscribe, currentSession);
 }
 
 export function useDemo(): DemoEnvironment | null {

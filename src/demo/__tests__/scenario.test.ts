@@ -12,6 +12,16 @@ const SNAPSHOT_WITHOUT_ISS = {
   },
 };
 
+const SNAPSHOT_WITH_ISS_OVER_THE_EQUATOR = {
+  ...bundledSnapshot,
+  groups: {
+    ...bundledSnapshot.groups,
+    stations: bundledSnapshot.groups.stations.map((omm) =>
+      omm.NORAD_CAT_ID === DEMO_NORAD_ID ? { ...omm, INCLINATION: 0 } : omm,
+    ),
+  },
+};
+
 describe('findDemoPass', () => {
   describe('given the bundled snapshot', () => {
     test('then it picks an ISS pass', () => {
@@ -38,6 +48,12 @@ describe('findDemoPass', () => {
   describe('given a snapshot without the ISS', () => {
     test('then there is no demo pass', () => {
       expect(findDemoPass(SNAPSHOT_WITHOUT_ISS)).toBeNull();
+    });
+  });
+
+  describe('given a snapshot whose ISS orbits over the equator, out of sight of London', () => {
+    test('then there is no demo pass', () => {
+      expect(findDemoPass(SNAPSHOT_WITH_ISS_OVER_THE_EQUATOR)).toBeNull();
     });
   });
 });

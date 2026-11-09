@@ -1,7 +1,8 @@
 import { renderHook } from '@testing-library/react-native';
 
-import { useAppSession, type AppSession } from '../session';
-import { DEMO_PASS } from '../testing/demoMocks';
+import { DEMO_PASS } from '@/demo/testing/demoMocks';
+
+import { useAppSession, type AppSession } from '../appSession';
 
 jest.mock('@/data/client', () => ({
   deviceData: () => ({ key: 'device' }),
@@ -10,9 +11,9 @@ jest.mock('@/data/client', () => ({
 
 jest.mock('@/data/snapshot', () => ({ bundledSnapshot: {} }));
 
-jest.mock('../scenario', () => ({
-  ...jest.requireActual('../scenario'),
-  findDemoPass: () => jest.requireActual('../testing/demoMocks').DEMO_PASS,
+jest.mock('@/demo/scenario', () => ({
+  ...jest.requireActual('@/demo/scenario'),
+  findDemoPass: () => jest.requireActual('@/demo/testing/demoMocks').DEMO_PASS,
 }));
 
 jest.mock('@/stores/settingsStore', () => {

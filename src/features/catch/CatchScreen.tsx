@@ -8,13 +8,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAppData } from '@/data/AppDataContext';
 import { passWithSatelliteQuery, type UpcomingPass } from '@/data/queries';
-import { useDemo } from '@/demo/session';
 import { CATCH_HOLD_MS } from '@/domain/catchMachine';
 import { catchWindow } from '@/domain/catchWindow';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useClock, useNow } from '@/environment/clock';
 import { isEstimated, useLocation } from '@/environment/location';
+import { useDemo } from '@/session/appSession';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { formatCountdown } from '@/translations/format';
 import { Banner } from '@/ui/Banner';
