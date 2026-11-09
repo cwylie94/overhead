@@ -68,9 +68,9 @@ const faintLow = (overrides: Partial<UpcomingPass> = {}) =>
     ...overrides,
   });
 
-async function renderView(props: Partial<TonightViewProps> = {}) {
+async function renderView(props: Partial<TonightViewProps> = {}, clockNow = NOW) {
   await render(
-    <ClockProvider clock={{ now: () => NOW }}>
+    <ClockProvider clock={{ now: () => clockNow }}>
       <TonightView {...defaults} {...props} />
     </ClockProvider>,
   );
@@ -235,6 +235,14 @@ describe('TonightView', () => {
 
     expect(screen.getByText('Just ended')).toBeOnTheScreen();
     expect(screen.queryByText(/ago/)).toBeNull();
+  });
+
+  test('stops calling a featured pass visible as soon as it ends', async () => {
+    const pass = makePass({ startAt: NOW - 3 * MINUTE });
+    await renderView({ passes: [pass] }, pass.endAt + 10_000);
+
+    expect(screen.getByText('Just ended')).toBeOnTheScreen();
+    expect(screen.queryByText('Visible now')).toBeNull();
   });
 
   test('lists later nights under their own heading, counting only tonight', async () => {

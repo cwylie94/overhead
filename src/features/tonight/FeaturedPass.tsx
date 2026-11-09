@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
+import { catchWindow } from '@/domain/catchWindow';
+import { useNow } from '@/environment/clock';
 import { formatPassTime } from '@/i18n/format';
 import { Chip } from '@/ui/Chip';
 import {
@@ -46,25 +48,33 @@ export function FeaturedPass({
   const path = usePathText(pass);
   const tier = pass.peakMagnitude === null ? 'faint' : brightnessTier(pass.peakMagnitude);
   const minutes = Math.max(1, Math.round((pass.endAt - pass.startAt) / MINUTE));
-  const heading =
-    reason === 'best'
-      ? night.kind === 'later'
-        ? t('featured.bestOn', { night: nightTitle })
-        : t(`featured.best.${night.kind}`)
-      : t(`featured.${reason}`);
+  const now = useNow(1_000);
+  const timely = reason !== 'best';
+  const ended = timely && catchWindow(pass, now) === 'over';
+  const heading = timely
+    ? ended
+      ? t('justEnded')
+      : t(`featured.${reason}`)
+    : night.kind === 'later'
+      ? t('featured.bestOn', { night: nightTitle })
+      : t(`featured.best.${night.kind}`);
 
   return (
     <View style={styles.card}>
       <SkyGlyph track={pass.track} startAt={pass.startAt} endAt={pass.endAt} size={84} />
       <View style={styles.body}>
-        <Text style={[styles.heading, reason !== 'best' && styles.headingLive]}>{heading}</Text>
+        <Text style={[styles.heading, timely && !ended && styles.headingLive]}>{heading}</Text>
         <Text style={styles.name} numberOfLines={2}>
           {pass.name}
         </Text>
         <Text style={styles.time}>
           {formatPassTime(pass.startAt, i18n.language)}
-          {' · '}
-          <Countdown startAt={pass.startAt} endAt={pass.endAt} />
+          {!ended && (
+            <>
+              {' · '}
+              <Countdown startAt={pass.startAt} endAt={pass.endAt} />
+            </>
+          )}
         </Text>
         <View style={styles.chips}>
           <Chip label={t(`common:brightness.${tier}`)} color={brightnessMarkColors[tier]} />
