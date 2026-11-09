@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -64,6 +65,16 @@ export function CaughtView({
   onCatchNext,
 }: CaughtViewProps) {
   const { t, i18n } = useTranslation(['catch', 'collection', 'common']);
+  const leaving = useRef(false);
+  const leaveOnce = (leave: () => void) => () => {
+    if (leaving.current) {
+      return;
+    }
+    leaving.current = true;
+    leave();
+  };
+  const viewCard = leaveOnce(onViewCard);
+  const done = leaveOnce(onDone);
   const { set, next, headline } = summary;
   const complete = headline === 'setComplete';
   const burst = summary.isNew ? burstColors(rarity) : null;
@@ -107,7 +118,7 @@ export function CaughtView({
                       number: set.cards.indexOf(fanCard) + 1,
                       total: set.total,
                     }}
-                    onOpen={onViewCard}
+                    onOpen={viewCard}
                   />
                 </View>
               ))}
@@ -120,7 +131,7 @@ export function CaughtView({
                   <CollectionCard
                     card={card}
                     position={{ number: set.number, total: set.total }}
-                    onOpen={onViewCard}
+                    onOpen={viewCard}
                   />
                 </View>
               </CardReveal>
@@ -198,17 +209,17 @@ export function CaughtView({
             <Button
               primary
               label={t('caught.catchNext', { name: next.name })}
-              onPress={() => onCatchNext(next)}
+              onPress={leaveOnce(() => onCatchNext(next))}
             />
-            <Button label={t('done')} onPress={onDone} />
-            <Pressable accessibilityRole="button" hitSlop={spacing.sm} onPress={onViewCard}>
+            <Button label={t('done')} onPress={done} />
+            <Pressable accessibilityRole="button" hitSlop={spacing.sm} onPress={viewCard}>
               <Text style={styles.link}>{t('caught.viewCard')}</Text>
             </Pressable>
           </>
         ) : (
           <>
-            <Button primary label={t('caught.viewCard')} onPress={onViewCard} />
-            <Button label={t('done')} onPress={onDone} />
+            <Button primary label={t('caught.viewCard')} onPress={viewCard} />
+            <Button label={t('done')} onPress={done} />
           </>
         )}
       </View>

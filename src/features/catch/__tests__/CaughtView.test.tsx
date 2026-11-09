@@ -65,10 +65,19 @@ describe('CaughtView', () => {
     expect(screen.getByText('69°')).toBeOnTheScreen();
     expect(screen.getByText('3 → 4 of 16')).toBeOnTheScreen();
 
+    await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
+    expect(props.onDone).toHaveBeenCalledTimes(1);
+  });
+
+  test('leaves only once, however fast the buttons are pressed', async () => {
+    const props = await renderCaught();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
     await fireEvent.press(screen.getByRole('button', { name: 'View card' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
-    expect(props.onViewCard).toHaveBeenCalledTimes(1);
+
     expect(props.onDone).toHaveBeenCalledTimes(1);
+    expect(props.onViewCard).not.toHaveBeenCalled();
   });
 
   test('a repeat catch counts the catches and celebrates a personal best', async () => {
