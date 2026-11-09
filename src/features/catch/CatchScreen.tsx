@@ -14,7 +14,7 @@ import { catchWindow } from '@/domain/catchWindow';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useClock, useNow } from '@/environment/clock';
-import { useLocation } from '@/environment/location';
+import { isEstimated, useLocation } from '@/environment/location';
 import { formatCountdown } from '@/i18n/format';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Banner } from '@/ui/Banner';
@@ -36,7 +36,19 @@ export function CatchScreen() {
   const { db } = useAppData();
   const pass = useMemo(() => passWithSatelliteQuery(db, Number(passId)).get(), [db, passId]);
   const { t } = useTranslation('catch');
+  const location = useLocation();
+  const [openedOnEstimate] = useState(() => isEstimated(location.state));
 
+  if (openedOnEstimate) {
+    return (
+      <SafeAreaView style={styles.screen}>
+        <Text style={styles.status}>
+          {isEstimated(location.state) ? t('location.finding') : t('location.found')}
+        </Text>
+        <DoneButton />
+      </SafeAreaView>
+    );
+  }
   if (!pass) {
     return (
       <SafeAreaView style={styles.screen}>

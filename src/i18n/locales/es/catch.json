@@ -3,6 +3,10 @@
   "look": "Mira al {{direction}}, {{degrees}}° de altura",
   "hold": "Mantén la mira sobre él durante 3 segundos",
   "holdManual": "Arrastra para apuntar. Mantén el dedo para sostener.",
+  "location": {
+    "finding": "Buscando tu ubicación. Podrás atrapar en cuanto la encontremos.",
+    "found": "Ubicación encontrada. Vuelve atrás para ver los pasos desde donde estás."
+  },
   "status": {
     "aiming": "Alinea la mira con el satélite",
     "locked": "Mantén el pulso…",

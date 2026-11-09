@@ -3,6 +3,10 @@
   "look": "Look {{direction}}, {{degrees}}° up",
   "hold": "Keep the crosshair on it for 3 seconds",
   "holdManual": "Drag to aim. Keep your finger down to hold.",
+  "location": {
+    "finding": "Finding your location. You can catch once it’s found.",
+    "found": "Found your location. Go back to see the passes from where you are."
+  },
   "status": {
     "aiming": "Line up the crosshair with the satellite",
     "locked": "Hold steady…",
