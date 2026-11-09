@@ -65,7 +65,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
   - Pointing is the compass heading from `expo-location` plus the camera's elevation and roll from `DeviceMotion` gravity (smoothed), in shared values (`usePointing`). Expo reports gravity pointing down in device coordinates on both platforms: lying flat with the screen up gives z = −g. Don't use `DeviceMotion.rotation`: its Euler angles break down with the phone held upright.
   - Moon calibration stores the offset between the raw reading and the Moon (`src/domain/moon.ts`, within 0.4° of Skyfield) in `calibrationStore`, in memory only. `usePointing` applies it to every reading, and `pointing.raw` keeps the uncorrected one for calibrating. Offsets over 45° are rejected as aimed at the wrong thing.
   - Camera mode (`CameraCatchView`, VisionCamera 5) is offered only with sensors and a back camera, so never on the simulator or in demo mode. The overlay projects the sky with `cameraProjection.ts`: the field of view comes from the lens's 35 mm-equivalent focal length, assuming the 4:3 photo frame fills the view (`resizeMode="cover"`). The catch logic is the same in both modes; only the drawing changes.
-  - With no sensor data within 2.5 s (as on the simulator), it falls back to drag-to-aim. Demo mode can force that.
+  - With no sensor data within 2.5 s (as on the simulator), it falls back to drag-to-aim. Demo mode aims with the compass like normal use on a phone.
   - A 50 ms JS ticker feeds the catch machine (`aimCounts`): readings count once the pass has started, always with sensors and only while a finger is down in drag-to-aim.
   - Catch mode opens up to 10 minutes early (`catchWindow` in `src/domain/catchWindow.ts`): Tonight shows Get ready, the marker waits dimmed where the satellite will appear, and nothing can be caught or logged as seen until it does.
   - Log sightings through `logSighting` (UUIDv7 IDs), and guard against duplicates with something stable such as the catch time, never a flag an effect resets.
@@ -158,7 +158,7 @@ There is no collection table. The collection is derived from sightings.
 - Turn it on with the Demo mode switch in Settings, by tapping the version five times, or with the `overhead://demo` link (`?enabled=0` turns it off). The flag is `demoMode` in `settingsStore`, so it survives a relaunch.
 - The demo pass is the first ISS pass over London after the snapshot was taken that peaks at 40° or higher and magnitude −2 or brighter (`src/demo/scenario.ts`). The clock starts a minute before it appears and then runs in real time. It's derived from the snapshot, so it still works after `npm run snapshot:update`; the tests fail if a refresh leaves no such pass.
 - Each start deletes and recreates `overhead-demo.db` and imports the bundled snapshot, so demo catches never touch the real collection.
-- In demo mode, the CelesTrak refresh, reminders and the staleness banner are off, and Catch mode forces drag-to-aim.
+- In demo mode, the CelesTrak refresh, reminders and the staleness banner are off. Catch aims with the compass on a phone (drag-to-aim only where there are no sensors, such as the simulator), but camera mode is off, because Moon calibration would use the demo evening's Moon rather than the real one.
 
 ## Build phases
 

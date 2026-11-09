@@ -36,13 +36,13 @@ export type Pointing = {
   setManual(position: SkyPosition): void;
 };
 
-export function usePointing(initial: SkyPosition, forceManual = false): Pointing {
+export function usePointing(initial: SkyPosition): Pointing {
   const azimuth = useSharedValue(initial.azimuth);
   const elevation = useSharedValue(initial.elevation);
   const roll = useSharedValue(0);
   const latest = useRef<SkyPosition>(initial);
   const raw = useRef<SkyPosition>(initial);
-  const [mode, setMode] = useState<PointingMode>(forceManual ? 'manual' : 'sensors');
+  const [mode, setMode] = useState<PointingMode>('sensors');
   const [calibrate, setCalibrate] = useState(false);
 
   useEffect(() => {

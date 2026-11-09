@@ -10,7 +10,12 @@ import { useCalibrationStore } from '@/stores/calibrationStore';
 import { calibrationOffset, canCalibrateOn, isPlausibleOffset } from './calibration';
 import type { Pointing } from './usePointing';
 
-export function useCameraAim(pointing: Pointing, observer: Observer | null, now: number) {
+export function useCameraAim(
+  pointing: Pointing,
+  observer: Observer | null,
+  now: number,
+  allowed: boolean,
+) {
   const clock = useClock();
   const device = useCameraDevice('back');
   const permission = useCameraPermission();
@@ -24,7 +29,7 @@ export function useCameraAim(pointing: Pointing, observer: Observer | null, now:
     [observer, now],
   );
 
-  const available = pointing.mode === 'sensors' && device !== undefined;
+  const available = allowed && pointing.mode === 'sensors' && device !== undefined;
   const cameraOn = available && wantsCamera && permission.hasPermission;
   const denied = !permission.hasPermission && !permission.canRequestPermission;
 

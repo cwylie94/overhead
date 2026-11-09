@@ -73,13 +73,10 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
     Math.min(Math.max(clock.now(), pass.startAt), pass.endAt),
   );
   const demo = useDemo();
-  const pointing = usePointing(
-    {
-      azimuth: ((startPosition?.azimuth ?? 0) + 25) % 360,
-      elevation: Math.max(0, (startPosition?.elevation ?? 30) - 15),
-    },
-    demo !== null,
-  );
+  const pointing = usePointing({
+    azimuth: ((startPosition?.azimuth ?? 0) + 25) % 360,
+    elevation: Math.max(0, (startPosition?.elevation ?? 30) - 15),
+  });
   const session = useCatchSession(pass, pointing);
   const { machine } = session;
   const location = useLocation();
@@ -88,6 +85,7 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
     pointing,
     location.state.status === 'ready' ? location.state.observer : null,
     now,
+    demo === null,
   );
 
   const time = useSharedValue(clock.now());
