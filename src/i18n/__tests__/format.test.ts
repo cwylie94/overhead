@@ -12,52 +12,82 @@ const PASS_START = Date.UTC(2026, 10, 8, 21, 12);
 const MINUTE = 60_000;
 
 describe('formatPassTime', () => {
-  test('uses the language and time zone', () => {
-    expect(formatPassTime(PASS_START, 'en', 'Europe/London')).toMatch(/^9:12\sPM$/);
-    expect(formatPassTime(PASS_START, 'es', 'Europe/Madrid')).toBe('22:12');
+  describe('given a pass at 21:12 UTC', () => {
+    test('then it reads 9:12 PM in English in London', () => {
+      expect(formatPassTime(PASS_START, 'en', 'Europe/London')).toMatch(/^9:12\sPM$/);
+    });
+
+    test('then it reads 22:12 in Spanish in Madrid', () => {
+      expect(formatPassTime(PASS_START, 'es', 'Europe/Madrid')).toBe('22:12');
+    });
   });
 });
 
 describe('formatHour', () => {
-  test('shows just the hour in the local style', () => {
-    expect(formatHour(PASS_START, 'en', 'Europe/London')).toMatch(/^9\sPM$/);
-    expect(formatHour(PASS_START, 'es', 'Europe/Madrid')).toBe('22');
+  describe('given a pass at 21:12 UTC', () => {
+    test('then it shows just the hour as 9 PM in English in London', () => {
+      expect(formatHour(PASS_START, 'en', 'Europe/London')).toMatch(/^9\sPM$/);
+    });
+
+    test('then it shows just the hour as 22 in Spanish in Madrid', () => {
+      expect(formatHour(PASS_START, 'es', 'Europe/Madrid')).toBe('22');
+    });
   });
 });
 
 describe('formatShortDate', () => {
-  test('shows the day and a short month', () => {
-    expect(formatShortDate(PASS_START, 'en')).toBe('Nov 8');
-    expect(formatShortDate(PASS_START, 'es')).toBe('8 nov');
-  });
-});
-
-describe('formatCountdown', () => {
-  test.each([
-    [PASS_START + 30_000, 'in 30 seconds'],
-    [PASS_START + 12 * MINUTE, 'in 12 minutes'],
-    [PASS_START + 150 * MINUTE, 'in 3 hours'],
-    [PASS_START + 26 * 60 * MINUTE, 'tomorrow'],
-    [PASS_START - 5 * MINUTE, '5 minutes ago'],
-    [PASS_START, 'now'],
-  ])('English countdown to %i', (target, expected) => {
-    expect(formatCountdown(target, PASS_START, 'en')).toBe(expected);
-  });
-
-  test('Spanish countdown', () => {
-    expect(formatCountdown(PASS_START + 12 * MINUTE, PASS_START, 'es')).toBe(
-      'dentro de 12 minutos',
+  describe('given a pass on 8 November', () => {
+    test.each([
+      { name: 'English', language: 'en', expected: 'Nov 8' },
+      { name: 'Spanish', language: 'es', expected: '8 nov' },
+    ] as const)(
+      'then in $name it shows the day and a short month as $expected',
+      ({ language, expected }) => {
+        expect(formatShortDate(PASS_START, language)).toBe(expected);
+      },
     );
   });
 });
 
-describe('formatDistance', () => {
-  test('keeps kilometres for metric', () => {
-    expect(formatDistance(408.5, 'metric', 'en')).toBe('409 km');
+describe('formatCountdown', () => {
+  describe('given English', () => {
+    test.each([
+      { distance: '30 seconds ahead', target: PASS_START + 30_000, expected: 'in 30 seconds' },
+      { distance: '12 minutes ahead', target: PASS_START + 12 * MINUTE, expected: 'in 12 minutes' },
+      { distance: '150 minutes ahead', target: PASS_START + 150 * MINUTE, expected: 'in 3 hours' },
+      { distance: '26 hours ahead', target: PASS_START + 26 * 60 * MINUTE, expected: 'tomorrow' },
+      { distance: '5 minutes ago', target: PASS_START - 5 * MINUTE, expected: '5 minutes ago' },
+      { distance: 'right now', target: PASS_START, expected: 'now' },
+    ])('then a time $distance reads "$expected"', ({ target, expected }) => {
+      expect(formatCountdown(target, PASS_START, 'en')).toBe(expected);
+    });
   });
 
-  test('converts to miles for imperial instead of trusting the device region', () => {
-    expect(formatDistance(408.5, 'imperial', 'en')).toBe('254 mi');
-    expect(formatDistance(408.5, 'imperial', 'es')).toBe('254 mi');
+  describe('given Spanish', () => {
+    test('then a time 12 minutes ahead reads "dentro de 12 minutos"', () => {
+      expect(formatCountdown(PASS_START + 12 * MINUTE, PASS_START, 'es')).toBe(
+        'dentro de 12 minutos',
+      );
+    });
+  });
+});
+
+describe('formatDistance', () => {
+  describe('given metric units', () => {
+    test('then it keeps kilometres', () => {
+      expect(formatDistance(408.5, 'metric', 'en')).toBe('409 km');
+    });
+  });
+
+  describe('given imperial units', () => {
+    test.each([
+      { name: 'English', language: 'en' },
+      { name: 'Spanish', language: 'es' },
+    ] as const)(
+      'then in $name it converts to miles instead of trusting the device region',
+      ({ language }) => {
+        expect(formatDistance(408.5, 'imperial', language)).toBe('254 mi');
+      },
+    );
   });
 });
