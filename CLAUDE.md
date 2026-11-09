@@ -155,7 +155,13 @@ There is no collection table. The collection is derived from sightings.
 - CelesTrak tests cover the 2-hour rule and backoff with a fake fetcher and clock. Migration tests check that schema changes keep existing sightings.
 - Store tests call actions directly, with no rendering, and cover forbidden state transitions.
 - Translation tests fail if any locale is missing a key or a plural form its language needs (Spanish needs `_many` as well as `_one` and `_other`).
-- Maestro flows live in `.maestro/` and run with `npm run e2e` against a running build. They start from `clearState` and use the `overhead://demo` link for a known evening. Give elements a flow needs a `testID` (such as `catch-<noradId>`) rather than matching on text that changes. Flows that don't open the demo link start with `subflows/finish-onboarding.yaml`. Maestro can't hold a drag in place, so it can't complete an aimed catch.
+- Maestro flows live in `.maestro/` and run with `npm run e2e` against a Release build on the simulator (`npm run ios:release`). A development build won't do: `clearState` wipes its saved server, so it opens on the dev launcher. Run them with Java 17 or later (`JAVA_HOME`), and pass `--device <udid>` when the Android emulator is also running. They start from `clearState` and use the `overhead://demo` link for a known evening. Give elements a flow needs a `testID` (such as `catch-<noradId>`) rather than matching on text that changes.
+  - Maestro matches an element's whole accessibility label, and a pressable row joins its texts into one ("ISS (ZARYA), 6:21 PM, Brilliant, …"), so match rows by `testID` or a regex ending in `.*`.
+  - Location permission takes `inuse`, `always` or `never`, not `allow` or `deny`.
+  - Use `centerElement: true` with `scrollUntilVisible`, or the tap can land on the floating tab bar.
+  - Flows that don't open the demo link start with `subflows/finish-onboarding.yaml`. It waits for Continue on the location step, because with location granted the app finds a place before the button can be tapped.
+  - The native tab bar keeps its first language's accessibility labels after a language switch, so don't assert on tab names after switching.
+  - Maestro can't hold a drag in place, so it can't complete an aimed catch.
 
 ## Demo mode
 

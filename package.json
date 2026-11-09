@@ -67,6 +67,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "ios:device": "expo run:ios --device --configuration Release",
+    "ios:release": "expo run:ios --configuration Release",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",

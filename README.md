@@ -49,6 +49,7 @@ The first time, Xcode has to create a signing profile, which `expo run:ios` does
 | --------------------------------- | ------------------------------------------- |
 | `npm start`                       | Start the dev server for an installed build |
 | `npm run ios` / `npm run android` | Build and launch the development build      |
+| `npm run ios:release`             | Build a Release app for the simulator       |
 | `npm run lint`                    | Lint with ESLint                            |
 | `npm run format`                  | Format with Prettier                        |
 | `npm run typecheck`               | Type-check with TypeScript                  |
@@ -59,7 +60,7 @@ The first time, Xcode has to create a signing profile, which `expo run:ios` does
 | `npm run cities:update`           | Refresh the bundled GeoNames city list      |
 | `npm run fixtures:passes`         | Regenerate the Skyfield reference passes    |
 | `npm run bench`                   | Time pass finding for the whole catalogue   |
-| `npm run e2e`                     | Run the Maestro flows on a running build    |
+| `npm run e2e`                     | Run the Maestro flows on the simulator      |
 
 ## Architecture
 
@@ -105,7 +106,7 @@ npm run fixtures:passes
 
 - **Jest** covers the domain maths, repositories (against in-memory SQLite with the real migrations), schema migrations, stores, the CelesTrak refresh, formatting, translations and the presentational views. Run `npm test`, or `npm run test:coverage` for a coverage table (the full report is in `coverage/index.html`).
 - **Pass predictions** are checked against Skyfield for every satellite in the snapshot, to within 2 seconds.
-- **Maestro** flows in `.maestro/` drive the demo evening, the demo toggle and the language switch on a simulator. Install the [Maestro CLI](https://docs.maestro.dev/getting-started/installing-maestro) (it needs Java 17 or later), start the app with `npm run ios`, then run `npm run e2e`. Maestro can't hold a drag in place, so the aim-and-hold catch itself is covered by the catch state machine's tests and by hand.
+- **Maestro** flows in `.maestro/` drive onboarding, the demo evening, the demo toggle and the language switch on a simulator. Install the [Maestro CLI](https://docs.maestro.dev/getting-started/installing-maestro) (it needs Java 17 or later), install a Release build with `npm run ios:release`, then run `npm run e2e`. The flows need a Release build: each one clears the app's data, which sends a development build back to its server picker. Maestro can't hold a drag in place, so the aim-and-hold catch itself is covered by the catch state machine's tests and by hand.
 
 ## Trade-offs
 
