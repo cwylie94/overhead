@@ -3,11 +3,11 @@ import { useDeferredValue, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { CITIES } from '@/data/cities';
+import { searchCities } from '@/data/cities/citySearch';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { colors } from '@/ui/theme';
 
 import { CityPicker } from './CityPicker';
-import { searchCities } from './citySearch';
 
 export function CityPickerScreen() {
   const [query, setQuery] = useState('');

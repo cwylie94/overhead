@@ -1,8 +1,8 @@
 import { getCalendars } from 'expo-localization';
 
 import { CITIES } from '@/data/cities';
+import { foldText, type CityRow } from '@/data/cities/citySearch';
 import type { Observer } from '@/domain/observer';
-import { foldText, type CityRow } from '@/features/location/citySearch';
 
 export const LONDON: Observer = { latitude: 51.5072, longitude: -0.1276, altitude: 0 };
 

@@ -1,5 +1,5 @@
 import { CITIES } from '@/data/cities';
-import type { CityRow } from '@/features/location/citySearch';
+import type { CityRow } from '@/data/cities/citySearch';
 
 import { LONDON, observerForTimeZone } from '../estimatedLocation';
 

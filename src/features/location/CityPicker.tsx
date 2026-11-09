@@ -1,10 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
+import type { City } from '@/data/cities/citySearch';
 import { MAX_FONT_SCALE, Text } from '@/ui/Text';
 import { colors, radius, spacing, typography } from '@/ui/theme';
-
-import type { City } from './citySearch';
 
 export type CityPickerProps = {
   query: string;
