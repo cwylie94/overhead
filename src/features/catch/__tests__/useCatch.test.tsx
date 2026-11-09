@@ -6,8 +6,8 @@ import { IDLE, type CatchState } from '@/domain/catchMachine';
 import { ClockProvider } from '@/environment/clock';
 import type { LocationState } from '@/environment/location';
 import { useSessionFeatures } from '@/session/appSession';
-import { DEMO_FEATURES, DEVICE_FEATURES } from '@/session/features';
-import { useSettingsStore } from '@/stores/settingsStore';
+import { DEVICE_FEATURES } from '@/session/features';
+import { useChosenLocation } from '@/session/location';
 
 import { useCameraAim } from '../useCameraAim';
 import { catchPhase, startingAim, useCatch } from '../useCatch';
@@ -17,6 +17,7 @@ import { usePointing, type Pointing, type PointingMode } from '../usePointing';
 jest.mock('react-native-reanimated', () => jest.requireActual('@/testing/reanimated'));
 jest.mock('@/ui/motion', () => ({ ALWAYS_ANIMATE: {} }));
 jest.mock('@/session/appSession', () => ({ useSessionFeatures: jest.fn() }));
+jest.mock('@/session/location', () => ({ useChosenLocation: jest.fn() }));
 jest.mock('@/environment/location', () => ({
   useLocation: () => ({ state: mockLocation }),
 }));
@@ -71,7 +72,7 @@ beforeEach(() => {
   jest.mocked(useSessionFeatures).mockReturnValue(DEVICE_FEATURES);
   jest.mocked(usePointing).mockReturnValue(pointing('sensors'));
   machineIs(AIMING);
-  useSettingsStore.setState({ customLocation: null });
+  jest.mocked(useChosenLocation).mockReturnValue(null);
 });
 
 describe('useCatch', () => {
@@ -140,18 +141,13 @@ describe('useCatch', () => {
     });
   });
 
-  describe('given the user has chosen a city', () => {
+  describe('given the session observes from a chosen city', () => {
     beforeEach(() => {
-      useSettingsStore.setState({ customLocation: MADRID });
+      jest.mocked(useChosenLocation).mockReturnValue(MADRID);
     });
 
     test('then it shows the city', async () => {
       expect((await renderCatch()).chosenLocation).toEqual(MADRID);
-    });
-
-    test('then it hides the city in the demo', async () => {
-      jest.mocked(useSessionFeatures).mockReturnValue(DEMO_FEATURES);
-      expect((await renderCatch()).chosenLocation).toBeNull();
     });
   });
 

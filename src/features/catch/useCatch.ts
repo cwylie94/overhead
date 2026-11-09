@@ -8,7 +8,7 @@ import { positionOnTrack, type SkyPosition } from '@/domain/sky';
 import { useClock, useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
 import { useSessionFeatures } from '@/session/appSession';
-import { useSettingsStore } from '@/stores/settingsStore';
+import { useChosenLocation } from '@/session/location';
 import { ALWAYS_ANIMATE } from '@/ui/motion';
 
 import type { CatchPhase, CatchViewProps } from './CatchView';
@@ -37,7 +37,7 @@ export function useCatch(pass: UpcomingPass): Omit<CatchViewProps, 'onDone'> {
   const now = useNow(1_000);
   const features = useSessionFeatures();
   const location = useLocation();
-  const customLocation = useSettingsStore((settings) => settings.customLocation);
+  const chosenLocation = useChosenLocation();
   const pointing = usePointing(startingAim(pass, clock.now()));
   const { machine, setTouching } = useCatchSession(pass, pointing);
   const aim = useCameraAim(
@@ -79,7 +79,7 @@ export function useCatch(pass: UpcomingPass): Omit<CatchViewProps, 'onDone'> {
         ? { caughtAt: machine.caughtAt, angleError: machine.angleError }
         : null,
     look: positionOnTrack(pass.track, Math.max(now, pass.startAt)),
-    chosenLocation: features.chosenLocation ? customLocation : null,
+    chosenLocation,
     calibrate: pointing.calibrate && !manual,
     manual,
     gesture,

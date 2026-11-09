@@ -7,7 +7,7 @@ import type { UpcomingPass } from '@/data/queries';
 import { ClockProvider } from '@/environment/clock';
 import { useDemo, useSessionFeatures, type DemoEnvironment } from '@/session/appSession';
 import { DEMO_FEATURES, DEVICE_FEATURES } from '@/session/features';
-import { useSettingsStore } from '@/stores/settingsStore';
+import { useChosenLocation } from '@/session/location';
 
 import { useTonight } from '../useTonight';
 
@@ -39,6 +39,7 @@ jest.mock('@/session/PassCacheProvider', () => ({
   }),
 }));
 jest.mock('@/session/appSession', () => ({ useDemo: jest.fn(), useSessionFeatures: jest.fn() }));
+jest.mock('@/session/location', () => ({ useChosenLocation: jest.fn() }));
 jest.mock('@/environment/location', () => ({
   useLocation: () => ({
     state: { status: 'ready', observer: { latitude: 51.5, longitude: -0.1, altitude: 0 } },
@@ -72,7 +73,7 @@ beforeEach(() => {
   jest.mocked(useDemo).mockReturnValue(null);
   jest.mocked(useSessionFeatures).mockReturnValue(DEVICE_FEATURES);
   setOnline(true);
-  useSettingsStore.setState({ customLocation: null });
+  jest.mocked(useChosenLocation).mockReturnValue(null);
 });
 
 describe('useTonight', () => {
@@ -136,9 +137,9 @@ describe('useTonight', () => {
     });
   });
 
-  describe('given the user has chosen a city', () => {
+  describe('given the session observes from a chosen city', () => {
     beforeEach(() => {
-      useSettingsStore.setState({ customLocation: CHOSEN });
+      jest.mocked(useChosenLocation).mockReturnValue(CHOSEN);
     });
 
     describe('when the hook renders', () => {
@@ -152,13 +153,12 @@ describe('useTonight', () => {
     });
   });
 
-  describe('given demo mode while offline with old orbit data and a chosen city', () => {
+  describe('given demo mode while offline with old orbit data', () => {
     beforeEach(() => {
       jest.mocked(useDemo).mockReturnValue(DEMO);
       jest.mocked(useSessionFeatures).mockReturnValue(DEMO_FEATURES);
       setOnline(false);
       mockFetchedAt = [MOCK_NOW - 5 * DAY];
-      useSettingsStore.setState({ customLocation: CHOSEN });
     });
 
     describe('when the hook renders', () => {
@@ -166,11 +166,10 @@ describe('useTonight', () => {
         ({ result } = await renderTonight());
       });
 
-      test('then it hides the offline, stale and chosen-city banners for the demo evening', () => {
+      test('then it hides the offline and stale banners for the demo evening', () => {
         expect(result.current).toMatchObject({
           offline: false,
           staleDays: null,
-          chosenLocation: null,
           demoStartsAt: DEMO.startsAt,
         });
       });

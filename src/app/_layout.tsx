@@ -3,18 +3,17 @@ import '@/translations';
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useMemo } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AppDataProvider } from '@/data/AppDataContext';
 import { ClockProvider, systemClock } from '@/environment/clock';
 import { LocationProvider } from '@/environment/location';
 import { configureNotificationHandler } from '@/reminders/reminders';
-import { useAppSession, type DemoEnvironment } from '@/session/appSession';
+import { useAppSession } from '@/session/appSession';
 import { DatabaseGate } from '@/session/DatabaseGate';
+import { useFixedObserver } from '@/session/location';
 import { OrbitUpdates } from '@/session/OrbitUpdates';
 import { PassCacheProvider } from '@/session/PassCacheProvider';
-import { useSettingsStore } from '@/stores/settingsStore';
 import { MotionConfig } from '@/ui/motion';
 import { colors } from '@/ui/theme';
 
@@ -32,18 +31,9 @@ const navigationTheme = {
   },
 };
 
-function useFixedLocation(demo: DemoEnvironment | null) {
-  const custom = useSettingsStore((settings) => settings.customLocation);
-  const chosen = useMemo(
-    () => (custom ? { latitude: custom.latitude, longitude: custom.longitude, altitude: 0 } : null),
-    [custom],
-  );
-  return demo?.observer ?? chosen;
-}
-
 export default function RootLayout() {
   const { data, demo } = useAppSession();
-  const fixedLocation = useFixedLocation(demo);
+  const fixedLocation = useFixedObserver();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

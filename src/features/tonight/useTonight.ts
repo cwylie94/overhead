@@ -9,8 +9,8 @@ import { useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
 import { useReminders } from '@/reminders/useReminders';
 import { useDemo, useSessionFeatures } from '@/session/appSession';
+import { useChosenLocation } from '@/session/location';
 import { usePassCache } from '@/session/PassCacheProvider';
-import { useSettingsStore } from '@/stores/settingsStore';
 
 import { passListProgress } from './passListProgress';
 import { staleDaysFor } from './staleness';
@@ -20,7 +20,7 @@ export function useTonight(): TonightViewProps {
   const { db } = useAppData();
   const demo = useDemo();
   const features = useSessionFeatures();
-  const customLocation = useSettingsStore((settings) => settings.customLocation);
+  const chosenLocation = useChosenLocation();
   const now = useNow(60_000);
   const location = useLocation();
   const { state: cache, refresh } = usePassCache();
@@ -43,7 +43,7 @@ export function useTonight(): TonightViewProps {
         )
       : null,
     demoStartsAt: demo?.startsAt ?? null,
-    chosenLocation: features.chosenLocation ? customLocation : null,
+    chosenLocation,
     reminders,
     refreshing,
     onRefresh: () => {

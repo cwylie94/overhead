@@ -194,12 +194,6 @@ export function LocationProvider({ fixed, children }: LocationProviderProps) {
   return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>;
 }
 
-type FixedLocationProviderProps = ProviderProps & { observer: Observer };
-
-export function FixedLocationProvider({ observer, children }: FixedLocationProviderProps) {
-  return <LocationProvider fixed={observer}>{children}</LocationProvider>;
-}
-
 export function useLocation(): LocationContextValue {
   return useContext(LocationContext);
 }
