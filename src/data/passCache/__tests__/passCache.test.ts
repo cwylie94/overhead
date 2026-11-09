@@ -40,7 +40,7 @@ describe('refreshPassCache', () => {
     describe('when passes are computed for London', () => {
       let result: PassCacheResult;
 
-      beforeEach(async () => {
+      beforeAll(async () => {
         result = await computePasses();
       });
 
@@ -96,7 +96,7 @@ describe('refreshPassCache', () => {
     describe('when passes are computed with a yield to the UI', () => {
       let yieldToUi: jest.Mock<Promise<void>, []>;
 
-      beforeEach(async () => {
+      beforeAll(async () => {
         yieldToUi = jest.fn(async () => {});
         await refreshPassCache(repositories, input, { force: true, yieldToUi });
       });
@@ -108,7 +108,7 @@ describe('refreshPassCache', () => {
   });
 
   describe('given passes have been computed for London', () => {
-    beforeEach(async () => {
+    beforeAll(async () => {
       await computePasses();
     });
 
@@ -130,7 +130,7 @@ describe('refreshPassCache', () => {
     describe('when a refresh is asked for without forcing it', () => {
       let result: PassCacheResult;
 
-      beforeEach(async () => {
+      beforeAll(async () => {
         result = await refreshPassCache(repositories, input, { yieldToUi: noYield });
       });
 
@@ -143,7 +143,7 @@ describe('refreshPassCache', () => {
       let before: number;
       let result: PassCacheResult;
 
-      beforeEach(async () => {
+      beforeAll(async () => {
         before = storedPasses().length;
         const controller = new AbortController();
         result = await refreshPassCache(
@@ -166,14 +166,14 @@ describe('refreshPassCache', () => {
   describe('given passes have been computed in a database of its own', () => {
     let isolated: Repositories;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       isolated = createRepositories(createTestDatabase());
       importSnapshot(isolated, bundledSnapshot);
       await computePasses(isolated);
     });
 
     describe('when new orbit data arrives', () => {
-      beforeEach(() => {
+      beforeAll(() => {
         isolated.orbits.replaceGroup('stations', [
           makeOrbit({ group: 'stations', fetchedAt: bundledSnapshot.fetchedAt + 1 }),
         ]);

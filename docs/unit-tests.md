@@ -64,13 +64,20 @@ describe('CatchScreen', () => {
 
 - A When does exactly one thing: render, press, change text, advance timers, call a store action or fire an event.
 - Rendering is the When for scenarios about what a screen shows when it opens ("when the screen opens").
-- Anything a Then needs to read is a `let` in the narrowest block that uses it, assigned in `beforeEach`. That might be a hook's `result`, a `jest.fn()` callback or the value a reducer returned. RNTL's `screen` needs none of this.
+- Anything a Then needs to read is a `let` in the narrowest block that uses it, assigned in `beforeEach` (or `beforeAll`, under Slow setup). That might be a hook's `result`, a `jest.fn()` callback or the value a reducer returned. RNTL's `screen` needs none of this.
 
 ## Then
 
 - A Then only reads and asserts. It has no setup and no actions.
 - It tests one outcome. Several `expect`s are fine when together they show that outcome.
 - Assertions follow the existing preferences: query by role first, then by text, and use `toBeOnTheScreen()` and `toBeNull()` for presence.
+
+## Slow setup
+
+- A Given or When that is slow, such as computing a night of passes or importing the snapshot into a new database, may use `beforeAll` instead of `beforeEach`. It then runs once for all its Thens instead of once per Then. This is only allowed when its Thens only read what it made.
+- Once a block uses `beforeAll`, every block inside it uses `beforeAll` too. A `beforeEach` inside would act again on state that earlier tests have already seen.
+- Jest runs a block's own Thens before the blocks nested inside it. So Thens directly under a Given see the state before any nested When has run.
+- Sibling Whens under a `beforeAll` Given share its state, so none of them may change what the others read. If one would, the Given goes back to `beforeEach`.
 
 ## Pure functions and Scenario Outlines
 
