@@ -77,6 +77,55 @@ describe('sighting repository', () => {
     expect(createOutboxRepository(db).count()).toBe(0);
   });
 
+  test('deleting a sighting removes it and queues a delete for the server', () => {
+    const sightings = createSightingRepository(db);
+    const { id } = logIssSighting();
+
+    sightings.delete(id, NOW + 2_000);
+
+    expect(sightings.getById(id)).toBeUndefined();
+    const queued = createOutboxRepository(db).listPending(10)[1];
+    expect(queued).toMatchObject({ operation: 'delete', entityId: id });
+    expect(queued?.payload).toEqual({ id, updatedAt: NOW + 2_000 });
+  });
+
+  test('deleting an unknown sighting throws and queues nothing', () => {
+    expect(() => createSightingRepository(db).delete('missing', NOW)).toThrow(
+      'Sighting missing not found',
+    );
+    expect(createOutboxRepository(db).count()).toBe(0);
+  });
+
+  test('a deletion from another device removes the local copy', () => {
+    const sightings = createSightingRepository(db);
+    const row = logIssSighting();
+    sightings.markSynced([row.id]);
+
+    const applied = sightings.applyRemote([{ ...row, note: null, deletedAt: NOW + 1_000 }]);
+
+    expect(applied).toBe(1);
+    expect(sightings.getById(row.id)).toBeUndefined();
+  });
+
+  test('a deletion of something never seen here is ignored', () => {
+    const sightings = createSightingRepository(db);
+    const applied = sightings.applyRemote([
+      {
+        id: 'elsewhere',
+        noradId: ISS_NORAD_ID,
+        observedAt: NOW,
+        verified: true,
+        angleError: null,
+        note: null,
+        updatedAt: NOW,
+        deletedAt: NOW,
+      },
+    ]);
+
+    expect(applied).toBe(0);
+    expect(sightings.listAll()).toEqual([]);
+  });
+
   test('lists sightings newest first, optionally for one satellite', () => {
     const sightings = createSightingRepository(db);
     sightings.log({ id: 'a', noradId: ISS_NORAD_ID, observedAt: NOW, verified: true }, NOW);

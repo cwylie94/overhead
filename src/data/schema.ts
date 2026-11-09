@@ -68,7 +68,7 @@ export const outbox = sqliteTable('outbox', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   entity: text('entity', { enum: ['sighting'] }).notNull(),
   entityId: text('entity_id').notNull(),
-  operation: text('operation', { enum: ['insert', 'update'] }).notNull(),
+  operation: text('operation', { enum: ['insert', 'update', 'delete'] }).notNull(),
   payload: text('payload', { mode: 'json' }).$type<Record<string, unknown>>().notNull(),
   attempts: integer('attempts').notNull().default(0),
   createdAt: integer('created_at').notNull(),

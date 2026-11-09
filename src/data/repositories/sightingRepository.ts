@@ -53,6 +53,30 @@ export function createSightingRepository(db: Database): SightingRepository {
       });
     },
 
+    delete(id, now) {
+      db.transaction((tx) => {
+        const removed = tx
+          .delete(sightings)
+          .where(eq(sightings.id, id))
+          .returning({ id: sightings.id })
+          .get();
+
+        if (!removed) {
+          throw new Error(`Sighting ${id} not found`);
+        }
+
+        tx.insert(outbox)
+          .values({
+            entity: 'sighting',
+            entityId: id,
+            operation: 'delete',
+            payload: { id, updatedAt: now },
+            createdAt: now,
+          })
+          .run();
+      });
+    },
+
     getById(id) {
       return db.select().from(sightings).where(eq(sightings.id, id)).get();
     },
@@ -73,8 +97,15 @@ export function createSightingRepository(db: Database): SightingRepository {
     applyRemote(rows) {
       return db.transaction((tx) => {
         let applied = 0;
-        for (const row of rows) {
+        for (const { deletedAt, ...row } of rows) {
           const existing = tx.select().from(sightings).where(eq(sightings.id, row.id)).get();
+          if (deletedAt != null) {
+            if (existing) {
+              tx.delete(sightings).where(eq(sightings.id, row.id)).run();
+              applied += 1;
+            }
+            continue;
+          }
           if (!existing) {
             tx.insert(sightings)
               .values({ ...row, syncStatus: 'synced' })

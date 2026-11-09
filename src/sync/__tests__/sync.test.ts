@@ -155,6 +155,36 @@ describe('sync engine against the Worker', () => {
     expect(tablet.sightings.getById('a')?.note).toBe('from the tablet');
   });
 
+  test('a deletion travels to the other device', async () => {
+    const server = createServer();
+    const phone = createDevice();
+    const tablet = createDevice();
+    catchIss(phone, 'a');
+    catchIss(phone, 'b');
+    await syncSightings(phone, server.transport, ACCOUNT);
+    await syncSightings(tablet, server.transport, ACCOUNT);
+
+    phone.sightings.delete('a', NOW + 1_000);
+    await syncSightings(phone, server.transport, ACCOUNT);
+    await syncSightings(tablet, server.transport, ACCOUNT);
+
+    expect(tablet.sightings.listAll().map((sighting) => sighting.id)).toEqual(['b']);
+    expect(phone.outbox.count()).toBe(0);
+  });
+
+  test('a sighting deleted before it ever synced never reaches the other device', async () => {
+    const server = createServer();
+    const phone = createDevice();
+    const tablet = createDevice();
+    catchIss(phone, 'a');
+    phone.sightings.delete('a', NOW + 1_000);
+
+    await syncSightings(phone, server.transport, ACCOUNT);
+    await syncSightings(tablet, server.transport, ACCOUNT);
+
+    expect(tablet.sightings.listAll()).toEqual([]);
+  });
+
   test('an unpushed local edit is not overwritten by a pull', async () => {
     const server = createServer();
     const phone = createDevice();

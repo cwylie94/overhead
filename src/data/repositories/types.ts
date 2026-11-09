@@ -38,6 +38,7 @@ export type NewLoggedSighting = Omit<NewSighting, 'updatedAt' | 'syncStatus'>;
 export type SightingRepository = {
   log(sighting: NewLoggedSighting, now: number): Sighting;
   updateNote(id: string, note: string | null, now: number): void;
+  delete(id: string, now: number): void;
   getById(id: string): Sighting | undefined;
   listAll(): Sighting[];
   listForSatellite(noradId: number): Sighting[];
@@ -53,6 +54,7 @@ export type RemoteSighting = {
   angleError: number | null;
   note: string | null;
   updatedAt: number;
+  deletedAt?: number | null;
 };
 
 export type OutboxRepository = {
