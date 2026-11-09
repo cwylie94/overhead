@@ -36,15 +36,7 @@ jest.mock('expo-sensors', () => ({
   },
 }));
 
-jest.mock('react-native-reanimated', () => {
-  const { useRef } = jest.requireActual<typeof import('react')>('react');
-  return {
-    useSharedValue: <T,>(initial: T) => {
-      const value = useRef(initial);
-      return useRef({ get: () => value.current, set: (next: T) => (value.current = next) }).current;
-    },
-  };
-});
+jest.mock('react-native-reanimated', () => jest.requireActual('@/testing/reanimated'));
 
 jest.mock('expo-location', () => ({
   watchHeadingAsync: jest.fn(),
