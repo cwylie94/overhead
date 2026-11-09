@@ -1,4 +1,6 @@
 import { createRepositories } from '../../repositories';
+import type { Repositories } from '../../repositories/types';
+import type { Sighting } from '../../schema';
 import { createTestDatabase } from '../../testing/createTestDatabase';
 import { logSighting } from '../logSighting';
 
@@ -10,29 +12,49 @@ const context = {
 };
 
 describe('logSighting', () => {
-  test('stores a catch with a time-ordered ID', () => {
-    const repositories = createRepositories(createTestDatabase());
+  describe('given an empty database', () => {
+    let repositories: Repositories;
 
-    const sighting = logSighting(
-      repositories,
-      { noradId: 25544, observedAt: NOW, angleError: 4.2 },
-      context,
-    );
-
-    expect(sighting.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7/);
-    expect(repositories.sightings.getById(sighting.id)).toMatchObject({
-      noradId: 25544,
-      angleError: 4.2,
+    beforeEach(() => {
+      repositories = createRepositories(createTestDatabase());
     });
-  });
 
-  test('two sightings in the same millisecond get different IDs', () => {
-    const repositories = createRepositories(createTestDatabase());
-    const input = { noradId: 25544, observedAt: NOW, angleError: 1 };
+    describe('when the user logs a catch', () => {
+      let sighting: Sighting;
 
-    const first = logSighting(repositories, input, context);
-    const second = logSighting(repositories, input, context);
+      beforeEach(() => {
+        sighting = logSighting(
+          repositories,
+          { noradId: 25544, observedAt: NOW, angleError: 4.2 },
+          context,
+        );
+      });
 
-    expect(first.id).not.toBe(second.id);
+      test('then the catch gets a time-ordered ID', () => {
+        expect(sighting.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7/);
+      });
+
+      test('then the catch is stored', () => {
+        expect(repositories.sightings.getById(sighting.id)).toMatchObject({
+          noradId: 25544,
+          angleError: 4.2,
+        });
+      });
+    });
+
+    describe('when the user logs two catches in the same millisecond', () => {
+      let first: Sighting;
+      let second: Sighting;
+
+      beforeEach(() => {
+        const input = { noradId: 25544, observedAt: NOW, angleError: 1 };
+        first = logSighting(repositories, input, context);
+        second = logSighting(repositories, input, context);
+      });
+
+      test('then they get different IDs', () => {
+        expect(first.id).not.toBe(second.id);
+      });
+    });
   });
 });

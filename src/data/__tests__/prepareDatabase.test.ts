@@ -18,39 +18,75 @@ beforeEach(() => {
 });
 
 describe('prepareDatabase', () => {
-  test('migrates, then imports the bundled snapshot', async () => {
-    const data = appData('device');
-    const order: string[] = [];
-    jest.mocked(migrate).mockImplementation(async () => {
-      order.push('migrate');
-    });
-    jest.mocked(importSnapshot).mockImplementation(() => {
-      order.push('import');
-      return { catalogueImported: false, groupsImported: [] } as unknown as ReturnType<
-        typeof importSnapshot
-      >;
+  describe('given a device database that has not been prepared', () => {
+    let data: AppData;
+    let order: string[];
+
+    beforeEach(() => {
+      data = appData('device');
+      order = [];
+      jest.mocked(migrate).mockImplementation(async () => {
+        order.push('migrate');
+      });
+      jest.mocked(importSnapshot).mockImplementation(() => {
+        order.push('import');
+        return { catalogueImported: false, groupsImported: [] } as unknown as ReturnType<
+          typeof importSnapshot
+        >;
+      });
     });
 
-    await prepareDatabase(data);
+    describe('when it is prepared', () => {
+      beforeEach(async () => {
+        await prepareDatabase(data);
+      });
 
-    expect(order).toEqual(['migrate', 'import']);
-    expect(migrate).toHaveBeenCalledWith(data.db, expect.anything());
-    expect(importSnapshot).toHaveBeenCalledWith(data.repositories, bundledSnapshot);
+      test('then it migrates before importing the bundled snapshot', () => {
+        expect(order).toEqual(['migrate', 'import']);
+      });
+
+      test('then it migrates that database', () => {
+        expect(migrate).toHaveBeenCalledWith(data.db, expect.anything());
+      });
+
+      test('then it imports the bundled snapshot into its repositories', () => {
+        expect(importSnapshot).toHaveBeenCalledWith(data.repositories, bundledSnapshot);
+      });
+    });
   });
 
-  test('prepares each database once, however often it is asked', async () => {
-    const data = appData('device');
+  describe('given a device database', () => {
+    let data: AppData;
 
-    await Promise.all([prepareDatabase(data), prepareDatabase(data)]);
-    await prepareDatabase(data);
+    beforeEach(() => {
+      data = appData('device');
+    });
 
-    expect(migrate).toHaveBeenCalledTimes(1);
+    describe('when it is asked to prepare twice at once and then again', () => {
+      beforeEach(async () => {
+        await Promise.all([prepareDatabase(data), prepareDatabase(data)]);
+        await prepareDatabase(data);
+      });
+
+      test('then it is migrated once', () => {
+        expect(migrate).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
-  test('prepares a new demo database again', async () => {
-    await prepareDatabase(appData('demo-1'));
-    await prepareDatabase(appData('demo-2'));
+  describe('given a demo database has been prepared', () => {
+    beforeEach(async () => {
+      await prepareDatabase(appData('demo-1'));
+    });
 
-    expect(migrate).toHaveBeenCalledTimes(2);
+    describe('when a new demo database is prepared', () => {
+      beforeEach(async () => {
+        await prepareDatabase(appData('demo-2'));
+      });
+
+      test('then the new one is migrated too', () => {
+        expect(migrate).toHaveBeenCalledTimes(2);
+      });
+    });
   });
 });

@@ -33,61 +33,119 @@ async function renderGate() {
   );
 }
 
+async function openTheApp() {
+  await renderGate();
+  await act(async () => {});
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
 describe('DatabaseGate', () => {
-  test('keeps the splash screen up while the database is prepared', async () => {
-    const preparation = deferred();
-    jest.mocked(prepareDatabase).mockReturnValue(preparation.promise);
+  describe('given the database is still being prepared', () => {
+    beforeEach(() => {
+      jest.mocked(prepareDatabase).mockReturnValue(deferred().promise);
+    });
 
-    await renderGate();
+    describe('when the app opens', () => {
+      beforeEach(async () => {
+        await renderGate();
+      });
 
-    expect(prepareDatabase).toHaveBeenCalledWith(data);
-    expect(screen.queryByText('Tonight')).toBeNull();
-    expect(SplashScreen.hideAsync).not.toHaveBeenCalled();
+      test('then it prepares the database', () => {
+        expect(prepareDatabase).toHaveBeenCalledWith(data);
+      });
+
+      test('then it does not show the app yet', () => {
+        expect(screen.queryByText('Tonight')).toBeNull();
+      });
+
+      test('then it keeps the splash screen up', () => {
+        expect(SplashScreen.hideAsync).not.toHaveBeenCalled();
+      });
+    });
   });
 
-  test('shows the app and hides the splash screen once the database is ready', async () => {
-    const preparation = deferred();
-    jest.mocked(prepareDatabase).mockReturnValue(preparation.promise);
-    await renderGate();
+  describe('given the app opened while the database was being prepared', () => {
+    let preparation: ReturnType<typeof deferred>;
 
-    await act(async () => preparation.resolve());
+    beforeEach(async () => {
+      preparation = deferred();
+      jest.mocked(prepareDatabase).mockReturnValue(preparation.promise);
+      await renderGate();
+    });
 
-    expect(screen.getByText('Tonight')).toBeOnTheScreen();
-    expect(SplashScreen.hideAsync).toHaveBeenCalled();
+    describe('when the database is ready', () => {
+      beforeEach(async () => {
+        await act(async () => preparation.resolve());
+      });
+
+      test('then it shows the app', () => {
+        expect(screen.getByText('Tonight')).toBeOnTheScreen();
+      });
+
+      test('then it hides the splash screen', () => {
+        expect(SplashScreen.hideAsync).toHaveBeenCalled();
+      });
+    });
   });
 
-  test('explains a database that could not be opened', async () => {
-    jest.mocked(prepareDatabase).mockRejectedValue(new Error('disk full'));
+  describe('given the database cannot be opened', () => {
+    beforeEach(() => {
+      jest.mocked(prepareDatabase).mockRejectedValue(new Error('disk full'));
+    });
 
-    await renderGate();
-    await act(async () => {});
+    describe('when the app opens', () => {
+      beforeEach(async () => {
+        await openTheApp();
+      });
 
-    expect(screen.getByText("Couldn't open the database")).toBeOnTheScreen();
-    expect(screen.getByText('disk full')).toBeOnTheScreen();
-    expect(SplashScreen.hideAsync).toHaveBeenCalled();
+      test('then it explains that the database could not be opened', () => {
+        expect(screen.getByText("Couldn't open the database")).toBeOnTheScreen();
+        expect(screen.getByText('disk full')).toBeOnTheScreen();
+      });
+
+      test('then it hides the splash screen', () => {
+        expect(SplashScreen.hideAsync).toHaveBeenCalled();
+      });
+    });
   });
 
-  test('reports a failure that is not an Error', async () => {
-    jest.mocked(prepareDatabase).mockRejectedValue('locked');
+  describe('given preparing the database fails with something that is not an Error', () => {
+    beforeEach(() => {
+      jest.mocked(prepareDatabase).mockRejectedValue('locked');
+    });
 
-    await renderGate();
-    await act(async () => {});
+    describe('when the app opens', () => {
+      beforeEach(async () => {
+        await openTheApp();
+      });
 
-    expect(screen.getByText('locked')).toBeOnTheScreen();
+      test('then it shows what went wrong', () => {
+        expect(screen.getByText('locked')).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('ignores a preparation that finishes after it has gone', async () => {
-    const preparation = deferred();
-    jest.mocked(prepareDatabase).mockReturnValue(preparation.promise);
-    const { unmount } = await renderGate();
+  describe('given the app opened and closed while the database was being prepared', () => {
+    let preparation: ReturnType<typeof deferred>;
 
-    await act(async () => unmount());
-    await act(async () => preparation.resolve());
+    beforeEach(async () => {
+      preparation = deferred();
+      jest.mocked(prepareDatabase).mockReturnValue(preparation.promise);
+      const { unmount } = await renderGate();
+      await act(async () => unmount());
+    });
 
-    expect(SplashScreen.hideAsync).not.toHaveBeenCalled();
+    describe('when the database is ready', () => {
+      beforeEach(async () => {
+        await act(async () => preparation.resolve());
+      });
+
+      test('then it leaves the splash screen alone', () => {
+        expect(SplashScreen.hideAsync).not.toHaveBeenCalled();
+      });
+    });
   });
 });

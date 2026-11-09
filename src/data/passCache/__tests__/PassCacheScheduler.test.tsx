@@ -56,6 +56,12 @@ async function renderScheduler() {
   return render(<Providers>{null}</Providers>);
 }
 
+function renderPassCacheHook() {
+  return renderHook(() => usePassCache(), { wrapper: Providers });
+}
+
+type PassCacheHook = Awaited<ReturnType<typeof renderPassCacheHook>>;
+
 beforeEach(() => {
   jest.useFakeTimers();
   now = Date.UTC(2026, 10, 8, 20, 0);
@@ -69,83 +75,181 @@ afterEach(() => {
 });
 
 describe('PassCacheProvider', () => {
-  test('waits for a location before computing passes', async () => {
-    await renderScheduler();
+  describe('given the location is still being found', () => {
+    beforeEach(() => {
+      mockLocation = { status: 'locating' };
+    });
 
-    expect(runner.request).not.toHaveBeenCalled();
+    describe('when the app starts', () => {
+      beforeEach(async () => {
+        await renderScheduler();
+      });
+
+      test('then it waits for a location before computing passes', () => {
+        expect(runner.request).not.toHaveBeenCalled();
+      });
+    });
   });
 
-  test('computes passes for the observer and minimum elevation', async () => {
-    mockLocation = { status: 'ready', observer: LONDON };
+  describe('given the user is in London with a minimum elevation of 10°', () => {
+    beforeEach(() => {
+      mockLocation = { status: 'ready', observer: LONDON };
+      useSettingsStore.setState({ minElevation: 10 });
+    });
 
-    await renderScheduler();
+    describe('when the app starts', () => {
+      beforeEach(async () => {
+        await renderScheduler();
+      });
 
-    expect(runner.request).toHaveBeenCalledWith({ observer: LONDON, minElevation: 10, now });
+      test('then it computes passes for that place and minimum elevation, now', () => {
+        expect(runner.request).toHaveBeenCalledWith({ observer: LONDON, minElevation: 10, now });
+      });
+    });
   });
 
-  test('recomputes when the location or minimum elevation changes', async () => {
-    mockLocation = { status: 'ready', observer: LONDON };
-    const { rerender } = await renderScheduler();
+  describe('given passes were computed for London at 10°', () => {
+    let rerender: Awaited<ReturnType<typeof renderScheduler>>['rerender'];
 
-    mockLocation = { status: 'ready', observer: MADRID };
-    await rerender(<Providers>{null}</Providers>);
-    await act(async () => useSettingsStore.setState({ minElevation: 20 }));
+    beforeEach(async () => {
+      mockLocation = { status: 'ready', observer: LONDON };
+      useSettingsStore.setState({ minElevation: 10 });
+      ({ rerender } = await renderScheduler());
+    });
 
-    expect(runner.request.mock.calls.map(([input]) => input)).toEqual([
-      expect.objectContaining({ observer: LONDON, minElevation: 10 }),
-      expect.objectContaining({ observer: MADRID, minElevation: 10 }),
-      expect.objectContaining({ observer: MADRID, minElevation: 20 }),
-    ]);
+    describe('when the user’s location changes to Madrid', () => {
+      beforeEach(async () => {
+        mockLocation = { status: 'ready', observer: MADRID };
+        await rerender(<Providers>{null}</Providers>);
+      });
+
+      test('then it recomputes for Madrid', () => {
+        expect(runner.request.mock.calls.map(([input]) => input)).toEqual([
+          expect.objectContaining({ observer: LONDON, minElevation: 10 }),
+          expect.objectContaining({ observer: MADRID, minElevation: 10 }),
+        ]);
+      });
+    });
+
+    describe('when ten minutes pass', () => {
+      beforeEach(async () => {
+        now += 10 * MINUTE;
+        await act(async () => jest.advanceTimersByTime(10 * MINUTE));
+      });
+
+      test('then it checks again', () => {
+        expect(runner.request).toHaveBeenCalledTimes(2);
+      });
+
+      test('then it checks for the new time', () => {
+        expect(runner.request).toHaveBeenLastCalledWith(expect.objectContaining({ now }));
+      });
+    });
   });
 
-  test('checks again every ten minutes', async () => {
-    mockLocation = { status: 'ready', observer: LONDON };
-    await renderScheduler();
+  describe('given passes were computed for London at 10° and then for Madrid', () => {
+    beforeEach(async () => {
+      mockLocation = { status: 'ready', observer: LONDON };
+      useSettingsStore.setState({ minElevation: 10 });
+      const { rerender } = await renderScheduler();
+      mockLocation = { status: 'ready', observer: MADRID };
+      await rerender(<Providers>{null}</Providers>);
+    });
 
-    now += 10 * MINUTE;
-    await act(async () => jest.advanceTimersByTime(10 * MINUTE));
+    describe('when the user sets the minimum elevation to 20°', () => {
+      beforeEach(async () => {
+        await act(async () => useSettingsStore.setState({ minElevation: 20 }));
+      });
 
-    expect(runner.request).toHaveBeenCalledTimes(2);
-    expect(runner.request).toHaveBeenLastCalledWith(expect.objectContaining({ now }));
+      test('then it recomputes for the new minimum elevation', () => {
+        expect(runner.request.mock.calls.map(([input]) => input)).toEqual([
+          expect.objectContaining({ observer: LONDON, minElevation: 10 }),
+          expect.objectContaining({ observer: MADRID, minElevation: 10 }),
+          expect.objectContaining({ observer: MADRID, minElevation: 20 }),
+        ]);
+      });
+    });
   });
 });
 
 describe('usePassCache', () => {
-  test('follows the runner state', async () => {
-    const { result } = await renderHook(() => usePassCache(), { wrapper: Providers });
+  describe('given the hook is in use while the location is still being found', () => {
+    let hook: PassCacheHook;
 
-    await act(async () =>
-      runner.publish({ status: 'computing', computedAt: null, settledAt: null, replacing: true }),
-    );
+    beforeEach(async () => {
+      mockLocation = { status: 'locating' };
+      hook = await renderPassCacheHook();
+    });
 
-    expect(result.current.state).toMatchObject({ status: 'computing', replacing: true });
+    describe('when the runner starts computing', () => {
+      beforeEach(async () => {
+        await act(async () =>
+          runner.publish({
+            status: 'computing',
+            computedAt: null,
+            settledAt: null,
+            replacing: true,
+          }),
+        );
+      });
+
+      test('then it follows the runner state', () => {
+        expect(hook.result.current.state).toMatchObject({ status: 'computing', replacing: true });
+      });
+    });
+
+    describe('when the user refreshes', () => {
+      beforeEach(async () => {
+        await act(() => hook.result.current.refresh());
+      });
+
+      test('then it has nothing to refresh', () => {
+        expect(runner.request).not.toHaveBeenCalled();
+      });
+    });
   });
 
-  test('forces a recompute on refresh', async () => {
-    mockLocation = { status: 'ready', observer: LONDON };
-    const { result } = await renderHook(() => usePassCache(), { wrapper: Providers });
+  describe('given the hook is in use in London with a minimum elevation of 10°', () => {
+    let hook: PassCacheHook;
 
-    await act(() => result.current.refresh());
+    beforeEach(async () => {
+      mockLocation = { status: 'ready', observer: LONDON };
+      useSettingsStore.setState({ minElevation: 10 });
+      hook = await renderPassCacheHook();
+    });
 
-    expect(runner.request).toHaveBeenLastCalledWith(
-      { observer: LONDON, minElevation: 10, now },
-      true,
-    );
+    describe('when the user refreshes', () => {
+      beforeEach(async () => {
+        await act(() => hook.result.current.refresh());
+      });
+
+      test('then it forces a recompute', () => {
+        expect(runner.request).toHaveBeenLastCalledWith(
+          { observer: LONDON, minElevation: 10, now },
+          true,
+        );
+      });
+    });
   });
 
-  test('has nothing to refresh without a location', async () => {
-    const { result } = await renderHook(() => usePassCache(), { wrapper: Providers });
+  describe('given there is no PassCacheProvider', () => {
+    beforeEach(() => {
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
 
-    await act(() => result.current.refresh());
+    describe('when the hook is used', () => {
+      let rendering: Promise<unknown>;
 
-    expect(runner.request).not.toHaveBeenCalled();
-  });
+      beforeEach(() => {
+        rendering = renderHook(() => usePassCache());
+        rendering.catch(() => {});
+      });
 
-  test('must be used inside the provider', async () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-
-    await expect(renderHook(() => usePassCache())).rejects.toThrow(
-      'usePassCache must be used inside a PassCacheProvider',
-    );
+      test('then it says it must be used inside the provider', async () => {
+        await expect(rendering).rejects.toThrow(
+          'usePassCache must be used inside a PassCacheProvider',
+        );
+      });
+    });
   });
 });

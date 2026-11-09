@@ -1,11 +1,12 @@
 import { london, skyfield } from '@/domain/testing/skyfieldFixture';
 
-import { createRepositories } from '../../repositories';
+import { createRepositories, type Repositories } from '../../repositories';
 import { bundledSnapshot, importSnapshot } from '../../snapshot';
 import { createTestDatabase } from '../../testing/createTestDatabase';
-import { createPassCacheRunner } from '../runner';
+import { createPassCacheRunner, type PassCacheRunner } from '../runner';
 
 const input = { observer: london, minElevation: 10, now: skyfield.window.start };
+const REYKJAVIK_INPUT = { ...input, observer: { ...input.observer, latitude: 64.1 } };
 
 function setup() {
   const repositories = createRepositories(createTestDatabase());
@@ -13,102 +14,269 @@ function setup() {
   return repositories;
 }
 
-describe('pass cache runner', () => {
-  test('reports computing then idle with the time it computed for', async () => {
-    const runner = createPassCacheRunner(setup(), { yieldToUi: async () => {} });
-    const seen: string[] = [];
-    runner.subscribe(() => seen.push(runner.getState().status));
+function runnerFor(repositories: Repositories) {
+  return createPassCacheRunner(repositories, { yieldToUi: async () => {} });
+}
 
-    await runner.request(input);
+describe('createPassCacheRunner', () => {
+  describe('given a runner on a newly imported database, watched for its status', () => {
+    let runner: PassCacheRunner;
+    let seen: string[];
 
-    expect(seen).toEqual(['computing', 'idle']);
-    expect(runner.getState()).toMatchObject({ status: 'idle', computedAt: input.now });
-  });
-
-  test('says a run replaces the list when the place or orbits differ from what is stored', async () => {
-    const runner = createPassCacheRunner(setup(), { yieldToUi: async () => {} });
-    const replacing: boolean[] = [];
-    runner.subscribe(() => replacing.push(runner.getState().replacing));
-
-    await runner.request(input);
-    await runner.request(input, true);
-    await runner.request({ ...input, observer: { ...input.observer, latitude: 64.1 } });
-
-    expect(replacing).toEqual([true, true, false, false, true, true]);
-  });
-
-  test('marks each finished run, and a fresh cache once, as settled', async () => {
-    const repositories = setup();
-    const first = createPassCacheRunner(repositories, { yieldToUi: async () => {} });
-    await first.request(input);
-    const afterRun = first.getState().settledAt!;
-
-    const reopened = createPassCacheRunner(repositories, { yieldToUi: async () => {} });
-    expect(reopened.getState().settledAt).toBeNull();
-    await reopened.request(input);
-    const afterFreshCheck = reopened.getState().settledAt!;
-    await reopened.request(input);
-
-    expect(afterFreshCheck).toBeGreaterThan(afterRun);
-    expect(reopened.getState().settledAt).toBe(afterFreshCheck);
-    expect(reopened.getState().status).toBe('idle');
-  });
-
-  test('does nothing while the cache is fresh, unless forced', async () => {
-    const runner = createPassCacheRunner(setup(), { yieldToUi: async () => {} });
-    await runner.request(input);
-    const listener = jest.fn();
-    runner.subscribe(listener);
-
-    await runner.request(input);
-    expect(listener).not.toHaveBeenCalled();
-
-    await runner.request(input, true);
-    expect(listener).toHaveBeenCalledTimes(2);
-  });
-
-  test('a newer request cancels one still running', async () => {
-    const repositories = setup();
-    let releaseFirst: () => void = () => {};
-    let calls = 0;
-    const runner = createPassCacheRunner(repositories, {
-      yieldToUi: () =>
-        new Promise<void>((resolve) => {
-          calls += 1;
-          if (calls === 1) {
-            releaseFirst = resolve;
-          } else {
-            resolve();
-          }
-        }),
+    beforeEach(() => {
+      runner = runnerFor(setup());
+      seen = [];
+      runner.subscribe(() => seen.push(runner.getState().status));
     });
 
-    const first = runner.request({ ...input, minElevation: 40 });
-    const second = runner.request({ ...input, minElevation: 10 }, true);
-    releaseFirst();
-    await Promise.all([first, second]);
+    describe('when passes are requested for London', () => {
+      beforeEach(async () => {
+        await runner.request(input);
+      });
 
-    expect(repositories.syncMeta.get('passes.key')).toContain('|10');
-    expect(runner.getState().status).toBe('idle');
+      test('then it reports computing, then idle', () => {
+        expect(seen).toEqual(['computing', 'idle']);
+      });
+
+      test('then it is idle with the time it computed for', () => {
+        expect(runner.getState()).toMatchObject({ status: 'idle', computedAt: input.now });
+      });
+    });
   });
 
-  test('reports errors', async () => {
-    const repositories = setup();
-    const runner = createPassCacheRunner(
-      {
-        ...repositories,
-        passes: {
-          ...repositories.passes,
-          replaceAll: () => {
-            throw new Error('disk full');
+  describe('given a runner on a newly imported database, watched for whether runs replace the list', () => {
+    let runner: PassCacheRunner;
+    let replacing: boolean[];
+
+    beforeEach(() => {
+      runner = runnerFor(setup());
+      replacing = [];
+      runner.subscribe(() => replacing.push(runner.getState().replacing));
+    });
+
+    describe('when passes are requested for London', () => {
+      beforeEach(async () => {
+        await runner.request(input);
+      });
+
+      test('then the run says it replaces the list', () => {
+        expect(replacing).toEqual([true, true]);
+      });
+    });
+  });
+
+  describe('given a runner that has computed passes for London, watched for whether runs replace the list', () => {
+    let runner: PassCacheRunner;
+    let replacing: boolean[];
+
+    beforeEach(async () => {
+      runner = runnerFor(setup());
+      await runner.request(input);
+      replacing = [];
+      runner.subscribe(() => replacing.push(runner.getState().replacing));
+    });
+
+    describe('when a recompute is forced for London', () => {
+      beforeEach(async () => {
+        await runner.request(input, true);
+      });
+
+      test('then the run says it keeps the list', () => {
+        expect(replacing).toEqual([false, false]);
+      });
+    });
+  });
+
+  describe('given a runner that has computed and recomputed passes for London, watched for whether runs replace the list', () => {
+    let runner: PassCacheRunner;
+    let replacing: boolean[];
+
+    beforeEach(async () => {
+      runner = runnerFor(setup());
+      await runner.request(input);
+      await runner.request(input, true);
+      replacing = [];
+      runner.subscribe(() => replacing.push(runner.getState().replacing));
+    });
+
+    describe('when passes are requested for Reykjavik', () => {
+      beforeEach(async () => {
+        await runner.request(REYKJAVIK_INPUT);
+      });
+
+      test('then the run says it replaces the list', () => {
+        expect(replacing).toEqual([true, true]);
+      });
+    });
+  });
+
+  describe('given one runner has computed passes and a new runner opens on the same database', () => {
+    let afterRun: number;
+    let reopened: PassCacheRunner;
+
+    beforeEach(async () => {
+      const repositories = setup();
+      const first = runnerFor(repositories);
+      await first.request(input);
+      afterRun = first.getState().settledAt!;
+      reopened = runnerFor(repositories);
+    });
+
+    test('then the new runner has not settled', () => {
+      expect(reopened.getState().settledAt).toBeNull();
+    });
+
+    describe('when the new runner finds the cache fresh', () => {
+      beforeEach(async () => {
+        await reopened.request(input);
+      });
+
+      test('then it settles after the first run', () => {
+        expect(reopened.getState().settledAt!).toBeGreaterThan(afterRun);
+      });
+    });
+  });
+
+  describe('given a new runner on a computed database has already found the cache fresh', () => {
+    let reopened: PassCacheRunner;
+    let afterFreshCheck: number;
+
+    beforeEach(async () => {
+      const repositories = setup();
+      await runnerFor(repositories).request(input);
+      reopened = runnerFor(repositories);
+      await reopened.request(input);
+      afterFreshCheck = reopened.getState().settledAt!;
+    });
+
+    describe('when it finds the cache fresh again', () => {
+      beforeEach(async () => {
+        await reopened.request(input);
+      });
+
+      test('then it keeps the time it first settled', () => {
+        expect(reopened.getState().settledAt).toBe(afterFreshCheck);
+      });
+
+      test('then it is idle', () => {
+        expect(reopened.getState().status).toBe('idle');
+      });
+    });
+  });
+
+  describe('given a runner that has computed passes, with a listener', () => {
+    let runner: PassCacheRunner;
+    let listener: jest.Mock;
+
+    beforeEach(async () => {
+      runner = runnerFor(setup());
+      await runner.request(input);
+      listener = jest.fn();
+      runner.subscribe(listener);
+    });
+
+    describe('when the same passes are requested again', () => {
+      beforeEach(async () => {
+        await runner.request(input);
+      });
+
+      test('then it does nothing while the cache is fresh', () => {
+        expect(listener).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('given a runner that has computed passes and was asked again while fresh, with a listener', () => {
+    let runner: PassCacheRunner;
+    let listener: jest.Mock;
+
+    beforeEach(async () => {
+      runner = runnerFor(setup());
+      await runner.request(input);
+      listener = jest.fn();
+      runner.subscribe(listener);
+      await runner.request(input);
+    });
+
+    describe('when a recompute is forced', () => {
+      beforeEach(async () => {
+        await runner.request(input, true);
+      });
+
+      test('then it computes again', () => {
+        expect(listener).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe('given a run for 40° held at its first yield to the UI', () => {
+    let repositories: Repositories;
+    let runner: PassCacheRunner;
+    let releaseFirst: () => void;
+    let first: Promise<void>;
+
+    beforeEach(() => {
+      repositories = setup();
+      releaseFirst = () => {};
+      let calls = 0;
+      runner = createPassCacheRunner(repositories, {
+        yieldToUi: () =>
+          new Promise<void>((resolve) => {
+            calls += 1;
+            if (calls === 1) {
+              releaseFirst = resolve;
+            } else {
+              resolve();
+            }
+          }),
+      });
+      first = runner.request({ ...input, minElevation: 40 });
+    });
+
+    describe('when a newer request for 10° arrives and the first run is released', () => {
+      beforeEach(async () => {
+        const second = runner.request({ ...input, minElevation: 10 }, true);
+        releaseFirst();
+        await Promise.all([first, second]);
+      });
+
+      test('then the passes stored are for the newer request', () => {
+        expect(repositories.syncMeta.get('passes.key')).toContain('|10');
+      });
+
+      test('then it is idle', () => {
+        expect(runner.getState().status).toBe('idle');
+      });
+    });
+  });
+
+  describe('given a runner whose database cannot store passes', () => {
+    let runner: PassCacheRunner;
+
+    beforeEach(() => {
+      const repositories = setup();
+      runner = createPassCacheRunner(
+        {
+          ...repositories,
+          passes: {
+            ...repositories.passes,
+            replaceAll: () => {
+              throw new Error('disk full');
+            },
           },
         },
-      },
-      { yieldToUi: async () => {} },
-    );
+        { yieldToUi: async () => {} },
+      );
+    });
 
-    await runner.request(input);
+    describe('when passes are requested', () => {
+      beforeEach(async () => {
+        await runner.request(input);
+      });
 
-    expect(runner.getState()).toMatchObject({ status: 'error', error: new Error('disk full') });
+      test('then it reports the error', () => {
+        expect(runner.getState()).toMatchObject({ status: 'error', error: new Error('disk full') });
+      });
+    });
   });
 });

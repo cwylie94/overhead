@@ -29,6 +29,12 @@ function fakeQuery(results: unknown[][]) {
   return { query: { _: {}, then, config: { table: passes } } as never, then };
 }
 
+function mountLiveQuery(query: never) {
+  return renderHook(() => useLiveQuery(query));
+}
+
+type LiveQueryHook = Awaited<ReturnType<typeof mountLiveQuery>>;
+
 beforeEach(() => {
   mockListeners.clear();
   jest.useFakeTimers();
@@ -36,53 +42,113 @@ beforeEach(() => {
 afterEach(() => jest.useRealTimers());
 
 describe('useLiveQuery', () => {
-  test('loads once on mount', async () => {
-    const { query, then } = fakeQuery([[{ id: 1 }]]);
-    const { result } = await renderHook(() => useLiveQuery(query));
+  describe('given a query that returns one row', () => {
+    let fake: ReturnType<typeof fakeQuery>;
 
-    expect(then).toHaveBeenCalledTimes(1);
-    expect(result.current.data).toEqual([{ id: 1 }]);
-    expect(result.current.loadedAt).not.toBeNull();
+    beforeEach(() => {
+      fake = fakeQuery([[{ id: 1 }]]);
+    });
+
+    describe('when the hook mounts', () => {
+      let hook: LiveQueryHook;
+
+      beforeEach(async () => {
+        hook = await mountLiveQuery(fake.query);
+      });
+
+      test('then it loads once', () => {
+        expect(fake.then).toHaveBeenCalledTimes(1);
+      });
+
+      test('then it returns the row', () => {
+        expect(hook.result.current.data).toEqual([{ id: 1 }]);
+      });
+
+      test('then it records when it loaded', () => {
+        expect(hook.result.current.loadedAt).not.toBeNull();
+      });
+    });
   });
 
-  test('reloads once after a burst of row changes, not once per row', async () => {
-    const { query, then } = fakeQuery([[], [{ id: 2 }]]);
-    const { result } = await renderHook(() => useLiveQuery(query));
-    const firstLoad = result.current.loadedAt!;
+  describe('given the hook has loaded no passes and the next load returns one', () => {
+    let fake: ReturnType<typeof fakeQuery>;
+    let hook: LiveQueryHook;
+    let firstLoad: number;
 
-    await act(async () => {
-      for (let row = 0; row < 400; row++) {
+    beforeEach(async () => {
+      fake = fakeQuery([[], [{ id: 2 }]]);
+      hook = await mountLiveQuery(fake.query);
+      firstLoad = hook.result.current.loadedAt!;
+    });
+
+    describe('when a burst of 400 pass rows changes and settles', () => {
+      beforeEach(async () => {
+        await act(async () => {
+          for (let row = 0; row < 400; row++) {
+            change('passes');
+          }
+          jest.advanceTimersByTime(LIVE_QUERY_SETTLE_MS);
+        });
+      });
+
+      test('then it reloads once, not once per row', () => {
+        expect(fake.then).toHaveBeenCalledTimes(2);
+      });
+
+      test('then it returns the new rows', () => {
+        expect(hook.result.current.data).toEqual([{ id: 2 }]);
+      });
+
+      test('then it records a later load time', () => {
+        expect(hook.result.current.loadedAt).toBeGreaterThan(firstLoad);
+      });
+    });
+  });
+
+  describe('given the hook has loaded the passes', () => {
+    let fake: ReturnType<typeof fakeQuery>;
+
+    beforeEach(async () => {
+      fake = fakeQuery([[]]);
+      await mountLiveQuery(fake.query);
+    });
+
+    describe('when another table changes and settles', () => {
+      beforeEach(async () => {
+        await act(async () => {
+          change('orbits');
+          jest.advanceTimersByTime(LIVE_QUERY_SETTLE_MS);
+        });
+      });
+
+      test('then it does not reload', () => {
+        expect(fake.then).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe('given the hook loaded the passes and then unmounted', () => {
+    let fake: ReturnType<typeof fakeQuery>;
+
+    beforeEach(async () => {
+      fake = fakeQuery([[]]);
+      const { unmount } = await mountLiveQuery(fake.query);
+      await act(async () => unmount());
+    });
+
+    describe('when a pass row changes and settles', () => {
+      beforeEach(() => {
         change('passes');
-      }
-      jest.advanceTimersByTime(LIVE_QUERY_SETTLE_MS);
+        jest.advanceTimersByTime(LIVE_QUERY_SETTLE_MS);
+      });
+
+      test('then it no longer listens for changes', () => {
+        expect(mockListeners.size).toBe(0);
+      });
+
+      test('then it does not reload', () => {
+        expect(fake.then).toHaveBeenCalledTimes(1);
+      });
     });
-
-    expect(then).toHaveBeenCalledTimes(2);
-    expect(result.current.data).toEqual([{ id: 2 }]);
-    expect(result.current.loadedAt).toBeGreaterThan(firstLoad);
-  });
-
-  test('ignores changes to other tables', async () => {
-    const { query, then } = fakeQuery([[]]);
-    await renderHook(() => useLiveQuery(query));
-
-    await act(async () => {
-      change('orbits');
-      jest.advanceTimersByTime(LIVE_QUERY_SETTLE_MS);
-    });
-
-    expect(then).toHaveBeenCalledTimes(1);
-  });
-
-  test('stops listening when unmounted', async () => {
-    const { query, then } = fakeQuery([[]]);
-    const { unmount } = await renderHook(() => useLiveQuery(query));
-
-    await act(async () => unmount());
-    change('passes');
-    jest.advanceTimersByTime(LIVE_QUERY_SETTLE_MS);
-
-    expect(mockListeners.size).toBe(0);
-    expect(then).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,68 +1,140 @@
-import { coalesce } from '../coalesce';
+import { type Coalesced, coalesce } from '../coalesce';
+
+let run: jest.Mock;
+let reload: Coalesced;
+
+function startCoalescing() {
+  run = jest.fn();
+  reload = coalesce(run, 50, 500);
+}
 
 beforeEach(() => jest.useFakeTimers());
 afterEach(() => jest.useRealTimers());
 
 describe('coalesce', () => {
-  test('runs once after a burst of triggers settles', () => {
-    const run = jest.fn();
-    const reload = coalesce(run, 50, 500);
+  describe('given nothing has been triggered', () => {
+    beforeEach(() => {
+      startCoalescing();
+    });
 
-    for (let row = 0; row < 400; row++) {
+    describe('when a burst of 400 triggers arrives', () => {
+      beforeEach(() => {
+        for (let row = 0; row < 400; row++) {
+          reload.trigger();
+        }
+      });
+
+      test('then it has not run yet', () => {
+        expect(run).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when triggers keep arriving every 20 ms for 600 ms', () => {
+      beforeEach(() => {
+        for (let elapsed = 0; elapsed < 600; elapsed += 20) {
+          reload.trigger();
+          jest.advanceTimersByTime(20);
+        }
+      });
+
+      test('then it still runs once', () => {
+        expect(run).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe('given a burst of 400 triggers', () => {
+    beforeEach(() => {
+      startCoalescing();
+      for (let row = 0; row < 400; row++) {
+        reload.trigger();
+      }
+    });
+
+    describe('when the burst settles', () => {
+      beforeEach(() => {
+        jest.advanceTimersByTime(50);
+      });
+
+      test('then it runs once', () => {
+        expect(run).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe('given a second trigger 40 ms after the first', () => {
+    beforeEach(() => {
+      startCoalescing();
       reload.trigger();
-    }
-    expect(run).not.toHaveBeenCalled();
-
-    jest.advanceTimersByTime(50);
-    expect(run).toHaveBeenCalledTimes(1);
-  });
-
-  test('waits for quiet before running', () => {
-    const run = jest.fn();
-    const reload = coalesce(run, 50, 500);
-
-    reload.trigger();
-    jest.advanceTimersByTime(40);
-    reload.trigger();
-    jest.advanceTimersByTime(40);
-
-    expect(run).not.toHaveBeenCalled();
-    jest.advanceTimersByTime(10);
-    expect(run).toHaveBeenCalledTimes(1);
-  });
-
-  test('still runs during a long stream of changes', () => {
-    const run = jest.fn();
-    const reload = coalesce(run, 50, 500);
-
-    for (let elapsed = 0; elapsed < 600; elapsed += 20) {
+      jest.advanceTimersByTime(40);
       reload.trigger();
-      jest.advanceTimersByTime(20);
-    }
+    });
 
-    expect(run).toHaveBeenCalledTimes(1);
+    describe('when another 40 ms pass', () => {
+      beforeEach(() => {
+        jest.advanceTimersByTime(40);
+      });
+
+      test('then it has not run yet', () => {
+        expect(run).not.toHaveBeenCalled();
+      });
+    });
   });
 
-  test('runs again for changes after the last run', () => {
-    const run = jest.fn();
-    const reload = coalesce(run, 50, 500);
+  describe('given a second trigger 40 ms after the first and 40 ms of quiet since', () => {
+    beforeEach(() => {
+      startCoalescing();
+      reload.trigger();
+      jest.advanceTimersByTime(40);
+      reload.trigger();
+      jest.advanceTimersByTime(40);
+    });
 
-    reload.trigger();
-    jest.advanceTimersByTime(50);
-    reload.trigger();
-    jest.advanceTimersByTime(50);
+    describe('when 10 more ms pass', () => {
+      beforeEach(() => {
+        jest.advanceTimersByTime(10);
+      });
 
-    expect(run).toHaveBeenCalledTimes(2);
+      test('then it runs once', () => {
+        expect(run).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
-  test('does nothing once cancelled', () => {
-    const run = jest.fn();
-    const reload = coalesce(run, 50, 500);
+  describe('given it has run for a trigger', () => {
+    beforeEach(() => {
+      startCoalescing();
+      reload.trigger();
+      jest.advanceTimersByTime(50);
+    });
 
-    reload.trigger();
-    reload.cancel();
-    jest.advanceTimersByTime(1_000);
+    describe('when another trigger settles', () => {
+      beforeEach(() => {
+        reload.trigger();
+        jest.advanceTimersByTime(50);
+      });
 
-    expect(run).not.toHaveBeenCalled();
+      test('then it runs again', () => {
+        expect(run).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe('given a trigger that was then cancelled', () => {
+    beforeEach(() => {
+      startCoalescing();
+      reload.trigger();
+      reload.cancel();
+    });
+
+    describe('when a second passes', () => {
+      beforeEach(() => {
+        jest.advanceTimersByTime(1_000);
+      });
+
+      test('then it does not run', () => {
+        expect(run).not.toHaveBeenCalled();
+      });
+    });
   });
 });
