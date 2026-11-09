@@ -1,15 +1,18 @@
 {
-  "passCount_one": "{{count}} paso esta noche",
-  "passCount_many": "{{count}} pasos esta noche",
-  "passCount_other": "{{count}} pasos esta noche",
+  "summary_one": "{{count}} paso",
+  "summary_many": "{{count}} pasos",
+  "summary_other": "{{count}} pasos",
+  "brightSummary_one": "{{count}} brillante",
+  "brightSummary_many": "{{count}} brillantes",
+  "brightSummary_other": "{{count}} brillantes",
   "nights": {
     "tonight": "Esta noche",
     "tomorrow": "Mañana por la noche"
   },
   "visibleNow": "Visible ahora",
   "justEnded": "Acaba de terminar",
-  "path": "Aparece por el {{appears}}, desaparece por el {{disappears}}",
-  "maxElevation": "Máx. {{degrees}}°",
+  "pathShort": "{{appears}} → {{disappears}} · {{degrees}}°",
+  "openSatellite": "Abre la página del satélite",
   "states": {
     "locating": "Buscando tu ubicación…",
     "computing": "Calculando los pasos sobre ti…",
@@ -25,5 +28,39 @@
     "set": "Aviso activado",
     "title": "{{name}} en {{minutes}} minutos",
     "body": "Mira al {{direction}}. Sube hasta {{degrees}}°."
+  },
+  "location": {
+    "current": "Tu ubicación",
+    "change": "Elegir una ubicación"
+  },
+  "timeline": {
+    "label_one": "Noche de {{from}} a {{to}}: {{count}} paso, {{bright}} brillantes",
+    "label_many": "Noche de {{from}} a {{to}}: {{count}} pasos, {{bright}} brillantes",
+    "label_other": "Noche de {{from}} a {{to}}: {{count}} pasos, {{bright}} brillantes"
+  },
+  "featured": {
+    "best": {
+      "tonight": "Lo mejor de esta noche",
+      "tomorrow": "Lo mejor de mañana por la noche"
+    },
+    "bestOn": "Lo mejor del {{night}}",
+    "soon": "A punto de pasar",
+    "live": "Visible ahora",
+    "duration_one": "{{count}} min",
+    "duration_many": "{{count}} min",
+    "duration_other": "{{count}} min",
+    "details": "Detalles",
+    "detailsFor": "Detalles de {{name}}"
+  },
+  "filters": {
+    "label": "Filtrar pasos",
+    "worth": "Merecen la pena",
+    "rare": "Raros",
+    "all": "Todos",
+    "hidden_one": "{{count}} paso más oculto",
+    "hidden_many": "{{count}} pasos más ocultos",
+    "hidden_other": "{{count}} pasos más ocultos",
+    "showAll": "Ver todos",
+    "noneMatch": "Nada coincide con este filtro."
   }
 }

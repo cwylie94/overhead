@@ -1,14 +1,16 @@
 {
-  "passCount_one": "{{count}} pass tonight",
-  "passCount_other": "{{count}} passes tonight",
+  "summary_one": "{{count}} pass",
+  "summary_other": "{{count}} passes",
+  "brightSummary_one": "{{count}} bright",
+  "brightSummary_other": "{{count}} bright",
   "nights": {
     "tonight": "Tonight",
     "tomorrow": "Tomorrow night"
   },
   "visibleNow": "Visible now",
   "justEnded": "Just ended",
-  "path": "Appears {{appears}}, disappears {{disappears}}",
-  "maxElevation": "Max {{degrees}}°",
+  "pathShort": "{{appears}} → {{disappears}} · {{degrees}}°",
+  "openSatellite": "Opens the satellite’s page",
   "states": {
     "locating": "Finding your location…",
     "computing": "Working out the passes over you…",
@@ -24,5 +26,36 @@
     "set": "Reminder set",
     "title": "{{name}} in {{minutes}} minutes",
     "body": "Look {{direction}}. It climbs to {{degrees}}°."
+  },
+  "location": {
+    "current": "Your location",
+    "change": "Choose a location"
+  },
+  "timeline": {
+    "label_one": "Night from {{from}} to {{to}}: {{count}} pass, {{bright}} bright",
+    "label_other": "Night from {{from}} to {{to}}: {{count}} passes, {{bright}} bright"
+  },
+  "featured": {
+    "best": {
+      "tonight": "Best tonight",
+      "tomorrow": "Best tomorrow night"
+    },
+    "bestOn": "Best on {{night}}",
+    "soon": "Coming up",
+    "live": "Visible now",
+    "duration_one": "{{count}} min",
+    "duration_other": "{{count}} min",
+    "details": "Details",
+    "detailsFor": "Details for {{name}}"
+  },
+  "filters": {
+    "label": "Filter passes",
+    "worth": "Worth seeing",
+    "rare": "Rare",
+    "all": "All",
+    "hidden_one": "{{count}} more pass hidden",
+    "hidden_other": "{{count}} more passes hidden",
+    "showAll": "Show all",
+    "noneMatch": "Nothing matches this filter."
   }
 }

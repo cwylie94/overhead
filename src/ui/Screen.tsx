@@ -5,16 +5,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing, typography } from '@/ui/theme';
 
 type ScreenProps = {
-  title: string;
+  title?: string;
   children?: ReactNode;
 };
 
 export function Screen({ title, children }: ScreenProps) {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <Text accessibilityRole="header" style={styles.title}>
-        {title}
-      </Text>
+      {title && (
+        <Text accessibilityRole="header" style={styles.title}>
+          {title}
+        </Text>
+      )}
       <View style={styles.content}>{children}</View>
     </SafeAreaView>
   );

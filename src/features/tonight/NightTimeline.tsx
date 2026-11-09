@@ -1,0 +1,195 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, Text, View, type GestureResponderEvent } from 'react-native';
+
+import type { UpcomingPass } from '@/data/queries';
+import { brightnessTier, type BrightnessTier } from '@/domain/brightness';
+import { formatHour, formatPassTime } from '@/i18n/format';
+import { brightnessMarkColors, colors, radius, spacing, typography } from '@/ui/theme';
+
+import type { NightSky } from './nightSky';
+import { clip, fractionOf, hourMarks, nearestPass, timelineRange } from './timelineLayout';
+
+const TRACK_HEIGHT = 30;
+const TOUCH_REACH = 16;
+const MARKER_SIZE = 8;
+const TICK_HEIGHT: Readonly<Record<BrightnessTier, number>> = {
+  brilliant: 24,
+  bright: 16,
+  faint: 9,
+};
+
+type NightTimelineProps = {
+  sky: NightSky | null;
+  passes: UpcomingPass[];
+  featuredId: number | null;
+  now: number;
+  onSelect(pass: UpcomingPass): void;
+};
+
+function tierOf(pass: UpcomingPass): BrightnessTier {
+  return pass.peakMagnitude === null ? 'faint' : brightnessTier(pass.peakMagnitude);
+}
+
+export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightTimelineProps) {
+  const { t, i18n } = useTranslation('tonight');
+  const [width, setWidth] = useState(0);
+  const range = timelineRange(sky, passes);
+  if (!range) {
+    return null;
+  }
+  const at = (time: number) => fractionOf(time, range) * width;
+  const band = (from: number | null, to: number | null) => {
+    if (from === null || to === null) {
+      return null;
+    }
+    const clipped = clip({ from, to }, range);
+    return clipped && { left: at(clipped.from), width: at(clipped.to) - at(clipped.from) };
+  };
+  const dusk = band(range.from, sky?.darkFrom ?? null);
+  const dawn = band(sky?.darkUntil ?? null, range.to);
+  const moon = (sky?.moonUp ?? []).map((interval) => band(interval.from, interval.to));
+  const showNow = now > range.from && now < range.to;
+  const bright = passes.filter((pass) => tierOf(pass) !== 'faint');
+  const featured = passes.find((pass) => pass.id === featuredId);
+
+  const onPress = ({ nativeEvent }: GestureResponderEvent) => {
+    if (width === 0) {
+      return;
+    }
+    const time = range.from + (nativeEvent.locationX / width) * (range.to - range.from);
+    const reach = (TOUCH_REACH / width) * (range.to - range.from);
+    const pass = nearestPass(passes, time, reach);
+    if (pass) {
+      onSelect(pass);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.markerRow}>
+        {width > 0 && featured && (
+          <View style={[styles.marker, { left: at(featured.startAt) - MARKER_SIZE / 2 }]} />
+        )}
+      </View>
+      <Pressable
+        accessibilityRole="image"
+        accessibilityLabel={t('timeline.label', {
+          from: formatPassTime(range.from, i18n.language),
+          to: formatPassTime(range.to, i18n.language),
+          count: passes.length,
+          bright: bright.length,
+        })}
+        onPress={onPress}
+        onLayout={({ nativeEvent }) => setWidth(nativeEvent.layout.width)}
+        style={styles.track}>
+        {width > 0 && (
+          <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+            {dusk && <View style={[styles.twilight, dusk]} />}
+            {dawn && <View style={[styles.twilight, dawn]} />}
+            {passes.map((pass) => {
+              const tier = tierOf(pass);
+              const height = TICK_HEIGHT[tier];
+              const isFeatured = pass.id === featuredId;
+              return (
+                <View
+                  key={pass.id}
+                  style={[
+                    styles.tick,
+                    {
+                      left: at(pass.startAt) - (isFeatured ? 1.5 : 1),
+                      width: isFeatured ? 3 : tier === 'faint' ? 1.5 : 2,
+                      height: isFeatured ? TRACK_HEIGHT - 4 : height,
+                      top: (TRACK_HEIGHT - (isFeatured ? TRACK_HEIGHT - 4 : height)) / 2,
+                      backgroundColor: brightnessMarkColors[tier],
+                    },
+                  ]}
+                />
+              );
+            })}
+            {showNow && <View style={[styles.now, { left: at(now) - 1 }]} />}
+          </View>
+        )}
+      </Pressable>
+      <View style={styles.moonRow}>
+        {width > 0 &&
+          moon.map(
+            (interval, index) => interval && <View key={index} style={[styles.moon, interval]} />,
+          )}
+      </View>
+      <View style={styles.labels}>
+        {width > 0 &&
+          hourMarks(range).map((time) => (
+            <Text key={time} style={[styles.hour, { left: at(time) - 20 }]}>
+              {formatHour(time, i18n.language)}
+            </Text>
+          ))}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 3,
+  },
+  track: {
+    height: TRACK_HEIGHT,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    overflow: 'hidden',
+  },
+  twilight: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    backgroundColor: colors.surfaceRaised,
+  },
+  tick: {
+    position: 'absolute',
+    borderRadius: 1,
+  },
+  now: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 2,
+    backgroundColor: colors.now,
+  },
+  markerRow: {
+    height: MARKER_SIZE,
+  },
+  marker: {
+    position: 'absolute',
+    width: MARKER_SIZE,
+    height: MARKER_SIZE,
+    borderRadius: MARKER_SIZE / 2,
+    borderWidth: 1.5,
+    borderColor: colors.warning,
+  },
+  moonRow: {
+    height: 3,
+  },
+  moon: {
+    position: 'absolute',
+    top: 0,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: colors.textMuted,
+    opacity: 0.6,
+  },
+  labels: {
+    height: typography.label.lineHeight,
+    marginTop: spacing.xs / 2,
+  },
+  hour: {
+    ...typography.label,
+    fontWeight: '400',
+    color: colors.textMuted,
+    position: 'absolute',
+    width: 40,
+    textAlign: 'center',
+  },
+});

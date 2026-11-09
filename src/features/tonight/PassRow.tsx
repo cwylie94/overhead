@@ -1,3 +1,4 @@
+import { SymbolView } from 'expo-symbols';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -8,18 +9,37 @@ import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useNow } from '@/environment/clock';
 import { formatPassTime } from '@/i18n/format';
-import { Chip } from '@/ui/Chip';
-import { brightnessColors, colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
+import {
+  brightnessMarkColors,
+  colors,
+  radius,
+  rarityColors,
+  spacing,
+  typography,
+} from '@/ui/theme';
 
 import { Countdown } from './Countdown';
+import { SkyGlyph } from './SkyGlyph';
 
-type PassRowProps = {
-  pass: UpcomingPass;
-  reminder: { isSet: boolean; onToggle(): void } | null;
-  onCatch(): void;
-};
+const SOON = 60 * 60_000;
 
-function CatchButton({ pass, onCatch }: { pass: UpcomingPass; onCatch(): void }) {
+export type ReminderControl = { isSet: boolean; onToggle(): void };
+
+export function usePathText(pass: UpcomingPass): string | null {
+  const { t } = useTranslation(['tonight', 'common']);
+  const start = positionOnTrack(pass.track, pass.startAt);
+  const end = positionOnTrack(pass.track, pass.endAt);
+  if (!start || !end) {
+    return null;
+  }
+  return t('pathShort', {
+    appears: t(`common:compass.${compassPoint(start.azimuth)}`),
+    disappears: t(`common:compass.${compassPoint(end.azimuth)}`),
+    degrees: Math.round(pass.maxElevation),
+  });
+}
+
+export function CatchButton({ pass, onCatch }: { pass: UpcomingPass; onCatch(): void }) {
   const { t } = useTranslation('catch');
   const window = catchWindow(pass, useNow(1_000));
   if (window !== 'ready' && window !== 'live') {
@@ -32,123 +52,176 @@ function CatchButton({ pass, onCatch }: { pass: UpcomingPass; onCatch(): void })
       testID={`catch-${pass.noradId}`}
       hitSlop={spacing.sm}
       onPress={onCatch}
-      style={[styles.remind, live && styles.remindSet]}>
-      <Text style={[styles.remindText, live && styles.remindTextSet]}>
+      style={[styles.action, styles.actionOn]}>
+      <Text style={[styles.actionText, styles.actionTextOn]}>
         {live ? t('catch') : t('getReady')}
       </Text>
     </Pressable>
   );
 }
 
-export function PassRow({ pass, reminder, onCatch }: PassRowProps) {
-  const { t, i18n } = useTranslation(['tonight', 'common']);
-  const start = positionOnTrack(pass.track, pass.startAt);
-  const end = positionOnTrack(pass.track, pass.endAt);
-  const tier = pass.peakMagnitude === null ? null : brightnessTier(pass.peakMagnitude);
+type ReminderButtonProps = { reminder: ReminderControl; compact?: boolean };
 
+export function ReminderButton({ reminder, compact = false }: ReminderButtonProps) {
+  const { t } = useTranslation('tonight');
   return (
-    <View style={styles.row} accessible accessibilityLabel={pass.name}>
-      <View style={styles.header}>
-        <Text style={styles.name} numberOfLines={1}>
-          {pass.name}
-        </Text>
-        {tier && <Chip label={t(`common:brightness.${tier}`)} color={brightnessColors[tier]} />}
-      </View>
-      <View style={styles.timing}>
-        <Text style={styles.time}>{formatPassTime(pass.startAt, i18n.language)}</Text>
-        <Countdown startAt={pass.startAt} endAt={pass.endAt} />
-      </View>
-      {start && end && (
-        <Text style={styles.detail}>
-          {t('path', {
-            appears: t(`common:compass.${compassPoint(start.azimuth)}`),
-            disappears: t(`common:compass.${compassPoint(end.azimuth)}`),
-          })}
-          {' · '}
-          {t('maxElevation', { degrees: Math.round(pass.maxElevation) })}
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityState={{ checked: reminder.isSet }}
+      accessibilityLabel={t('reminder.add')}
+      hitSlop={spacing.sm}
+      onPress={reminder.onToggle}
+      style={compact ? styles.bell : [styles.action, reminder.isSet && styles.actionOn]}>
+      {compact ? (
+        <SymbolView
+          name={reminder.isSet ? 'bell.fill' : 'bell'}
+          size={18}
+          tintColor={reminder.isSet ? colors.accent : colors.textMuted}
+          fallback={<Text style={styles.actionText}>{reminder.isSet ? '●' : '○'}</Text>}
+        />
+      ) : (
+        <Text style={[styles.actionText, reminder.isSet && styles.actionTextOn]}>
+          {reminder.isSet ? t('reminder.set') : t('reminder.add')}
         </Text>
       )}
-      <View style={styles.footer}>
-        <Chip label={t(`common:rarity.${pass.rarity}`)} color={rarityColors[pass.rarity]} />
-        <View style={styles.actions}>
-          <CatchButton pass={pass} onCatch={onCatch} />
-          {reminder && (
-            <Pressable
-              accessibilityRole="switch"
-              accessibilityState={{ checked: reminder.isSet }}
-              accessibilityLabel={t('reminder.add')}
-              hitSlop={spacing.sm}
-              onPress={reminder.onToggle}
-              style={[styles.remind, reminder.isSet && styles.remindSet]}>
-              <Text style={[styles.remindText, reminder.isSet && styles.remindTextSet]}>
-                {reminder.isSet ? t('reminder.set') : t('reminder.add')}
+    </Pressable>
+  );
+}
+
+type PassRowProps = {
+  pass: UpcomingPass;
+  reminder: ReminderControl | null;
+  highlighted?: boolean;
+  onOpen(): void;
+  onCatch(): void;
+};
+
+export function PassRow({ pass, reminder, highlighted = false, onOpen, onCatch }: PassRowProps) {
+  const { t, i18n } = useTranslation(['tonight', 'common']);
+  const now = useNow(60_000);
+  const path = usePathText(pass);
+  const tier = pass.peakMagnitude === null ? 'faint' : brightnessTier(pass.peakMagnitude);
+  const window = catchWindow(pass, now);
+  const close = window !== 'early' || pass.startAt - now < SOON;
+  const time = formatPassTime(pass.startAt, i18n.language);
+
+  return (
+    <View style={[styles.row, highlighted && styles.highlighted]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={[pass.name, time, t(`common:brightness.${tier}`), path]
+          .filter(Boolean)
+          .join(', ')}
+        accessibilityHint={t('openSatellite')}
+        onPress={onOpen}
+        style={styles.main}>
+        <Text style={styles.time}>{time}</Text>
+        <View style={styles.text}>
+          <View style={styles.title}>
+            <Text style={styles.name} numberOfLines={1}>
+              {pass.name}
+            </Text>
+            {pass.rarity !== 'common' && (
+              <Text style={[styles.rarity, { color: rarityColors[pass.rarity] }]}>
+                {t(`common:rarity.${pass.rarity}`)}
               </Text>
-            </Pressable>
-          )}
+            )}
+          </View>
+          <Text style={styles.detail} numberOfLines={1}>
+            {path}
+            {close && (
+              <>
+                {' · '}
+                <Countdown startAt={pass.startAt} endAt={pass.endAt} />
+              </>
+            )}
+          </Text>
         </View>
-      </View>
+        <SkyGlyph track={pass.track} startAt={pass.startAt} endAt={pass.endAt} size={28} />
+        <View style={[styles.dot, { backgroundColor: brightnessMarkColors[tier] }]} />
+      </Pressable>
+      {window === 'ready' || window === 'live' ? (
+        <CatchButton pass={pass} onCatch={onCatch} />
+      ) : (
+        reminder && <ReminderButton reminder={reminder} compact />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   row: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    gap: spacing.xs,
-  },
-  header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     gap: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+    borderRadius: radius.sm,
   },
-  name: {
-    ...typography.heading,
-    color: colors.text,
-    flexShrink: 1,
+  highlighted: {
+    backgroundColor: colors.surfaceRaised,
   },
-  timing: {
+  main: {
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     gap: spacing.sm,
   },
   time: {
     ...typography.body,
     color: colors.text,
     fontVariant: ['tabular-nums'],
+    width: 76,
+  },
+  text: {
+    flex: 1,
+    gap: 2,
+  },
+  title: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: spacing.xs,
+  },
+  name: {
+    ...typography.body,
+    fontWeight: '600',
+    color: colors.text,
+    flexShrink: 1,
+  },
+  rarity: {
+    ...typography.label,
   },
   detail: {
     ...typography.caption,
     color: colors.textMuted,
   },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  bell: {
+    width: 28,
     alignItems: 'center',
   },
-  actions: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  remind: {
+  action: {
     borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
   },
-  remindSet: {
+  actionOn: {
     backgroundColor: colors.accent,
     borderColor: colors.accent,
   },
-  remindText: {
+  actionText: {
     ...typography.label,
     color: colors.text,
   },
-  remindTextSet: {
+  actionTextOn: {
     color: colors.background,
   },
 });

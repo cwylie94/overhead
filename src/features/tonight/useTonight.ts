@@ -52,6 +52,7 @@ export function useTonight(): TonightViewProps {
         .finally(() => setRefreshing(false));
     },
     onCatch: (pass) => router.push(`/catch/${pass.id}`),
+    onOpenSatellite: (pass) => router.push(`/satellite/${pass.noradId}`),
     onChooseCity: () => router.push('/location'),
     onAllowLocation: () => {
       location.requestPermission().catch(() => {});

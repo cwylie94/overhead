@@ -46,19 +46,19 @@ describe.each(SUPPORTED_LANGUAGES)('%s translations', (language) => {
 
 describe('plurals', () => {
   test.each([
-    [0, '0 passes tonight'],
-    [1, '1 pass tonight'],
-    [3, '3 passes tonight'],
+    [0, '0 passes'],
+    [1, '1 pass'],
+    [3, '3 passes'],
   ])('English pass count for %i', (count, expected) => {
-    expect(i18n.t('tonight:passCount', { lng: 'en', count })).toBe(expected);
+    expect(i18n.t('tonight:summary', { lng: 'en', count })).toBe(expected);
   });
 
   test.each([
-    [1, '1 paso esta noche'],
-    [3, '3 pasos esta noche'],
-    [1_000_000, '1000000 pasos esta noche'],
+    [1, '1 paso'],
+    [3, '3 pasos'],
+    [1_000_000, '1000000 pasos'],
   ])('Spanish pass count for %i', (count, expected) => {
-    expect(i18n.t('tonight:passCount', { lng: 'es', count })).toBe(expected);
+    expect(i18n.t('tonight:summary', { lng: 'es', count })).toBe(expected);
   });
 
   test('switches language when the setting changes', async () => {
