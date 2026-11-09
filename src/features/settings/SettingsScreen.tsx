@@ -6,28 +6,29 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { useAppData } from '@/data/AppDataContext';
 import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
-import { pendingChangesQuery } from '@/data/queries';
+import { orbitFreshnessQuery } from '@/data/queries';
 import { useDemo } from '@/demo/session';
 import { useNow } from '@/environment/clock';
 import { cancelAllReminders } from '@/features/tonight/reminders';
+import { useOrbitRefreshStore } from '@/stores/orbitRefreshStore';
 import { useSettingsStore } from '@/stores/settingsStore';
-import { useSyncStore } from '@/stores/syncStore';
-import { useSync } from '@/sync/SyncProvider';
+import { useOrbitRefresh } from '@/sync/OrbitRefreshProvider';
 import { Screen } from '@/ui/Screen';
 import { spacing } from '@/ui/theme';
 
 import { AboutSection } from './AboutSection';
 import { DemoSection } from './DemoSection';
 import { LocationSection } from './LocationSection';
+import { OrbitDataSection } from './OrbitDataSection';
 import { PreferencesSections, type PreferenceActions } from './PreferencesSections';
-import { SyncSection } from './SyncSection';
 
 const APP_VERSION = Constants.expoConfig?.version ?? '–';
 
-export function usePendingChanges(): number {
+function useOrbitsUpdatedAt(): number | null {
   const { db } = useAppData();
-  const { data } = useLiveQuery(pendingChangesQuery(db));
-  return data[0]?.value ?? 0;
+  const { data } = useLiveQuery(orbitFreshnessQuery(db));
+  const times = data.flatMap((group) => (group.fetchedAt === null ? [] : [group.fetchedAt]));
+  return times.length === 0 ? null : Math.min(...times);
 }
 
 function usePreferences() {
@@ -70,11 +71,9 @@ function usePreferences() {
 export function SettingsScreen() {
   const { t } = useTranslation();
   const now = useNow(30_000);
-  const { syncNow, configured } = useSync();
-  const status = useSyncStore((sync) => sync.status);
-  const lastSyncedAt = useSyncStore((sync) => sync.lastSyncedAt);
-  const lastError = useSyncStore((sync) => sync.lastError);
-  const pending = usePendingChanges();
+  const { refreshNow } = useOrbitRefresh();
+  const refreshStatus = useOrbitRefreshStore((refresh) => refresh.status);
+  const orbitsUpdatedAt = useOrbitsUpdatedAt();
   const { preferences, actions } = usePreferences();
   const demo = useDemo();
   const setDemoMode = useSettingsStore((settings) => settings.setDemoMode);
@@ -92,15 +91,12 @@ export function SettingsScreen() {
         />
         <PreferencesSections preferences={preferences} actions={actions} />
         {demo === null && (
-          <SyncSection
-            configured={configured}
-            status={status}
-            lastSyncedAt={lastSyncedAt}
-            lastError={lastError}
-            pending={pending}
+          <OrbitDataSection
+            updatedAt={orbitsUpdatedAt}
+            status={refreshStatus}
             now={now}
-            onSyncNow={() => {
-              syncNow();
+            onCheck={() => {
+              refreshNow();
             }}
           />
         )}

@@ -109,3 +109,11 @@ export async function refreshOrbits(
   }
   return outcomes;
 }
+
+export function orbitsChanged(outcomes: Record<CelestrakGroup, RefreshOutcome>): boolean {
+  return Object.values(outcomes).includes('updated');
+}
+
+export function anyFailed(outcomes: Record<CelestrakGroup, RefreshOutcome>): boolean {
+  return Object.values(outcomes).includes('failed');
+}

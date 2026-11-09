@@ -41,17 +41,14 @@
       "full": "Full"
     }
   },
-  "sync": {
-    "title": "Sync",
-    "pending_one": "{{count}} change waiting to sync",
-    "pending_other": "{{count}} changes waiting to sync",
-    "upToDate": "Everything is synced",
-    "lastSynced": "Last synced {{time}}",
-    "never": "Not synced yet",
-    "syncing": "Syncing…",
-    "failed": "Last sync failed: {{message}}",
-    "notConfigured": "Sync isn't set up on this build, so your sightings stay on this phone. Orbit data still updates from CelesTrak.",
-    "syncNow": "Sync now"
+  "orbits": {
+    "title": "Orbit data",
+    "updated": "Updated {{time}}",
+    "bundled": "Using the orbit data bundled in the app",
+    "hint": "Fresh orbits come from CelesTrak, checked at most every 2 hours.",
+    "checking": "Checking CelesTrak…",
+    "failed": "Couldn't reach CelesTrak. The app will try again later.",
+    "check": "Check for updates"
   },
   "about": {
     "title": "About",

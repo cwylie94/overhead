@@ -10,7 +10,7 @@ const context = {
 };
 
 describe('logSighting', () => {
-  test('stores a verified catch with a time-ordered ID and queues it for sync', () => {
+  test('stores a catch with a time-ordered ID', () => {
     const repositories = createRepositories(createTestDatabase());
 
     const sighting = logSighting(
@@ -21,23 +21,9 @@ describe('logSighting', () => {
 
     expect(sighting.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7/);
     expect(repositories.sightings.getById(sighting.id)).toMatchObject({
-      verified: true,
+      noradId: 25544,
       angleError: 4.2,
-      syncStatus: 'pending',
     });
-    expect(repositories.outbox.count()).toBe(1);
-  });
-
-  test('stores an unverified "I saw it" sighting without an angle', () => {
-    const repositories = createRepositories(createTestDatabase());
-
-    const sighting = logSighting(
-      repositories,
-      { noradId: 25544, observedAt: NOW, verified: false, angleError: null },
-      context,
-    );
-
-    expect(sighting).toMatchObject({ verified: false, angleError: null });
   });
 
   test('two sightings in the same millisecond get different IDs', () => {

@@ -14,7 +14,7 @@ import { ClockProvider, systemClock } from '@/environment/clock';
 import { LocationProvider } from '@/environment/location';
 import { configureNotificationHandler } from '@/features/tonight/reminders';
 import { useSettingsStore } from '@/stores/settingsStore';
-import { SyncProvider } from '@/sync/SyncProvider';
+import { OrbitRefreshProvider } from '@/sync/OrbitRefreshProvider';
 import { MotionConfig } from '@/ui/motion';
 import { colors } from '@/ui/theme';
 
@@ -55,7 +55,7 @@ export default function RootLayout() {
             <LocationProvider fixed={fixedLocation}>
               <DatabaseGate>
                 <PassCacheProvider runner={data.passCacheRunner}>
-                  <SyncProvider enabled={demo === null}>
+                  <OrbitRefreshProvider enabled={demo === null}>
                     <Stack screenOptions={{ headerShown: false }}>
                       <Stack.Screen name="(tabs)" />
                       <Stack.Screen
@@ -72,7 +72,7 @@ export default function RootLayout() {
                         options={{ presentation: 'modal' }}
                       />
                     </Stack>
-                  </SyncProvider>
+                  </OrbitRefreshProvider>
                 </PassCacheProvider>
               </DatabaseGate>
             </LocationProvider>

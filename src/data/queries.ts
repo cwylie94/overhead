@@ -1,9 +1,9 @@
-import { and, asc, count, desc, eq, gt, lt, lte, max } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, lt, lte, max } from 'drizzle-orm';
 
 import { NAKED_EYE_LIMIT } from '@/domain/brightness';
 
 import type { Database } from './database';
-import { orbits, outbox, passes, satellites, sightings } from './schema';
+import { orbits, passes, satellites, sightings } from './schema';
 
 export function upcomingPassesQuery(db: Database, now: number) {
   return db
@@ -111,8 +111,4 @@ export function satelliteSightingsQuery(db: Database, noradId: number) {
     .from(sightings)
     .where(eq(sightings.noradId, noradId))
     .orderBy(desc(sightings.observedAt));
-}
-
-export function pendingChangesQuery(db: Database) {
-  return db.select({ value: count() }).from(outbox);
 }

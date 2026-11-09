@@ -5,12 +5,14 @@ import { makeOmm } from '@/data/testing/fixtures';
 import type { CelestrakGroup } from '@/domain/types';
 
 import {
+  anyFailed,
   backoffDelay,
   CelestrakError,
   FIRST_BACKOFF,
   httpOrbitFetcher,
   MAX_BACKOFF,
   MIN_REFRESH_INTERVAL,
+  orbitsChanged,
   refreshGroup,
   refreshOrbits,
   type OrbitFetcher,
@@ -137,5 +139,17 @@ describe('httpOrbitFetcher', () => {
     await expect(httpOrbitFetcher(respond(200, [{ NORAD_CAT_ID: 1 }]))('visual')).rejects.toThrow(
       'no usable orbits',
     );
+  });
+});
+
+describe('refresh outcomes', () => {
+  test('passes need recomputing only when a group was updated', () => {
+    expect(orbitsChanged({ visual: 'updated', stations: 'fresh' })).toBe(true);
+    expect(orbitsChanged({ visual: 'fresh', stations: 'backingOff' })).toBe(false);
+  });
+
+  test('a check failed if any group failed', () => {
+    expect(anyFailed({ visual: 'failed', stations: 'updated' })).toBe(true);
+    expect(anyFailed({ visual: 'fresh', stations: 'backingOff' })).toBe(false);
   });
 });

@@ -9,7 +9,7 @@ import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import { satelliteSightingsQuery } from '@/data/queries';
 import { perigeeAltitudeKm, apogeeAltitudeKm, periodMinutes } from '@/domain/orbit';
 import { silhouetteFor } from '@/domain/silhouette';
-import { useClock, useNow } from '@/environment/clock';
+import { useNow } from '@/environment/clock';
 import { formatCalendarDate, formatDistance, formatNightDate, formatPassTime } from '@/i18n/format';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Chip } from '@/ui/Chip';
@@ -55,7 +55,6 @@ export function SatelliteScreen() {
   const { t, i18n } = useTranslation(['collection', 'common']);
   const units = useSettingsStore((settings) => settings.units);
   const now = useNow(60_000);
-  const clock = useClock();
   const { db, repositories } = useAppData();
   const satellite = useMemo(() => repositories.satellites.getById(id), [repositories, id]);
   const orbit = useMemo(() => repositories.orbits.getById(id), [repositories, id]);
@@ -181,7 +180,7 @@ export function SatelliteScreen() {
       {
         text: t('detail.delete'),
         style: 'destructive',
-        onPress: () => repositories.sightings.delete(sighting.id, clock.now()),
+        onPress: () => repositories.sightings.delete(sighting.id),
       },
     ]);
   };
