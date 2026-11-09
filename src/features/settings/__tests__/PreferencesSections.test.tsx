@@ -18,7 +18,7 @@ const defaults: Preferences = {
   motionPreference: 'system',
 };
 
-function actions(): jest.Mocked<PreferenceActions> {
+function makeActions(): jest.Mocked<PreferenceActions> {
   return {
     setLanguage: jest.fn(),
     setUnits: jest.fn(),
@@ -29,67 +29,200 @@ function actions(): jest.Mocked<PreferenceActions> {
   };
 }
 
-async function renderSections(preferences: Partial<Preferences> = {}) {
-  const spies = actions();
-  await render(
-    <PreferencesSections preferences={{ ...defaults, ...preferences }} actions={spies} />,
-  );
-  return spies;
-}
-
 describe('PreferencesSections', () => {
-  test('steps the minimum elevation by five degrees', async () => {
-    const spies = await renderSections();
+  let preferences: Preferences;
+  let actions: jest.Mocked<PreferenceActions>;
 
-    expect(screen.getByText('10°')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Higher' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Lower' }));
+  async function showPreferences() {
+    await render(<PreferencesSections preferences={preferences} actions={actions} />);
+  }
 
-    expect(spies.setMinElevation.mock.calls).toEqual([
-      [10 + MIN_ELEVATION_STEP],
-      [10 - MIN_ELEVATION_STEP],
-    ]);
+  beforeEach(() => {
+    actions = makeActions();
   });
 
-  test('stops stepping at the limits', async () => {
-    const spies = await renderSections({ minElevation: MIN_ELEVATION_LIMITS.min });
+  describe('given a minimum elevation of 10°', () => {
+    beforeEach(() => {
+      preferences = { ...defaults, minElevation: 10 };
+    });
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Lower' }));
+    describe('when the sections show', () => {
+      beforeEach(async () => {
+        await showPreferences();
+      });
 
-    expect(spies.setMinElevation).not.toHaveBeenCalled();
-    expect(screen.getByRole('button', { name: 'Lower' })).toBeDisabled();
+      test('then they show 10°', () => {
+        expect(screen.getByText('10°')).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('marks the chosen options and reports new choices', async () => {
-    const spies = await renderSections({ units: 'imperial', motionPreference: 'reduce' });
+  describe('given the sections are showing a minimum elevation of 10°', () => {
+    beforeEach(async () => {
+      preferences = { ...defaults, minElevation: 10 };
+      await showPreferences();
+    });
 
-    expect(screen.getByRole('radio', { name: 'Miles' })).toBeChecked();
-    expect(screen.getByRole('radio', { name: 'Reduce' })).toBeChecked();
+    describe('when the user presses Higher', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Higher' }));
+      });
 
-    await fireEvent.press(screen.getByRole('radio', { name: 'Kilometres' }));
-    await fireEvent.press(screen.getByRole('radio', { name: 'Full' }));
+      test('then it raises the minimum elevation by one step', () => {
+        expect(actions.setMinElevation.mock.calls).toEqual([[10 + MIN_ELEVATION_STEP]]);
+      });
+    });
 
-    expect(spies.setUnits).toHaveBeenCalledWith('metric');
-    expect(spies.setMotionPreference).toHaveBeenCalledWith('full');
+    describe('when the user presses Lower', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Lower' }));
+      });
+
+      test('then it lowers the minimum elevation by one step', () => {
+        expect(actions.setMinElevation.mock.calls).toEqual([[10 - MIN_ELEVATION_STEP]]);
+      });
+    });
   });
 
-  test('maps the phone language choice to no preference', async () => {
-    const spies = await renderSections({ language: 'es' });
+  describe('given the sections are showing the lowest minimum elevation', () => {
+    beforeEach(async () => {
+      preferences = { ...defaults, minElevation: MIN_ELEVATION_LIMITS.min };
+      await showPreferences();
+    });
 
-    expect(screen.getByRole('radio', { name: 'Español' })).toBeChecked();
-    await fireEvent.press(screen.getAllByRole('radio', { name: 'Phone setting' })[0]!);
-    await fireEvent.press(screen.getByRole('radio', { name: 'English' }));
+    describe('when the user presses Lower', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Lower' }));
+      });
 
-    expect(spies.setLanguage.mock.calls).toEqual([[null], ['en']]);
+      test('then the minimum elevation stays where it is', () => {
+        expect(actions.setMinElevation).not.toHaveBeenCalled();
+      });
+
+      test('then Lower is disabled', () => {
+        expect(screen.getByRole('button', { name: 'Lower' })).toBeDisabled();
+      });
+    });
   });
 
-  test('switches reminders and haptics', async () => {
-    const spies = await renderSections();
+  describe('given miles and reduced motion are chosen', () => {
+    beforeEach(() => {
+      preferences = { ...defaults, units: 'imperial', motionPreference: 'reduce' };
+    });
 
-    await fireEvent(screen.getByRole('switch', { name: 'Pass reminders' }), 'valueChange', false);
-    await fireEvent(screen.getByRole('switch', { name: 'Haptics' }), 'valueChange', false);
+    describe('when the sections show', () => {
+      beforeEach(async () => {
+        await showPreferences();
+      });
 
-    expect(spies.setNotificationsEnabled).toHaveBeenCalledWith(false);
-    expect(spies.setHapticsEnabled).toHaveBeenCalledWith(false);
+      test('then Miles is marked', () => {
+        expect(screen.getByRole('radio', { name: 'Miles' })).toBeChecked();
+      });
+
+      test('then Reduce is marked', () => {
+        expect(screen.getByRole('radio', { name: 'Reduce' })).toBeChecked();
+      });
+    });
+  });
+
+  describe('given the sections are showing miles and reduced motion', () => {
+    beforeEach(async () => {
+      preferences = { ...defaults, units: 'imperial', motionPreference: 'reduce' };
+      await showPreferences();
+    });
+
+    describe('when the user picks Kilometres', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('radio', { name: 'Kilometres' }));
+      });
+
+      test('then it switches to metric units', () => {
+        expect(actions.setUnits).toHaveBeenCalledWith('metric');
+      });
+    });
+
+    describe('when the user picks Full motion', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('radio', { name: 'Full' }));
+      });
+
+      test('then it switches to full motion', () => {
+        expect(actions.setMotionPreference).toHaveBeenCalledWith('full');
+      });
+    });
+  });
+
+  describe('given Spanish is chosen', () => {
+    beforeEach(() => {
+      preferences = { ...defaults, language: 'es' };
+    });
+
+    describe('when the sections show', () => {
+      beforeEach(async () => {
+        await showPreferences();
+      });
+
+      test('then Español is marked', () => {
+        expect(screen.getByRole('radio', { name: 'Español' })).toBeChecked();
+      });
+    });
+  });
+
+  describe('given the sections are showing with Spanish chosen', () => {
+    beforeEach(async () => {
+      preferences = { ...defaults, language: 'es' };
+      await showPreferences();
+    });
+
+    describe('when the user picks the phone’s language setting', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getAllByRole('radio', { name: 'Phone setting' })[0]!);
+      });
+
+      test('then the language preference is cleared', () => {
+        expect(actions.setLanguage.mock.calls).toEqual([[null]]);
+      });
+    });
+
+    describe('when the user picks English', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('radio', { name: 'English' }));
+      });
+
+      test('then the language is set to English', () => {
+        expect(actions.setLanguage.mock.calls).toEqual([['en']]);
+      });
+    });
+  });
+
+  describe('given the sections are showing with reminders and haptics on', () => {
+    beforeEach(async () => {
+      preferences = { ...defaults, notificationsEnabled: true, hapticsEnabled: true };
+      await showPreferences();
+    });
+
+    describe('when the user switches pass reminders off', () => {
+      beforeEach(async () => {
+        await fireEvent(
+          screen.getByRole('switch', { name: 'Pass reminders' }),
+          'valueChange',
+          false,
+        );
+      });
+
+      test('then reminders are turned off', () => {
+        expect(actions.setNotificationsEnabled).toHaveBeenCalledWith(false);
+      });
+    });
+
+    describe('when the user switches haptics off', () => {
+      beforeEach(async () => {
+        await fireEvent(screen.getByRole('switch', { name: 'Haptics' }), 'valueChange', false);
+      });
+
+      test('then haptics are turned off', () => {
+        expect(actions.setHapticsEnabled).toHaveBeenCalledWith(false);
+      });
+    });
   });
 });

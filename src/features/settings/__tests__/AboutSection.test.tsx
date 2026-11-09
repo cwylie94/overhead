@@ -8,53 +8,106 @@ async function tapVersion(times: number) {
   }
 }
 
+async function showAbout(onToggleDemo: jest.Mock, onReplayIntro: jest.Mock) {
+  await render(
+    <AboutSection version="1.0.0" onToggleDemo={onToggleDemo} onReplayIntro={onReplayIntro} />,
+  );
+}
+
+afterEach(() => {
+  jest.useRealTimers();
+});
+
 describe('AboutSection', () => {
-  beforeEach(() => jest.useFakeTimers());
-  afterEach(() => jest.useRealTimers());
+  let onToggleDemo: jest.Mock;
+  let onReplayIntro: jest.Mock;
 
-  test('shows the version and credits the city data', async () => {
-    await render(
-      <AboutSection version="1.0.0" onToggleDemo={jest.fn()} onReplayIntro={jest.fn()} />,
-    );
-
-    expect(screen.getByText('Version 1.0.0')).toBeOnTheScreen();
-    expect(screen.getByText('City data from GeoNames (CC BY 4.0)')).toBeOnTheScreen();
+  beforeEach(() => {
+    onToggleDemo = jest.fn();
+    onReplayIntro = jest.fn();
   });
 
-  test('toggles demo mode after five quick taps on the version', async () => {
-    const onToggleDemo = jest.fn();
-    await render(
-      <AboutSection version="1.0.0" onToggleDemo={onToggleDemo} onReplayIntro={jest.fn()} />,
-    );
+  describe('given version 1.0.0', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
 
-    await tapVersion(DEMO_TAPS - 1);
-    expect(onToggleDemo).not.toHaveBeenCalled();
+    describe('when the section shows', () => {
+      beforeEach(async () => {
+        await showAbout(onToggleDemo, onReplayIntro);
+      });
 
-    await tapVersion(1);
-    expect(onToggleDemo).toHaveBeenCalledTimes(1);
+      test('then it shows the version', () => {
+        expect(screen.getByText('Version 1.0.0')).toBeOnTheScreen();
+      });
+
+      test('then it credits the city data', () => {
+        expect(screen.getByText('City data from GeoNames (CC BY 4.0)')).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('starts counting again after a pause', async () => {
-    const onToggleDemo = jest.fn();
-    await render(
-      <AboutSection version="1.0.0" onToggleDemo={onToggleDemo} onReplayIntro={jest.fn()} />,
-    );
+  describe('given the section is showing', () => {
+    beforeEach(async () => {
+      jest.useFakeTimers();
+      await showAbout(onToggleDemo, onReplayIntro);
+    });
 
-    await tapVersion(DEMO_TAPS - 1);
-    jest.advanceTimersByTime(2_000);
-    await tapVersion(1);
+    describe('when the user quickly taps the version one time fewer than the demo needs', () => {
+      beforeEach(async () => {
+        await tapVersion(DEMO_TAPS - 1);
+      });
 
-    expect(onToggleDemo).not.toHaveBeenCalled();
+      test('then demo mode isn’t toggled yet', () => {
+        expect(onToggleDemo).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when the user presses Show intro again', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Show intro again' }));
+      });
+
+      test('then it shows the intro again', () => {
+        expect(onReplayIntro).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
-  test('shows the intro again', async () => {
-    const onReplayIntro = jest.fn();
-    await render(
-      <AboutSection version="1.0.0" onToggleDemo={jest.fn()} onReplayIntro={onReplayIntro} />,
-    );
+  describe('given the user has quickly tapped the version one time fewer than the demo needs', () => {
+    beforeEach(async () => {
+      jest.useFakeTimers();
+      await showAbout(onToggleDemo, onReplayIntro);
+      await tapVersion(DEMO_TAPS - 1);
+    });
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Show intro again' }));
+    describe('when the user taps it once more', () => {
+      beforeEach(async () => {
+        await tapVersion(1);
+      });
 
-    expect(onReplayIntro).toHaveBeenCalledTimes(1);
+      test('then demo mode is toggled', () => {
+        expect(onToggleDemo).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe('given the user tapped the version one time fewer than the demo needs and then paused', () => {
+    beforeEach(async () => {
+      jest.useFakeTimers();
+      await showAbout(onToggleDemo, onReplayIntro);
+      await tapVersion(DEMO_TAPS - 1);
+      jest.advanceTimersByTime(2_000);
+    });
+
+    describe('when the user taps it once more', () => {
+      beforeEach(async () => {
+        await tapVersion(1);
+      });
+
+      test('then it starts counting again instead of toggling demo mode', () => {
+        expect(onToggleDemo).not.toHaveBeenCalled();
+      });
+    });
   });
 });

@@ -4,31 +4,103 @@ import { LocationSection } from '../LocationSection';
 
 const reykjavik = { name: 'Reykjavík', country: 'Iceland', latitude: 64.135, longitude: -21.895 };
 
+type ChosenCity = typeof reykjavik | null;
+
 describe('LocationSection', () => {
-  test('shows the current location and offers a city instead', async () => {
-    const onChooseCity = jest.fn();
+  let customLocation: ChosenCity;
+  let onChooseCity: jest.Mock;
+  let onUseGps: jest.Mock;
+
+  async function showLocationSection() {
     await render(
-      <LocationSection customLocation={null} onChooseCity={onChooseCity} onUseGps={jest.fn()} />,
+      <LocationSection
+        customLocation={customLocation}
+        onChooseCity={onChooseCity}
+        onUseGps={onUseGps}
+      />,
     );
+  }
 
-    expect(screen.getByText('Current location')).toBeOnTheScreen();
-    expect(screen.queryByRole('button', { name: 'Use GPS' })).toBeNull();
-    await fireEvent.press(screen.getByRole('button', { name: 'Choose a city' }));
-
-    expect(onChooseCity).toHaveBeenCalled();
+  beforeEach(() => {
+    onChooseCity = jest.fn();
+    onUseGps = jest.fn();
   });
 
-  test('shows just the chosen city and goes back to GPS', async () => {
-    const onUseGps = jest.fn();
-    await render(
-      <LocationSection customLocation={reykjavik} onChooseCity={jest.fn()} onUseGps={onUseGps} />,
-    );
+  describe('given no city is chosen', () => {
+    beforeEach(() => {
+      customLocation = null;
+    });
 
-    expect(screen.getByText('Reykjavík')).toBeOnTheScreen();
-    expect(screen.queryByText(/Iceland/)).toBeNull();
-    expect(screen.queryByText(/Catches still count/)).toBeNull();
-    await fireEvent.press(screen.getByRole('button', { name: 'Use GPS' }));
+    describe('when the section shows', () => {
+      beforeEach(async () => {
+        await showLocationSection();
+      });
 
-    expect(onUseGps).toHaveBeenCalled();
+      test('then it uses the current location', () => {
+        expect(screen.getByText('Current location')).toBeOnTheScreen();
+      });
+
+      test('then it doesn’t offer Use GPS', () => {
+        expect(screen.queryByRole('button', { name: 'Use GPS' })).toBeNull();
+      });
+    });
+  });
+
+  describe('given the section is showing with no city chosen', () => {
+    beforeEach(async () => {
+      customLocation = null;
+      await showLocationSection();
+    });
+
+    describe('when the user presses Choose a city', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Choose a city' }));
+      });
+
+      test('then it opens the city picker', () => {
+        expect(onChooseCity).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('given Reykjavík is chosen', () => {
+    beforeEach(() => {
+      customLocation = reykjavik;
+    });
+
+    describe('when the section shows', () => {
+      beforeEach(async () => {
+        await showLocationSection();
+      });
+
+      test('then it shows the city', () => {
+        expect(screen.getByText('Reykjavík')).toBeOnTheScreen();
+      });
+
+      test('then it leaves out the country', () => {
+        expect(screen.queryByText(/Iceland/)).toBeNull();
+      });
+
+      test('then it leaves out the note about catches', () => {
+        expect(screen.queryByText(/Catches still count/)).toBeNull();
+      });
+    });
+  });
+
+  describe('given the section is showing with Reykjavík chosen', () => {
+    beforeEach(async () => {
+      customLocation = reykjavik;
+      await showLocationSection();
+    });
+
+    describe('when the user presses Use GPS', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Use GPS' }));
+      });
+
+      test('then it goes back to GPS', () => {
+        expect(onUseGps).toHaveBeenCalled();
+      });
+    });
   });
 });
