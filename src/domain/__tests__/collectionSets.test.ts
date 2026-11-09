@@ -7,7 +7,7 @@ import {
   type CollectionSetInput,
 } from '../collectionSets';
 
-const base: CollectionSetInput = {
+const ORDINARY_2010_PAYLOAD: CollectionSetInput = {
   noradId: 99999,
   name: 'SOMESAT',
   objectType: 'payload',
@@ -15,50 +15,90 @@ const base: CollectionSetInput = {
   isStation: false,
 };
 
+const SATELLITES: {
+  satellite: string;
+  overrides: Partial<CollectionSetInput>;
+  expected: string;
+}[] = [
+  {
+    satellite: 'anything in the stations group',
+    overrides: { isStation: true, launchDate: '1970-01-01' },
+    expected: 'spaceStations',
+  },
+  {
+    satellite: 'a listed observatory, even a Cold War one',
+    overrides: { noradId: 3597, launchDate: '1968-12-07' },
+    expected: 'observatories',
+  },
+  {
+    satellite: 'a listed Earth watcher',
+    overrides: { noradId: 25994 },
+    expected: 'earthWatchers',
+  },
+  {
+    satellite: 'a payload launched in 1991',
+    overrides: { launchDate: '1991-12-31' },
+    expected: 'coldWarVeterans',
+  },
+  {
+    satellite: 'a rocket body launched in 1988',
+    overrides: { objectType: 'rocket_body', launchDate: '1988-05-01' },
+    expected: 'coldWarVeterans',
+  },
+  {
+    satellite: 'a rocket body launched in 1992',
+    overrides: { objectType: 'rocket_body', launchDate: '1992-01-01' },
+    expected: 'spentStages',
+  },
+  {
+    satellite: 'a piece of debris after 1992',
+    overrides: { objectType: 'debris', name: 'FREGAT DEB' },
+    expected: 'spentStages',
+  },
+  {
+    satellite: 'a commercial constellation member',
+    overrides: { name: 'SPACEMOBILE-003' },
+    expected: 'constellations',
+  },
+  {
+    satellite: 'a military COSMOS satellite',
+    overrides: { name: 'COSMOS 2550' },
+    expected: 'spiesAndSecrets',
+  },
+  {
+    satellite: 'a Yaogan satellite',
+    overrides: { name: 'YAOGAN-29' },
+    expected: 'spiesAndSecrets',
+  },
+  { satellite: 'anything else after 1992', overrides: {}, expected: 'spiesAndSecrets' },
+  {
+    satellite: 'a payload with no launch date',
+    overrides: { launchDate: null },
+    expected: 'spiesAndSecrets',
+  },
+];
+
+const CATALOGUE_NAMES = new Map(satcat.map((record) => [record.NORAD_CAT_ID, record.OBJECT_NAME]));
+
 describe('collectionSetFor', () => {
-  test.each<[string, Partial<CollectionSetInput>, string]>([
-    [
-      'anything in the stations group',
-      { isStation: true, launchDate: '1970-01-01' },
-      'spaceStations',
-    ],
-    [
-      'a listed observatory, even a Cold War one',
-      { noradId: 3597, launchDate: '1968-12-07' },
-      'observatories',
-    ],
-    ['a listed Earth watcher', { noradId: 25994 }, 'earthWatchers'],
-    ['a payload launched in 1991', { launchDate: '1991-12-31' }, 'coldWarVeterans'],
-    [
-      'a rocket body launched in 1988',
-      { objectType: 'rocket_body', launchDate: '1988-05-01' },
-      'coldWarVeterans',
-    ],
-    [
-      'a rocket body launched in 1992',
-      { objectType: 'rocket_body', launchDate: '1992-01-01' },
-      'spentStages',
-    ],
-    ['a piece of debris after 1992', { objectType: 'debris', name: 'FREGAT DEB' }, 'spentStages'],
-    ['a commercial constellation member', { name: 'SPACEMOBILE-003' }, 'constellations'],
-    ['a military COSMOS satellite', { name: 'COSMOS 2550' }, 'spiesAndSecrets'],
-    ['a Yaogan satellite', { name: 'YAOGAN-29' }, 'spiesAndSecrets'],
-    ['anything else after 1992', {}, 'spiesAndSecrets'],
-    ['a payload with no launch date', { launchDate: null }, 'spiesAndSecrets'],
-  ])('%s goes in %s', (_, overrides, expected) => {
-    expect(collectionSetFor({ ...base, ...overrides })).toBe(expected);
+  describe.each(SATELLITES)('given $satellite', ({ overrides, expected }) => {
+    test(`then it goes in ${expected}`, () => {
+      expect(collectionSetFor({ ...ORDINARY_2010_PAYLOAD, ...overrides })).toBe(expected);
+    });
   });
 });
 
-describe('curated sets', () => {
-  const names = new Map(satcat.map((record) => [record.NORAD_CAT_ID, record.OBJECT_NAME]));
+describe.each([
+  { name: 'OBSERVATORIES', list: OBSERVATORIES },
+  { name: 'EARTH_WATCHERS', list: EARTH_WATCHERS },
+])('$name', ({ list }) => {
+  describe('given the bundled catalogue', () => {
+    test('then every listed satellite is in it under the same name', () => {
+      const mismatched = Object.entries(list).filter(
+        ([id, name]) => CATALOGUE_NAMES.get(Number(id)) !== name,
+      );
 
-  test.each([
-    ['observatories', OBSERVATORIES],
-    ['Earth watchers', EARTH_WATCHERS],
-  ])('every listed %s is in the bundled catalogue under the same name', (_, list) => {
-    const mismatched = Object.entries(list).filter(([id, name]) => names.get(Number(id)) !== name);
-
-    expect(mismatched).toEqual([]);
+      expect(mismatched).toEqual([]);
+    });
   });
 });

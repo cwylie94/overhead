@@ -7,10 +7,15 @@ function angularDifference(a: number, b: number): number {
   return diff > 180 ? 360 - diff : diff;
 }
 
-describe('look angles', () => {
-  test.each(skyfield.lookAngles.map((sample) => [sample.noradId, sample.time, sample] as const))(
-    'satellite %i at %i matches Skyfield',
-    (noradId, time, expected) => {
+describe('lookAnglesFromEci', () => {
+  describe('given the Skyfield look angles seen from London', () => {
+    test.each(
+      skyfield.lookAngles.map((sample) => ({
+        noradId: sample.noradId,
+        time: sample.time,
+        expected: sample,
+      })),
+    )('then satellite $noradId at $time matches Skyfield', ({ noradId, time, expected }) => {
       const position = positionAt(orbitFor(noradId), time);
       expect(position).not.toBeNull();
 
@@ -19,6 +24,6 @@ describe('look angles', () => {
       expect(Math.abs(angles.elevation - expected.elevation)).toBeLessThan(0.01);
       expect(angularDifference(angles.azimuth, expected.azimuth)).toBeLessThan(0.01);
       expect(Math.abs(angles.rangeKm - expected.rangeKm)).toBeLessThan(0.1);
-    },
-  );
+    });
+  });
 });
