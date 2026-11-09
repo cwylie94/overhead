@@ -6,14 +6,15 @@ import { useAppData } from '@/data/AppDataContext';
 import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import {
   collectableSatellitesQuery,
-  collectionPassesQuery,
   orbitElementsQuery,
   sightingRecordsQuery,
+  upcomingPassesQuery,
 } from '@/data/queries';
 import { catchWindow } from '@/domain/catchWindow';
 import { deriveCollection } from '@/domain/collection';
 import { dockingHosts } from '@/domain/docking';
 import { useNow } from '@/environment/clock';
+import { useReminders } from '@/features/tonight/useReminders';
 import { Screen } from '@/ui/Screen';
 
 import { catchTonight } from './catchTonight';
@@ -24,10 +25,11 @@ export function CollectionScreen() {
   const { t } = useTranslation();
   const { db } = useAppData();
   const now = useNow(60_000);
+  const reminders = useReminders();
   const { data: satellites } = useLiveQuery(collectableSatellitesQuery(db));
   const { data: sightings } = useLiveQuery(sightingRecordsQuery(db));
   const { data: elements } = useLiveQuery(orbitElementsQuery(db));
-  const { data: passes } = useLiveQuery(collectionPassesQuery(db, now), [now]);
+  const { data: passes } = useLiveQuery(upcomingPassesQuery(db, now), [now]);
   const docked = useMemo(
     () => new Set(dockingHosts(elements.map((row) => row.omm)).keys()),
     [elements],
@@ -46,6 +48,7 @@ export function CollectionScreen() {
         collection={collection}
         filters={filters}
         chances={chances}
+        reminders={reminders}
         now={now}
         onSetFilter={(set) => setFilters((current) => ({ ...current, set }))}
         onRarityFilter={(rarity) => setFilters((current) => ({ ...current, rarity }))}

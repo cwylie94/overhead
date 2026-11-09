@@ -1,9 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
 import { catchWindow } from '@/domain/catchWindow';
 import type { NightLabel } from '@/features/tonight/nights';
+import { ReminderButton, type ReminderControl } from '@/features/tonight/ReminderButton';
+import { canRemind } from '@/features/tonight/reminders';
+import type { Reminders } from '@/features/tonight/useReminders';
 import { formatCountdown, formatNightDate, formatPassTime } from '@/i18n/format';
 import {
   brightnessMarkColors,
@@ -14,14 +18,13 @@ import {
   typography,
 } from '@/ui/theme';
 
-import type { CatchTonight, ChancePass } from './catchTonight';
-
-export type ChanceCard = ChancePass & { id: number; name: string };
+import type { CatchTonight } from './catchTonight';
 
 type CatchTonightStripProps = {
-  chances: CatchTonight<ChanceCard>;
+  chances: CatchTonight<UpcomingPass>;
+  reminders: Reminders | null;
   now: number;
-  onPress(pass: ChanceCard): void;
+  onPress(pass: UpcomingPass): void;
 };
 
 function useHeading(label: NightLabel): string {
@@ -32,7 +35,14 @@ function useHeading(label: NightLabel): string {
   return t(`chances.${label.kind}`);
 }
 
-function Chance({ pass, now, onPress }: { pass: ChanceCard; now: number; onPress(): void }) {
+type ChanceProps = {
+  pass: UpcomingPass;
+  reminder: ReminderControl | null;
+  now: number;
+  onPress(): void;
+};
+
+function Chance({ pass, reminder, now, onPress }: ChanceProps) {
   const { t, i18n } = useTranslation(['collection', 'common']);
   const window = catchWindow(pass, now);
   const soon = window === 'live' || window === 'ready';
@@ -47,30 +57,39 @@ function Chance({ pass, now, onPress }: { pass: ChanceCard; now: number; onPress
         });
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={t('chances.label', { name: pass.name, rarity, when })}
-      testID={`chance-${pass.noradId}`}
-      onPress={onPress}
-      style={[styles.chance, { borderColor: rarityColors[pass.rarity] }]}>
-      <Text style={styles.name} numberOfLines={1}>
-        {pass.name}
-      </Text>
-      <Text style={[styles.when, soon && styles.soon]} numberOfLines={1}>
-        {window === 'ready' ? `${t('chances.ready')} · ${when}` : when}
-      </Text>
-      <View style={styles.tags}>
-        <Text style={[styles.tag, { color: rarityColors[pass.rarity] }]}>{rarity}</Text>
-        <View style={[styles.dot, { backgroundColor: brightnessMarkColors[tier] }]} />
-        <Text style={styles.brightness}>{t(`common:brightness.${tier}`)}</Text>
-      </View>
-    </Pressable>
+    <View style={[styles.chance, { borderColor: rarityColors[pass.rarity] }]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('chances.label', { name: pass.name, rarity, when })}
+        testID={`chance-${pass.noradId}`}
+        onPress={onPress}
+        style={styles.body}>
+        <Text style={styles.name} numberOfLines={1}>
+          {pass.name}
+        </Text>
+        <Text style={[styles.when, soon && styles.soon]} numberOfLines={1}>
+          {window === 'ready' ? `${t('chances.ready')} · ${when}` : when}
+        </Text>
+        <View style={styles.tags}>
+          <Text style={[styles.tag, { color: rarityColors[pass.rarity] }]}>{rarity}</Text>
+          <View style={[styles.dot, { backgroundColor: brightnessMarkColors[tier] }]} />
+          <Text style={styles.brightness}>{t(`common:brightness.${tier}`)}</Text>
+        </View>
+      </Pressable>
+      {reminder && <ReminderButton reminder={reminder} compact />}
+    </View>
   );
 }
 
-export function CatchTonightStrip({ chances, now, onPress }: CatchTonightStripProps) {
+export function CatchTonightStrip({ chances, reminders, now, onPress }: CatchTonightStripProps) {
   const { t } = useTranslation('collection');
   const heading = useHeading(chances.label);
+  const reminderFor = (pass: UpcomingPass): ReminderControl | null =>
+    reminders &&
+    catchWindow(pass, now) === 'early' &&
+    (reminders.isSet(pass) || canRemind(pass, now))
+      ? { isSet: reminders.isSet(pass), onToggle: () => reminders.toggle(pass) }
+      : null;
 
   return (
     <View style={styles.strip}>
@@ -85,7 +104,13 @@ export function CatchTonightStrip({ chances, now, onPress }: CatchTonightStripPr
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.chances}>
         {chances.passes.map((pass) => (
-          <Chance key={pass.id} pass={pass} now={now} onPress={() => onPress(pass)} />
+          <Chance
+            key={pass.id}
+            pass={pass}
+            reminder={reminderFor(pass)}
+            now={now}
+            onPress={() => onPress(pass)}
+          />
         ))}
       </ScrollView>
     </View>
@@ -113,12 +138,18 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   chance: {
-    width: 168,
+    width: 184,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: spacing.xs,
     padding: spacing.sm,
     borderRadius: radius.md,
     borderWidth: 1,
     backgroundColor: colors.surface,
+  },
+  body: {
+    flex: 1,
+    gap: spacing.xs,
   },
   name: {
     ...typography.heading,

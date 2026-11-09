@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
+import type { UpcomingPass } from '@/data/queries';
 import { deriveCollection, type CollectableSatellite } from '@/domain/collection';
 
 import type { CatchTonight } from '../catchTonight';
-import type { ChanceCard } from '../CatchTonightStrip';
 import { CollectionView, type CollectionViewProps } from '../CollectionView';
 import { rows } from '../filterCollection';
 
@@ -19,27 +19,30 @@ const collection = deriveCollection(satellites, [{ noradId: 25544, observedAt: 1
 const NOW = new Date(2026, 10, 8, 18).getTime();
 const MINUTE = 60_000;
 
-const chances: CatchTonight<ChanceCard> = {
-  label: { kind: 'tonight' },
-  passes: [
-    {
-      id: 7,
-      noradId: 20580,
-      name: 'HST',
-      rarity: 'rare',
-      startAt: NOW + 30 * MINUTE,
-      endAt: NOW + 35 * MINUTE,
-      maxElevation: 50,
-      peakMagnitude: 2,
-    },
+const hubble: UpcomingPass = {
+  id: 7,
+  noradId: 20580,
+  name: 'HST',
+  rarity: 'rare',
+  startAt: NOW + 30 * MINUTE,
+  peakAt: NOW + 32 * MINUTE,
+  endAt: NOW + 35 * MINUTE,
+  maxElevation: 50,
+  peakMagnitude: 2,
+  track: [
+    { time: NOW + 30 * MINUTE, azimuth: 225, elevation: 10 },
+    { time: NOW + 35 * MINUTE, azimuth: 45, elevation: 10 },
   ],
 };
+
+const chances: CatchTonight<UpcomingPass> = { label: { kind: 'tonight' }, passes: [hubble] };
 
 async function renderView(props: Partial<CollectionViewProps> = {}) {
   const defaults: CollectionViewProps = {
     collection,
     filters: { set: null, rarity: null },
     chances: null,
+    reminders: null,
     now: NOW,
     onSetFilter: jest.fn(),
     onRarityFilter: jest.fn(),
@@ -145,6 +148,40 @@ describe('CollectionView', () => {
     await renderView({ chances, now: NOW + 25 * MINUTE });
 
     expect(screen.getByText(/^Get ready · /)).toBeOnTheScreen();
+  });
+
+  test('toggles a reminder for a chance', async () => {
+    const toggle = jest.fn();
+    await renderView({ chances, reminders: { isSet: () => false, toggle } });
+
+    const bell = screen.getByRole('switch', { name: 'Remind me' });
+    expect(bell).not.toBeChecked();
+
+    await fireEvent.press(bell);
+
+    expect(toggle).toHaveBeenCalledWith(hubble);
+  });
+
+  test('shows a reminder that is already set', async () => {
+    await renderView({ chances, reminders: { isSet: () => true, toggle: () => {} } });
+
+    expect(screen.getByRole('switch', { name: 'Remind me' })).toBeChecked();
+  });
+
+  test('offers no reminder once the pass is about to start', async () => {
+    await renderView({
+      chances,
+      now: NOW + 25 * MINUTE,
+      reminders: { isSet: () => false, toggle: () => {} },
+    });
+
+    expect(screen.queryByRole('switch')).toBeNull();
+  });
+
+  test('offers no reminders when notifications are off', async () => {
+    await renderView({ chances, reminders: null });
+
+    expect(screen.queryByRole('switch')).toBeNull();
   });
 
   test('leaves out the strip when there is nothing to catch', async () => {

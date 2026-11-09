@@ -1,13 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, SectionList, StyleSheet, Text, View } from 'react-native';
 
+import type { UpcomingPass } from '@/data/queries';
 import type { Collection, CollectionSetProgress } from '@/domain/collection';
 import type { CollectionSet } from '@/domain/collectionSets';
 import type { Rarity } from '@/domain/types';
+import type { Reminders } from '@/features/tonight/useReminders';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import type { CatchTonight } from './catchTonight';
-import { CatchTonightStrip, type ChanceCard } from './CatchTonightStrip';
+import { CatchTonightStrip } from './CatchTonightStrip';
 import { CollectionCard } from './CollectionCard';
 import { CollectionHeader } from './CollectionHeader';
 import { filterCollection, rows, type CollectionFilters } from './filterCollection';
@@ -17,12 +19,13 @@ const CARDS_PER_ROW = 3;
 export type CollectionViewProps = {
   collection: Collection;
   filters: CollectionFilters;
-  chances: CatchTonight<ChanceCard> | null;
+  chances: CatchTonight<UpcomingPass> | null;
+  reminders: Reminders | null;
   now: number;
   onSetFilter(set: CollectionSet | null): void;
   onRarityFilter(rarity: Rarity | null): void;
   onOpen(noradId: number): void;
-  onChance(pass: ChanceCard): void;
+  onChance(pass: UpcomingPass): void;
 };
 
 function SetChip({
@@ -67,6 +70,7 @@ export function CollectionView({
   collection,
   filters,
   chances,
+  reminders,
   now,
   onSetFilter,
   onRarityFilter,
@@ -86,7 +90,9 @@ export function CollectionView({
         rarity={filters.rarity}
         onRarityFilter={onRarityFilter}
       />
-      {chances && <CatchTonightStrip chances={chances} now={now} onPress={onChance} />}
+      {chances && (
+        <CatchTonightStrip chances={chances} reminders={reminders} now={now} onPress={onChance} />
+      )}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
