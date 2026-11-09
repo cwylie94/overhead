@@ -48,6 +48,7 @@ export function AboutSection({ version, onToggleDemo }: AboutSectionProps) {
       <Pressable testID="app-version" hitSlop={spacing.md} onPress={tap}>
         <Text style={sectionStyles.caption}>{t('about.version', { version })}</Text>
       </Pressable>
+      <Text style={sectionStyles.caption}>{t('about.cityData')}</Text>
     </Section>
   );
 }

@@ -8,8 +8,7 @@
     "search": "Buscar ciudades",
     "noResults": "Ninguna ciudad coincide con «{{query}}».",
     "hint": "Escribe el nombre de una ciudad, como Madrid o Bogotá. Añade un país tras una coma para afinar.",
-    "cancel": "Cancelar",
-    "credit": "Datos de ciudades de GeoNames (CC BY 4.0)"
+    "cancel": "Cancelar"
   },
   "viewing": {
     "title": "Observación",
@@ -57,7 +56,8 @@
   },
   "about": {
     "title": "Acerca de",
-    "version": "Versión {{version}}"
+    "version": "Versión {{version}}",
+    "cityData": "Datos de ciudades de GeoNames (CC BY 4.0)"
   },
   "demo": {
     "title": "Modo demo",

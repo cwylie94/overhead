@@ -28,7 +28,6 @@ describe('CityPicker', () => {
     await renderPicker();
 
     expect(screen.getByText(/Type a city name/)).toBeOnTheScreen();
-    expect(screen.getByText('City data from GeoNames (CC BY 4.0)')).toBeOnTheScreen();
   });
 
   test('passes typing on', async () => {

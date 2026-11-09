@@ -57,7 +57,6 @@ export function CityPicker({ query, results, onChangeQuery, onSelect, onCancel }
             <Text style={styles.country}>{item.country}</Text>
           </Pressable>
         )}
-        ListFooterComponent={<Text style={styles.credit}>{t('location.credit')}</Text>}
       />
     </View>
   );
@@ -110,10 +109,5 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textMuted,
     paddingVertical: spacing.sm,
-  },
-  credit: {
-    ...typography.caption,
-    color: colors.textMuted,
-    paddingVertical: spacing.lg,
   },
 });

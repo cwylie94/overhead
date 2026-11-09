@@ -12,10 +12,11 @@ describe('AboutSection', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
 
-  test('shows the version', async () => {
+  test('shows the version and credits the city data', async () => {
     await render(<AboutSection version="1.0.0" onToggleDemo={jest.fn()} />);
 
     expect(screen.getByText('Version 1.0.0')).toBeOnTheScreen();
+    expect(screen.getByText('City data from GeoNames (CC BY 4.0)')).toBeOnTheScreen();
   });
 
   test('toggles demo mode after five quick taps on the version', async () => {
