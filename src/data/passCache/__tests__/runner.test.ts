@@ -1,16 +1,24 @@
 import { london, skyfield } from '@/domain/testing/skyfieldFixture';
 
 import { createRepositories, type Repositories } from '../../repositories';
-import { bundledSnapshot, importSnapshot } from '../../snapshot';
+import { bundledSnapshot, importSnapshot, type Snapshot } from '../../snapshot';
 import { createTestDatabase } from '../../testing/createTestDatabase';
+import { SATELLITES_PER_CHUNK } from '../passCache';
 import { createPassCacheRunner, type PassCacheRunner } from '../runner';
 
 const input = { observer: london, minElevation: 10, now: skyfield.window.start };
 const REYKJAVIK_INPUT = { ...input, observer: { ...input.observer, latitude: 64.1 } };
+const SMALL_SNAPSHOT: Snapshot = {
+  ...bundledSnapshot,
+  groups: {
+    visual: bundledSnapshot.groups.visual.slice(0, 2 * SATELLITES_PER_CHUNK + 6),
+    stations: [],
+  },
+};
 
 function setup() {
   const repositories = createRepositories(createTestDatabase());
-  importSnapshot(repositories, bundledSnapshot);
+  importSnapshot(repositories, SMALL_SNAPSHOT);
   return repositories;
 }
 
@@ -19,18 +27,21 @@ function runnerFor(repositories: Repositories) {
 }
 
 describe('createPassCacheRunner', () => {
-  describe('given a runner on a newly imported database, watched for its status', () => {
+  describe('given a runner on a newly imported database, watched for its status and whether runs replace the list', () => {
     let runner: PassCacheRunner;
     let seen: string[];
+    let replacing: boolean[];
 
-    beforeEach(() => {
+    beforeAll(() => {
       runner = runnerFor(setup());
       seen = [];
+      replacing = [];
       runner.subscribe(() => seen.push(runner.getState().status));
+      runner.subscribe(() => replacing.push(runner.getState().replacing));
     });
 
     describe('when passes are requested for London', () => {
-      beforeEach(async () => {
+      beforeAll(async () => {
         await runner.request(input);
       });
 
@@ -40,23 +51,6 @@ describe('createPassCacheRunner', () => {
 
       test('then it is idle with the time it computed for', () => {
         expect(runner.getState()).toMatchObject({ status: 'idle', computedAt: input.now });
-      });
-    });
-  });
-
-  describe('given a runner on a newly imported database, watched for whether runs replace the list', () => {
-    let runner: PassCacheRunner;
-    let replacing: boolean[];
-
-    beforeEach(() => {
-      runner = runnerFor(setup());
-      replacing = [];
-      runner.subscribe(() => replacing.push(runner.getState().replacing));
-    });
-
-    describe('when passes are requested for London', () => {
-      beforeEach(async () => {
-        await runner.request(input);
       });
 
       test('then the run says it replaces the list', () => {
@@ -69,7 +63,7 @@ describe('createPassCacheRunner', () => {
     let runner: PassCacheRunner;
     let replacing: boolean[];
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       runner = runnerFor(setup());
       await runner.request(input);
       replacing = [];
@@ -77,7 +71,7 @@ describe('createPassCacheRunner', () => {
     });
 
     describe('when a recompute is forced for London', () => {
-      beforeEach(async () => {
+      beforeAll(async () => {
         await runner.request(input, true);
       });
 
@@ -91,7 +85,7 @@ describe('createPassCacheRunner', () => {
     let runner: PassCacheRunner;
     let replacing: boolean[];
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       runner = runnerFor(setup());
       await runner.request(input);
       await runner.request(input, true);
@@ -100,7 +94,7 @@ describe('createPassCacheRunner', () => {
     });
 
     describe('when passes are requested for Reykjavik', () => {
-      beforeEach(async () => {
+      beforeAll(async () => {
         await runner.request(REYKJAVIK_INPUT);
       });
 
@@ -114,7 +108,7 @@ describe('createPassCacheRunner', () => {
     let afterRun: number;
     let reopened: PassCacheRunner;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       const repositories = setup();
       const first = runnerFor(repositories);
       await first.request(input);
@@ -127,7 +121,7 @@ describe('createPassCacheRunner', () => {
     });
 
     describe('when the new runner finds the cache fresh', () => {
-      beforeEach(async () => {
+      beforeAll(async () => {
         await reopened.request(input);
       });
 
@@ -141,7 +135,7 @@ describe('createPassCacheRunner', () => {
     let reopened: PassCacheRunner;
     let afterFreshCheck: number;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       const repositories = setup();
       await runnerFor(repositories).request(input);
       reopened = runnerFor(repositories);
@@ -150,7 +144,7 @@ describe('createPassCacheRunner', () => {
     });
 
     describe('when it finds the cache fresh again', () => {
-      beforeEach(async () => {
+      beforeAll(async () => {
         await reopened.request(input);
       });
 
@@ -168,7 +162,7 @@ describe('createPassCacheRunner', () => {
     let runner: PassCacheRunner;
     let listener: jest.Mock;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       runner = runnerFor(setup());
       await runner.request(input);
       listener = jest.fn();
@@ -176,7 +170,7 @@ describe('createPassCacheRunner', () => {
     });
 
     describe('when the same passes are requested again', () => {
-      beforeEach(async () => {
+      beforeAll(async () => {
         await runner.request(input);
       });
 
@@ -190,7 +184,7 @@ describe('createPassCacheRunner', () => {
     let runner: PassCacheRunner;
     let listener: jest.Mock;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
       runner = runnerFor(setup());
       await runner.request(input);
       listener = jest.fn();
@@ -199,7 +193,7 @@ describe('createPassCacheRunner', () => {
     });
 
     describe('when a recompute is forced', () => {
-      beforeEach(async () => {
+      beforeAll(async () => {
         await runner.request(input, true);
       });
 
@@ -215,7 +209,7 @@ describe('createPassCacheRunner', () => {
     let releaseFirst: () => void;
     let first: Promise<void>;
 
-    beforeEach(() => {
+    beforeAll(() => {
       repositories = setup();
       releaseFirst = () => {};
       let calls = 0;
@@ -234,7 +228,7 @@ describe('createPassCacheRunner', () => {
     });
 
     describe('when a newer request for 10° arrives and the first run is released', () => {
-      beforeEach(async () => {
+      beforeAll(async () => {
         const second = runner.request({ ...input, minElevation: 10 }, true);
         releaseFirst();
         await Promise.all([first, second]);
@@ -253,7 +247,7 @@ describe('createPassCacheRunner', () => {
   describe('given a runner whose database cannot store passes', () => {
     let runner: PassCacheRunner;
 
-    beforeEach(() => {
+    beforeAll(() => {
       const repositories = setup();
       runner = createPassCacheRunner(
         {
@@ -270,7 +264,7 @@ describe('createPassCacheRunner', () => {
     });
 
     describe('when passes are requested', () => {
-      beforeEach(async () => {
+      beforeAll(async () => {
         await runner.request(input);
       });
 
