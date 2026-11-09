@@ -63,7 +63,7 @@
     "delete": "Delete",
     "deleteSightingFrom": "Delete the sighting from {{when}}",
     "deleteTitle": "Delete this sighting?",
-    "deleteBody": "It’s removed from your collection, and from your other devices when they sync. This can’t be undone.",
+    "deleteBody": "It’s removed from your collection. This can’t be undone.",
     "cancel": "Cancel"
   }
 }

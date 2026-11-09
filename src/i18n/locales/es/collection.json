@@ -65,7 +65,7 @@
     "delete": "Eliminar",
     "deleteSightingFrom": "Eliminar el avistamiento del {{when}}",
     "deleteTitle": "¿Eliminar este avistamiento?",
-    "deleteBody": "Se quita de tu colección, y de tus otros dispositivos cuando se sincronicen. No se puede deshacer.",
+    "deleteBody": "Se quita de tu colección. No se puede deshacer.",
     "cancel": "Cancelar"
   }
 }

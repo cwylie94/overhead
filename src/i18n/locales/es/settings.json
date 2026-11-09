@@ -58,7 +58,7 @@
   "demo": {
     "title": "Demo",
     "body": "Reproduciendo el {{date}} en Londres desde las {{time}}, con los datos orbitales incluidos en la app.",
-    "separate": "Lo que atrapes en la demo va a una colección aparte que se borra cada vez que empieza la demo, y nada se sincroniza.",
+    "separate": "Lo que atrapes en la demo va a una colección aparte que se borra cada vez que empieza la demo.",
     "toggle": "Modo demo",
     "hint": "Reproduce una noche despejada en Londres, para que puedas probar a atrapar en cualquier momento."
   }
