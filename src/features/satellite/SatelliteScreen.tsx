@@ -1,20 +1,21 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAppData } from '@/data/AppDataContext';
 import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import { satelliteSightingsQuery } from '@/data/queries';
 import { perigeeAltitudeKm, apogeeAltitudeKm, periodMinutes } from '@/domain/orbit';
-import { useNow } from '@/environment/clock';
+import { useClock, useNow } from '@/environment/clock';
 import { formatCalendarDate, formatDistance, formatNightDate, formatPassTime } from '@/i18n/format';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Chip } from '@/ui/Chip';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 
 import { SatelliteCard } from './SatelliteCard';
+import { SightingList, type SightingListItem } from './SightingList';
 
 const OWNER_CODES = [
   'US',
@@ -52,6 +53,7 @@ export function SatelliteScreen() {
   const { t, i18n } = useTranslation(['collection', 'common']);
   const units = useSettingsStore((settings) => settings.units);
   const now = useNow(60_000);
+  const clock = useClock();
   const { db, repositories } = useAppData();
   const satellite = useMemo(() => repositories.satellites.getById(id), [repositories, id]);
   const orbit = useMemo(() => repositories.orbits.getById(id), [repositories, id]);
@@ -165,12 +167,26 @@ export function SatelliteScreen() {
     </View>
   );
 
+  const confirmDelete = (sighting: SightingListItem) => {
+    Alert.alert(t('detail.deleteTitle'), t('detail.deleteBody'), [
+      { text: t('detail.cancel'), style: 'cancel' },
+      {
+        text: t('detail.delete'),
+        style: 'destructive',
+        onPress: () => repositories.sightings.delete(sighting.id, clock.now()),
+      },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.screen}>
-      <SatelliteCard accent={accent} front={front} back={back} />
-      <Pressable accessibilityRole="button" style={styles.close} onPress={() => router.back()}>
-        <Text style={styles.closeText}>{t('detail.close')}</Text>
-      </Pressable>
+      <ScrollView contentContainerStyle={styles.content}>
+        <SatelliteCard accent={accent} front={front} back={back} />
+        <SightingList sightings={sightings} onDelete={confirmDelete} />
+        <Pressable accessibilityRole="button" style={styles.close} onPress={() => router.back()}>
+          <Text style={styles.closeText}>{t('detail.close')}</Text>
+        </Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -179,6 +195,9 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  content: {
+    flexGrow: 1,
     padding: spacing.lg,
     gap: spacing.lg,
     justifyContent: 'center',

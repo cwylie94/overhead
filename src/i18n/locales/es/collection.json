@@ -37,6 +37,14 @@
     "noPass": "Ningún paso visible en las próximas dos noches",
     "flipHint": "Toca para girar",
     "close": "Cerrar",
-    "dockedTo": "Acoplado a"
+    "dockedTo": "Acoplado a",
+    "caught": "Atrapado",
+    "caughtWithin": "Atrapado, {{degrees}}° de desvío",
+    "seen": "Visto",
+    "delete": "Eliminar",
+    "deleteSightingFrom": "Eliminar el avistamiento del {{when}}",
+    "deleteTitle": "¿Eliminar este avistamiento?",
+    "deleteBody": "Se quita de tu colección, y de tus otros dispositivos cuando se sincronicen. No se puede deshacer.",
+    "cancel": "Cancelar"
   }
 }
