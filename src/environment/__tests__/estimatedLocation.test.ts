@@ -13,41 +13,58 @@ const cities: CityRow[] = [
 ];
 
 describe('observerForTimeZone', () => {
-  test('uses the city a time zone is named after', () => {
-    expect(observerForTimeZone('Europe/Madrid', cities)).toEqual({
-      latitude: 40.417,
-      longitude: -3.704,
-      altitude: 0,
+  describe('given a time zone named after a city in the list', () => {
+    test('then it uses that city', () => {
+      expect(observerForTimeZone('Europe/Madrid', cities)).toEqual({
+        latitude: 40.417,
+        longitude: -3.704,
+        altitude: 0,
+      });
     });
   });
 
-  test('ignores accents and underscores', () => {
-    expect(observerForTimeZone('America/Bogota', cities).latitude).toBe(4.61);
-    expect(observerForTimeZone('Asia/Ho_Chi_Minh', cities).latitude).toBe(10.823);
+  describe('given a city whose name has accents or spaces', () => {
+    test.each([
+      { timeZone: 'America/Bogota', latitude: 4.61 },
+      { timeZone: 'Asia/Ho_Chi_Minh', latitude: 10.823 },
+    ])('then $timeZone still finds it', ({ timeZone, latitude }) => {
+      expect(observerForTimeZone(timeZone, cities).latitude).toBe(latitude);
+    });
   });
 
-  test('prefers an exact name over a longer one that starts with it', () => {
-    expect(observerForTimeZone('Europe/York', cities).latitude).toBe(53.958);
+  describe('given one city with the exact name and another that starts with it', () => {
+    test('then it takes the exact name', () => {
+      expect(observerForTimeZone('Europe/York', cities).latitude).toBe(53.958);
+    });
   });
 
-  test('takes the largest city that starts with the name', () => {
-    expect(observerForTimeZone('America/New_York', cities).latitude).toBe(40.714);
+  describe('given only cities whose names start with the name', () => {
+    test('then it takes the largest', () => {
+      expect(observerForTimeZone('America/New_York', cities).latitude).toBe(40.714);
+    });
   });
 
-  test('falls back to London without a matching city', () => {
-    expect(observerForTimeZone('Etc/UTC', cities)).toEqual(LONDON);
-    expect(observerForTimeZone('Pacific/Nowhere', cities)).toEqual(LONDON);
-    expect(observerForTimeZone(null, cities)).toEqual(LONDON);
-    expect(observerForTimeZone('', cities)).toEqual(LONDON);
+  describe('given a time zone with no matching city', () => {
+    test.each(['Etc/UTC', 'Pacific/Nowhere'])('then %s falls back to London', (timeZone) => {
+      expect(observerForTimeZone(timeZone, cities)).toEqual(LONDON);
+    });
   });
 
-  test.each([
-    ['Europe/Paris', 48.9],
-    ['America/Los_Angeles', 34.1],
-    ['Asia/Tokyo', 35.7],
-    ['Australia/Sydney', -33.9],
-    ['America/Argentina/Buenos_Aires', -34.6],
-  ])('finds %s in the bundled city list', (timeZone, latitude) => {
-    expect(observerForTimeZone(timeZone, CITIES).latitude).toBeCloseTo(latitude, 0);
+  describe('given no time zone', () => {
+    test.each([null, ''])('then %p falls back to London', (timeZone) => {
+      expect(observerForTimeZone(timeZone, cities)).toEqual(LONDON);
+    });
+  });
+
+  describe('given the bundled city list', () => {
+    test.each([
+      { timeZone: 'Europe/Paris', latitude: 48.9 },
+      { timeZone: 'America/Los_Angeles', latitude: 34.1 },
+      { timeZone: 'Asia/Tokyo', latitude: 35.7 },
+      { timeZone: 'Australia/Sydney', latitude: -33.9 },
+      { timeZone: 'America/Argentina/Buenos_Aires', latitude: -34.6 },
+    ])('then $timeZone is found near latitude $latitude', ({ timeZone, latitude }) => {
+      expect(observerForTimeZone(timeZone, CITIES).latitude).toBeCloseTo(latitude, 0);
+    });
   });
 });
