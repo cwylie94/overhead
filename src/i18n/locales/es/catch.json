@@ -12,7 +12,26 @@
     "waiting": "Aparece {{countdown}}. Mientras, oriéntate."
   },
   "calibrate": "La brújula necesita calibrarse. Mueve el teléfono dibujando un ocho.",
-  "caughtBody": "{{name}} ya está en tu colección.",
+  "caught": {
+    "caught": "¡Atrapado!",
+    "legendary": "¡Captura legendaria!",
+    "again": "Atrapado de nuevo",
+    "setComplete": "¡Colección completa!",
+    "new": "NUEVO",
+    "times_one": "Atrapado una vez",
+    "times_many": "Atrapado {{count}} veces",
+    "times_other": "Atrapado {{count}} veces",
+    "personalBest": "Tu mejor puntería: {{now}}°, antes {{was}}°",
+    "offTarget": "de desvío",
+    "time": "atrapado",
+    "peak": "altura máxima",
+    "setStep": "{{before}} → {{after}} de {{total}}",
+    "setCount": "{{caught}} de {{total}} atrapados",
+    "upNext": "A continuación, {{countdown}}",
+    "upNow": "Visible ahora",
+    "catchNext": "Atrapar {{name}}",
+    "viewCard": "Ver carta"
+  },
   "done": "Listo",
   "catch": "Atrapar",
   "camera": {

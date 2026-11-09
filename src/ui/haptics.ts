@@ -13,4 +13,9 @@ export const haptics = {
   select: () => play(() => Haptics.selectionAsync()),
   locked: () => play(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)),
   caught: () => play(() => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)),
+  bigCatch: () =>
+    play(async () => {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }),
 };

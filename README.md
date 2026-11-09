@@ -6,7 +6,7 @@ The loop is **Plan → Point → Catch → Collect**:
 
 - **Tonight** lists every visible pass for the next two nights, with when and where to look, how bright it will be and how rare it is. You can ask for a reminder 5 minutes before. It uses GPS, or a city you choose in Settings, which also works if you'd rather not share your location.
 - **Sky** shows the dome overhead with each satellite's path. Drag the timeline to see the sky later tonight, pinch to zoom, or turn on Compass to match the dome to the way you're facing.
-- **Catch** points you at a satellite during its pass, and opens up to 10 minutes early so you can get ready. Keep the crosshair on it for 3 seconds, guided by haptic pulses, to catch it; with the phone's sensors there's no need to touch the screen. On a phone you can show the camera behind the crosshair, with the satellite's path drawn over the real sky, and line up the Moon to correct the compass.
+- **Catch** points you at a satellite during its pass, and opens up to 10 minutes early so you can get ready. Keep the crosshair on it for 3 seconds, guided by haptic pulses, to catch it; with the phone's sensors there's no need to touch the screen. The catch reveals its card, with how close you were, your set's progress and the next pass worth catching. On a phone you can show the camera behind the crosshair, with the satellite's path drawn over the real sky, and line up the Moon to correct the compass.
 - **Collection** groups everything you've caught into themed sets, with a card for each satellite.
 
 Built with Expo (SDK 58), React Native and TypeScript, in English and Spanish.

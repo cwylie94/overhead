@@ -90,9 +90,13 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
         },
         { now: clock.now(), randomBytes: Crypto.getRandomBytes },
       );
-      haptics.caught();
+      if (pass.rarity === 'rare' || pass.rarity === 'legendary') {
+        haptics.bigCatch();
+      } else {
+        haptics.caught();
+      }
     }
-  }, [machine, pass.noradId, clock, repositories]);
+  }, [machine, pass.noradId, pass.rarity, clock, repositories]);
 
   return {
     machine,

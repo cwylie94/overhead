@@ -12,7 +12,25 @@
     "waiting": "Appears {{countdown}}. Get your bearings in the meantime."
   },
   "calibrate": "Your compass needs calibrating. Move your phone in a figure of eight.",
-  "caughtBody": "{{name}} is in your collection.",
+  "caught": {
+    "caught": "Caught!",
+    "legendary": "Legendary catch!",
+    "again": "Caught again",
+    "setComplete": "Set complete!",
+    "new": "NEW",
+    "times_one": "Caught once",
+    "times_other": "Caught {{count}} times",
+    "personalBest": "Your best aim yet: {{now}}°, was {{was}}°",
+    "offTarget": "off target",
+    "time": "caught",
+    "peak": "peak height",
+    "setStep": "{{before}} → {{after}} of {{total}}",
+    "setCount": "{{caught}} of {{total}} caught",
+    "upNext": "Up next, {{countdown}}",
+    "upNow": "Up now",
+    "catchNext": "Catch {{name}}",
+    "viewCard": "View card"
+  },
   "done": "Done",
   "catch": "Catch",
   "camera": {

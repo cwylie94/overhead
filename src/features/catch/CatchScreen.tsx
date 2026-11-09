@@ -3,13 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  Easing,
-  runOnJS,
-  useSharedValue,
-  withTiming,
-  ZoomIn,
-} from 'react-native-reanimated';
+import { Easing, runOnJS, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAppData } from '@/data/AppDataContext';
@@ -24,13 +18,13 @@ import { useLocation } from '@/environment/location';
 import { formatCountdown } from '@/i18n/format';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Banner } from '@/ui/Banner';
-import { Chip } from '@/ui/Chip';
 import { ALWAYS_ANIMATE } from '@/ui/motion';
-import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
+import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import { CalibrationControls } from './CalibrationControls';
 import { CameraCatchView } from './CameraCatchView';
 import { CatchCanvas, POINTS_PER_DEGREE } from './CatchCanvas';
+import { CaughtOverlay } from './CaughtOverlay';
 import { manualPointing } from './pointing';
 import { useCameraAim } from './useCameraAim';
 import { useCatchSession } from './useCatchSession';
@@ -111,6 +105,7 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
   }, [machine.status, progress]);
 
   const manual = pointing.mode === 'manual';
+  const caught = machine.status === 'caught';
   const { azimuth, elevation, setManual } = pointing;
   const { setTouching } = session;
 
@@ -148,31 +143,32 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <View style={styles.header}>
-        <Text accessibilityRole="header" style={styles.title}>
-          {t('title', { name: pass.name })}
-        </Text>
-        {current && (
-          <Text style={styles.look}>
-            {t('look', {
-              direction: t(`common:compass.${compassPoint(current.azimuth)}`),
-              degrees: Math.round(current.elevation),
-            })}
+      <View style={[styles.chrome, caught && styles.hidden]}>
+        <View style={styles.header}>
+          <Text accessibilityRole="header" style={styles.title}>
+            {t('title', { name: pass.name })}
           </Text>
+          {current && (
+            <Text style={styles.look}>
+              {t('look', {
+                direction: t(`common:compass.${compassPoint(current.azimuth)}`),
+                degrees: Math.round(current.elevation),
+              })}
+            </Text>
+          )}
+          <Text style={styles.status}>{statusText}</Text>
+        </View>
+
+        {customLocation && !demo && (
+          <Banner
+            message={t('common:banners.chosenLocation', {
+              name: customLocation.name,
+              country: customLocation.country,
+            })}
+          />
         )}
-        <Text style={styles.status}>{statusText}</Text>
+        {pointing.calibrate && !manual && <Banner tone="warning" message={t('calibrate')} />}
       </View>
-
-      {customLocation && !demo && (
-        <Banner
-          message={t('common:banners.chosenLocation', {
-            name: customLocation.name,
-            country: customLocation.country,
-          })}
-        />
-      )}
-      {pointing.calibrate && !manual && <Banner tone="warning" message={t('calibrate')} />}
-
       <GestureDetector gesture={hold}>
         {aim.cameraOn && aim.device ? (
           <View style={styles.camera}>
@@ -207,58 +203,62 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
           </View>
         )}
       </GestureDetector>
+      <View style={[styles.chrome, caught && styles.hidden]}>
+        <Text style={styles.hint}>{manual ? t('holdManual') : t('hold')}</Text>
 
-      <Text style={styles.hint}>{manual ? t('holdManual') : t('hold')}</Text>
+        {aim.cameraOn && (
+          <CalibrationControls
+            calibrating={aim.calibrating}
+            moonUp={aim.moonUp}
+            calibratedAt={aim.calibratedAt}
+            tooFar={aim.tooFar}
+            now={now}
+            onStart={aim.startCalibration}
+            onSet={aim.setCalibration}
+            onCancel={aim.cancelCalibration}
+          />
+        )}
+        {aim.available &&
+          (aim.denied ? (
+            <Pressable accessibilityRole="button" onPress={aim.openSettings}>
+              <Text style={styles.hint}>{t('camera.denied')}</Text>
+              <Text style={[styles.hint, styles.link]}>{t('camera.openSettings')}</Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              accessibilityRole="button"
+              style={styles.secondary}
+              onPress={() => {
+                aim.toggleCamera().catch(() => {});
+              }}>
+              <Text style={styles.secondaryText}>
+                {aim.cameraOn ? t('camera.hide') : t('camera.show')}
+              </Text>
+            </Pressable>
+          ))}
 
-      {aim.cameraOn && (
-        <CalibrationControls
-          calibrating={aim.calibrating}
-          moonUp={aim.moonUp}
-          calibratedAt={aim.calibratedAt}
-          tooFar={aim.tooFar}
-          now={now}
-          onStart={aim.startCalibration}
-          onSet={aim.setCalibration}
-          onCancel={aim.cancelCalibration}
-        />
-      )}
-      {aim.available &&
-        (aim.denied ? (
-          <Pressable accessibilityRole="button" onPress={aim.openSettings}>
-            <Text style={styles.hint}>{t('camera.denied')}</Text>
-            <Text style={[styles.hint, styles.link]}>{t('camera.openSettings')}</Text>
-          </Pressable>
-        ) : (
-          <Pressable
-            accessibilityRole="button"
-            style={styles.secondary}
-            onPress={() => {
-              aim.toggleCamera().catch(() => {});
-            }}>
-            <Text style={styles.secondaryText}>
-              {aim.cameraOn ? t('camera.hide') : t('camera.show')}
-            </Text>
-          </Pressable>
-        ))}
-
-      <DoneButton />
+        <DoneButton />
+      </View>
 
       {machine.status === 'caught' && (
-        <Animated.View entering={ZoomIn.springify()} style={styles.celebration}>
-          <Text style={styles.caughtTitle}>{t('status.caught')}</Text>
-          <Text style={styles.caughtName}>{pass.name}</Text>
-          <View style={styles.centered}>
-            <Chip label={t(`common:rarity.${pass.rarity}`)} color={rarityColors[pass.rarity]} />
-          </View>
-          <Text style={styles.hint}>{t('caughtBody', { name: pass.name })}</Text>
-          <DoneButton />
-        </Animated.View>
+        <CaughtOverlay
+          pass={pass}
+          caughtAt={machine.caughtAt}
+          angleError={machine.angleError}
+          now={now}
+        />
       )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  chrome: {
+    gap: spacing.md,
+  },
+  hidden: {
+    opacity: 0,
+  },
   screen: {
     flex: 1,
     backgroundColor: colors.background,
@@ -307,25 +307,5 @@ const styles = StyleSheet.create({
   secondaryText: {
     ...typography.heading,
     color: colors.text,
-  },
-  celebration: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.md,
-    padding: spacing.lg,
-  },
-  centered: {
-    alignSelf: 'center',
-  },
-  caughtTitle: {
-    ...typography.title,
-    color: colors.accent,
-  },
-  caughtName: {
-    ...typography.title,
-    color: colors.text,
-    textAlign: 'center',
   },
 });

@@ -68,6 +68,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
   - With no sensor data within 2.5 s (as on the simulator), it falls back to drag-to-aim. Demo mode aims with the compass like normal use on a phone.
   - A 50 ms JS ticker feeds the catch machine (`aimCounts`): readings count once the pass has started, always with sensors and only while a finger is down in drag-to-aim.
   - Catch mode opens up to 10 minutes early (`catchWindow` in `src/domain/catchWindow.ts`): Tonight shows Get ready, the marker waits dimmed where the satellite will appear, and nothing can be caught or logged as seen until it does.
+  - The Caught screen (`CaughtOverlay` → `CaughtView`) is worked out by `catchSummary.ts`: a new catch or a repeat, a personal best, the set's progress (and whether this catch completes it) and the next worthwhile pass starting within 10 minutes. Its card flip, progress fill and burst live in `CaughtEffects.tsx`, which view tests mock. Rare and Legendary catches get a stronger haptic.
   - Log sightings through `logSighting` (UUIDv7 IDs), and guard against duplicates with something stable such as the catch time, never a flag an effect resets.
   - Untested on real hardware: whether the iOS heading follows the back camera when the phone is upright, and how accurate the field of view is. Check both on a phone, using the Moon marker, before the demo.
 - Routes outside the tabs: `catch/[passId]` (full-screen modal), `satellite/[noradId]` (modal) and `onboarding`, all declared in the root `Stack`.
