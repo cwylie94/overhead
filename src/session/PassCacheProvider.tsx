@@ -1,10 +1,9 @@
 import { createContext, useContext, useEffect, useSyncExternalStore, type ReactNode } from 'react';
 
+import type { PassCacheRunner, PassCacheState } from '@/data/passCache/runner';
 import { useClock, useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
 import { useSettingsStore } from '@/stores/settingsStore';
-
-import type { PassCacheRunner, PassCacheState } from './runner';
 
 const CHECK_EVERY = 10 * 60_000;
 

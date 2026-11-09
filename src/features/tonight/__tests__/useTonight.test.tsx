@@ -31,7 +31,7 @@ jest.mock('@/data/liveQuery/useLiveQuery', () => ({
       ? { data: [mockPass], loadedAt: MOCK_LOADED_AT }
       : { data: mockFetchedAt.map((fetchedAt) => ({ fetchedAt })), loadedAt: MOCK_LOADED_AT },
 }));
-jest.mock('@/data/passCache/PassCacheScheduler', () => ({
+jest.mock('@/session/PassCacheProvider', () => ({
   usePassCache: () => ({
     state: { status: 'idle', computedAt: MOCK_NOW, settledAt: MOCK_NOW, replacing: false },
     refresh: mockRefresh,

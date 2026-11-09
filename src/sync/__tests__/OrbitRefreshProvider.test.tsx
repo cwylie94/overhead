@@ -14,7 +14,7 @@ const mockRefreshPasses = jest.fn(async () => {});
 let networkListener: ((state: Pick<NetInfoState, 'isConnected'>) => void) | null = null;
 const unsubscribeNetwork = jest.fn();
 
-jest.mock('@/data/passCache/PassCacheScheduler', () => ({
+jest.mock('@/session/PassCacheProvider', () => ({
   usePassCache: () => ({ refresh: mockRefreshPasses }),
 }));
 

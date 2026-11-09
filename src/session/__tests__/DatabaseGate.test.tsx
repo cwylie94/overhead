@@ -1,15 +1,15 @@
 import { act, render, screen } from '@testing-library/react-native';
 import * as SplashScreen from 'expo-splash-screen';
 
+import { AppDataProvider } from '@/data/AppDataContext';
+import type { AppData } from '@/data/client';
+import { prepareDatabase } from '@/data/prepareDatabase';
 import { Text } from '@/ui/Text';
 
-import { AppDataProvider } from '../AppDataContext';
-import type { AppData } from '../client';
 import { DatabaseGate } from '../DatabaseGate';
-import { prepareDatabase } from '../prepareDatabase';
 
 jest.mock('expo-splash-screen', () => ({ hideAsync: jest.fn() }));
-jest.mock('../prepareDatabase', () => ({ prepareDatabase: jest.fn() }));
+jest.mock('@/data/prepareDatabase', () => ({ prepareDatabase: jest.fn() }));
 
 const data = { key: 'test' } as AppData;
 

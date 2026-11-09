@@ -3,11 +3,10 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, View } from 'react-native';
 
+import { useAppData } from '@/data/AppDataContext';
+import { prepareDatabase } from '@/data/prepareDatabase';
 import { Text } from '@/ui/Text';
 import { colors, spacing, typography } from '@/ui/theme';
-
-import { useAppData } from './AppDataContext';
-import { prepareDatabase } from './prepareDatabase';
 
 type DatabaseGateProps = {
   children: ReactNode;

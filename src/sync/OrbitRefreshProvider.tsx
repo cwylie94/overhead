@@ -3,8 +3,8 @@ import { useCallback, useEffect, useRef, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 
 import { useAppData } from '@/data/AppDataContext';
-import { usePassCache } from '@/data/passCache/PassCacheScheduler';
 import { useClock } from '@/environment/clock';
+import { usePassCache } from '@/session/PassCacheProvider';
 import { useOrbitRefreshStore } from '@/stores/orbitRefreshStore';
 
 import { anyFailed, httpOrbitFetcher, orbitsChanged, refreshOrbits } from './celestrak';

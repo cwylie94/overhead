@@ -1,12 +1,12 @@
 import { act, render, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
+import type { PassCacheRunner, PassCacheState } from '@/data/passCache/runner';
 import { ClockProvider } from '@/environment/clock';
 import type { LocationState } from '@/environment/location';
 import { useSettingsStore } from '@/stores/settingsStore';
 
-import { PassCacheProvider, usePassCache } from '../PassCacheScheduler';
-import type { PassCacheRunner, PassCacheState } from '../runner';
+import { PassCacheProvider, usePassCache } from '../PassCacheProvider';
 
 const MINUTE = 60_000;
 const LONDON = { latitude: 51.5, longitude: -0.13, altitude: 0 };

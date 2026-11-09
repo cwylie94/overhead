@@ -7,12 +7,12 @@ import { useMemo } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AppDataProvider } from '@/data/AppDataContext';
-import { DatabaseGate } from '@/data/DatabaseGate';
-import { PassCacheProvider } from '@/data/passCache/PassCacheScheduler';
 import { useAppSession, type DemoEnvironment } from '@/demo/session';
 import { ClockProvider, systemClock } from '@/environment/clock';
 import { LocationProvider } from '@/environment/location';
 import { configureNotificationHandler } from '@/reminders/reminders';
+import { DatabaseGate } from '@/session/DatabaseGate';
+import { PassCacheProvider } from '@/session/PassCacheProvider';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { OrbitRefreshProvider } from '@/sync/OrbitRefreshProvider';
 import { MotionConfig } from '@/ui/motion';
