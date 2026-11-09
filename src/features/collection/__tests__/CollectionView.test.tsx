@@ -2,6 +2,8 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import { deriveCollection, type CollectableSatellite } from '@/domain/collection';
 
+import type { CatchTonight } from '../catchTonight';
+import type { ChanceCard } from '../CatchTonightStrip';
 import { CollectionView, type CollectionViewProps } from '../CollectionView';
 import { rows } from '../filterCollection';
 
@@ -14,31 +16,57 @@ const satellites: CollectableSatellite[] = [
 
 const collection = deriveCollection(satellites, [{ noradId: 25544, observedAt: 1 }]);
 
+const NOW = new Date(2026, 10, 8, 18).getTime();
+const MINUTE = 60_000;
+
+const chances: CatchTonight<ChanceCard> = {
+  label: { kind: 'tonight' },
+  passes: [
+    {
+      id: 7,
+      noradId: 20580,
+      name: 'HST',
+      rarity: 'rare',
+      startAt: NOW + 30 * MINUTE,
+      endAt: NOW + 35 * MINUTE,
+      maxElevation: 50,
+      peakMagnitude: 2,
+    },
+  ],
+};
+
 async function renderView(props: Partial<CollectionViewProps> = {}) {
   const defaults: CollectionViewProps = {
     collection,
     filters: { set: null, rarity: null },
+    chances: null,
+    now: NOW,
     onSetFilter: jest.fn(),
     onRarityFilter: jest.fn(),
     onOpen: jest.fn(),
+    onChance: jest.fn(),
   };
   await render(<CollectionView {...defaults} {...props} />);
   return { ...defaults, ...props };
 }
 
 describe('CollectionView', () => {
-  test('shows overall and per-set progress', async () => {
+  test('shows overall, per-rarity and per-set progress', async () => {
     await renderView();
 
-    expect(screen.getByText('1 of 4 caught')).toBeOnTheScreen();
+    expect(screen.getByLabelText('1 of 4 caught')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Common, 1 of 2 caught' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Legendary, 0 of 1 caught' })).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: /^Uncommon/ })).toBeNull();
     expect(screen.getByRole('header', { name: 'Space stations' })).toBeOnTheScreen();
-    expect(screen.getByText('1 of 2 caught')).toBeOnTheScreen();
+    expect(screen.getByText('1 of 2 caught · One to go')).toBeOnTheScreen();
   });
 
-  test('names caught satellites and hides the rest as silhouettes', async () => {
+  test('names caught satellites with their catch date and hides the rest', async () => {
     await renderView();
 
     expect(screen.getByText('ISS (ZARYA)')).toBeOnTheScreen();
+    expect(screen.getByText('Caught Jan 1')).toBeOnTheScreen();
     expect(screen.queryByText('HST')).toBeNull();
     expect(screen.getByRole('button', { name: 'Not caught yet, Rare' })).toBeOnTheScreen();
   });
@@ -46,9 +74,20 @@ describe('CollectionView', () => {
   test('opens a card, caught or not', async () => {
     const { onOpen } = await renderView();
 
-    fireEvent.press(screen.getByRole('button', { name: 'Not caught yet, Legendary' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Not caught yet, Legendary' }));
 
     expect(onOpen).toHaveBeenCalledWith(694);
+  });
+
+  test('marks a finished set as complete', async () => {
+    await renderView({
+      collection: deriveCollection(satellites, [
+        { noradId: 25544, observedAt: 1 },
+        { noradId: 48274, observedAt: 2 },
+      ]),
+    });
+
+    expect(screen.getByText('2 of 2 caught · Complete')).toBeOnTheScreen();
   });
 
   test('filters by set', async () => {
@@ -74,11 +113,44 @@ describe('CollectionView', () => {
   test('toggles a set filter on and off', async () => {
     const { onSetFilter } = await renderView({ filters: { set: 'spaceStations', rarity: null } });
 
-    fireEvent.press(screen.getByRole('button', { name: 'Observatories' }));
-    fireEvent.press(screen.getByRole('button', { name: 'Space stations' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Observatories, 0 of 1 caught' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Space stations, 1 of 2 caught' }));
 
     expect(onSetFilter).toHaveBeenNthCalledWith(1, 'observatories');
     expect(onSetFilter).toHaveBeenNthCalledWith(2, null);
+  });
+
+  test('toggles a rarity filter from its meter', async () => {
+    const { onRarityFilter } = await renderView({ filters: { set: null, rarity: 'rare' } });
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Legendary, 0 of 1 caught' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Rare, 0 of 1 caught' }));
+
+    expect(onRarityFilter).toHaveBeenNthCalledWith(1, 'legendary');
+    expect(onRarityFilter).toHaveBeenNthCalledWith(2, null);
+  });
+
+  test('lists uncaught satellites to catch tonight', async () => {
+    const { onChance } = await renderView({ chances });
+
+    expect(screen.getByRole('header', { name: 'Catch tonight' })).toBeOnTheScreen();
+    expect(screen.getByText('1 to catch')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByTestId('chance-20580'));
+
+    expect(onChance).toHaveBeenCalledWith(chances.passes[0]);
+  });
+
+  test('says when a chance is about to start', async () => {
+    await renderView({ chances, now: NOW + 25 * MINUTE });
+
+    expect(screen.getByText(/^Get ready · /)).toBeOnTheScreen();
+  });
+
+  test('leaves out the strip when there is nothing to catch', async () => {
+    await renderView();
+
+    expect(screen.queryByRole('header', { name: 'Catch tonight' })).toBeNull();
   });
 });
 

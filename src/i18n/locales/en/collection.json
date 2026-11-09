@@ -10,10 +10,30 @@
   },
   "progress": "{{caught}} of {{total}} caught",
   "summary": "{{caught}} of {{total}} caught",
+  "summaryTotal": "of {{total}} caught",
+  "count": "{{caught}}/{{total}}",
+  "rarityMeter": "{{rarity}}, {{caught}} of {{total}} caught",
+  "setChip": "{{name}}, {{caught}} of {{total}} caught",
+  "setStatus": {
+    "complete": "Complete",
+    "oneToGo": "One to go"
+  },
   "filters": {
     "all": "All"
   },
   "unknown": "Not caught yet",
+  "caughtOn": "Caught {{date}}",
+  "chances": {
+    "tonight": "Catch tonight",
+    "tomorrow": "Catch tomorrow night",
+    "later": "Catch on {{night}}",
+    "count_one": "{{count}} to catch",
+    "count_other": "{{count}} to catch",
+    "when": "{{time}} · {{countdown}}",
+    "live": "Up now",
+    "ready": "Get ready",
+    "label": "{{name}}, {{rarity}}, {{when}}"
+  },
   "empty": "No satellites match these filters.",
   "detail": {
     "notCaught": "Not caught yet",

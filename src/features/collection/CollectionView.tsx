@@ -1,12 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, SectionList, StyleSheet, Text, View } from 'react-native';
 
-import type { Collection } from '@/domain/collection';
-import { COLLECTION_SETS, type CollectionSet } from '@/domain/collectionSets';
-import { RARITIES, type Rarity } from '@/domain/types';
-import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
+import type { Collection, CollectionSetProgress } from '@/domain/collection';
+import type { CollectionSet } from '@/domain/collectionSets';
+import type { Rarity } from '@/domain/types';
+import { colors, radius, spacing, typography } from '@/ui/theme';
 
+import type { CatchTonight } from './catchTonight';
+import { CatchTonightStrip, type ChanceCard } from './CatchTonightStrip';
 import { CollectionCard } from './CollectionCard';
+import { CollectionHeader } from './CollectionHeader';
 import { filterCollection, rows, type CollectionFilters } from './filterCollection';
 
 const CARDS_PER_ROW = 3;
@@ -14,45 +17,63 @@ const CARDS_PER_ROW = 3;
 export type CollectionViewProps = {
   collection: Collection;
   filters: CollectionFilters;
+  chances: CatchTonight<ChanceCard> | null;
+  now: number;
   onSetFilter(set: CollectionSet | null): void;
   onRarityFilter(rarity: Rarity | null): void;
   onOpen(noradId: number): void;
+  onChance(pass: ChanceCard): void;
 };
 
-function FilterChip({
+function SetChip({
   label,
+  count,
+  accessibilityLabel,
   active,
-  color,
   onPress,
 }: {
   label: string;
+  count?: string;
+  accessibilityLabel?: string;
   active: boolean;
-  color?: string;
   onPress(): void;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ selected: active }}
       onPress={onPress}
-      style={[
-        styles.chip,
-        active && styles.chipActive,
-        color !== undefined && { borderColor: color },
-      ]}>
-      <Text style={[styles.chipText, active && styles.chipTextActive]}>{label}</Text>
+      style={[styles.chip, active && styles.chipActive]}>
+      <Text style={[styles.chipText, active && styles.chipTextActive]}>
+        {label}
+        {count !== undefined && (
+          <Text style={[styles.chipCount, active && styles.chipTextActive]}> {count}</Text>
+        )}
+      </Text>
     </Pressable>
   );
+}
+
+function setStatus(progress: CollectionSetProgress): 'complete' | 'oneToGo' | null {
+  const left = progress.total - progress.caught;
+  if (left === 0) {
+    return 'complete';
+  }
+  return left === 1 && progress.total > 1 ? 'oneToGo' : null;
 }
 
 export function CollectionView({
   collection,
   filters,
+  chances,
+  now,
   onSetFilter,
   onRarityFilter,
   onOpen,
+  onChance,
 }: CollectionViewProps) {
-  const { t } = useTranslation(['collection', 'common']);
+  const { t } = useTranslation('collection');
   const sections = filterCollection(collection, filters).map((progress) => ({
     ...progress,
     data: rows(progress.cards, CARDS_PER_ROW),
@@ -60,45 +81,38 @@ export function CollectionView({
 
   const header = (
     <View style={styles.header}>
-      <Text style={styles.summary}>
-        {t('summary', { caught: collection.caught, total: collection.total })}
-      </Text>
+      <CollectionHeader
+        collection={collection}
+        rarity={filters.rarity}
+        onRarityFilter={onRarityFilter}
+      />
+      {chances && <CatchTonightStrip chances={chances} now={now} onPress={onChance} />}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.chips}>
-        <FilterChip
+        <SetChip
           label={t('filters.all')}
           active={filters.set === null}
           onPress={() => onSetFilter(null)}
         />
-        {COLLECTION_SETS.map((set) => (
-          <FilterChip
-            key={set}
-            label={t(`sets.${set}`)}
-            active={filters.set === set}
-            onPress={() => onSetFilter(filters.set === set ? null : set)}
-          />
-        ))}
-      </ScrollView>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chips}>
-        <FilterChip
-          label={t('filters.all')}
-          active={filters.rarity === null}
-          onPress={() => onRarityFilter(null)}
-        />
-        {RARITIES.map((rarity) => (
-          <FilterChip
-            key={rarity}
-            label={t(`common:rarity.${rarity}`)}
-            color={rarityColors[rarity]}
-            active={filters.rarity === rarity}
-            onPress={() => onRarityFilter(filters.rarity === rarity ? null : rarity)}
-          />
-        ))}
+        {collection.sets.map((progress) => {
+          const name = t(`sets.${progress.id}`);
+          return (
+            <SetChip
+              key={progress.id}
+              label={name}
+              count={t('count', { caught: progress.caught, total: progress.total })}
+              accessibilityLabel={t('setChip', {
+                name,
+                caught: progress.caught,
+                total: progress.total,
+              })}
+              active={filters.set === progress.id}
+              onPress={() => onSetFilter(filters.set === progress.id ? null : progress.id)}
+            />
+          );
+        })}
       </ScrollView>
     </View>
   );
@@ -110,23 +124,31 @@ export function CollectionView({
       stickySectionHeadersEnabled={false}
       ListHeaderComponent={header}
       ListEmptyComponent={<Text style={styles.empty}>{t('empty')}</Text>}
-      renderSectionHeader={({ section }) => (
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleRow}>
-            <Text accessibilityRole="header" style={styles.sectionTitle}>
-              {t(`sets.${section.id}`)}
-            </Text>
-            <Text style={styles.progressText}>
-              {t('progress', { caught: section.caught, total: section.total })}
-            </Text>
+      renderSectionHeader={({ section }) => {
+        const status = setStatus(section);
+        const progress = t('progress', { caught: section.caught, total: section.total });
+        return (
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleRow}>
+              <Text accessibilityRole="header" style={styles.sectionTitle}>
+                {t(`sets.${section.id}`)}
+              </Text>
+              <Text style={[styles.progressText, status !== null && styles.statusText]}>
+                {status === null ? progress : `${progress} · ${t(`setStatus.${status}`)}`}
+              </Text>
+            </View>
+            <View style={styles.progressTrack}>
+              <View
+                style={[
+                  styles.progressFill,
+                  status === 'complete' && styles.progressComplete,
+                  { width: `${(section.caught / section.total) * 100}%` },
+                ]}
+              />
+            </View>
           </View>
-          <View style={styles.progressTrack}>
-            <View
-              style={[styles.progressFill, { width: `${(section.caught / section.total) * 100}%` }]}
-            />
-          </View>
-        </View>
-      )}
+        );
+      }}
       renderItem={({ item }) => (
         <View style={styles.row}>
           {item.map((card) => (
@@ -147,12 +169,8 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl * 3,
   },
   header: {
-    gap: spacing.sm,
+    gap: spacing.md,
     marginBottom: spacing.sm,
-  },
-  summary: {
-    ...typography.body,
-    color: colors.textMuted,
   },
   chips: {
     gap: spacing.sm,
@@ -171,6 +189,9 @@ const styles = StyleSheet.create({
   chipText: {
     ...typography.label,
     color: colors.text,
+  },
+  chipCount: {
+    color: colors.textMuted,
   },
   chipTextActive: {
     color: colors.background,
@@ -193,6 +214,9 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textMuted,
   },
+  statusText: {
+    color: colors.success,
+  },
   progressTrack: {
     height: 4,
     borderRadius: 2,
@@ -202,6 +226,9 @@ const styles = StyleSheet.create({
   progressFill: {
     height: 4,
     backgroundColor: colors.accent,
+  },
+  progressComplete: {
+    backgroundColor: colors.success,
   },
   row: {
     flexDirection: 'row',

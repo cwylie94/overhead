@@ -10,10 +10,31 @@
   },
   "progress": "{{caught}} de {{total}} atrapados",
   "summary": "{{caught}} de {{total}} atrapados",
+  "summaryTotal": "de {{total}} atrapados",
+  "count": "{{caught}}/{{total}}",
+  "rarityMeter": "{{rarity}}, {{caught}} de {{total}} atrapados",
+  "setChip": "{{name}}, {{caught}} de {{total}} atrapados",
+  "setStatus": {
+    "complete": "Completa",
+    "oneToGo": "Falta uno"
+  },
   "filters": {
     "all": "Todos"
   },
   "unknown": "Aún sin atrapar",
+  "caughtOn": "Atrapado el {{date}}",
+  "chances": {
+    "tonight": "Por atrapar esta noche",
+    "tomorrow": "Por atrapar mañana por la noche",
+    "later": "Por atrapar el {{night}}",
+    "count_one": "Queda {{count}}",
+    "count_many": "Quedan {{count}}",
+    "count_other": "Quedan {{count}}",
+    "when": "{{time}} · {{countdown}}",
+    "live": "Visible ahora",
+    "ready": "Prepárate",
+    "label": "{{name}}, {{rarity}}, {{when}}"
+  },
   "empty": "Ningún satélite coincide con estos filtros.",
   "detail": {
     "notCaught": "Aún sin atrapar",
