@@ -96,3 +96,12 @@ export function deriveCollection(
     total: sets.reduce((sum, set) => sum + set.total, 0),
   };
 }
+
+export function caughtIds(collection: Collection): Set<number> {
+  return new Set(
+    collection.sets
+      .flatMap((set) => set.cards)
+      .filter((card) => card.caughtAt !== null)
+      .map((card) => card.noradId),
+  );
+}

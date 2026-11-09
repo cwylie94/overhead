@@ -1,18 +1,9 @@
 import { router } from 'expo-router';
-import { useMemo } from 'react';
 
 import { useAppData } from '@/data/AppDataContext';
 import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
-import {
-  collectableSatellitesQuery,
-  orbitElementsQuery,
-  satelliteSightingsQuery,
-  sightingRecordsQuery,
-  upcomingPassesQuery,
-  type UpcomingPass,
-} from '@/data/queries';
-import { deriveCollection } from '@/domain/collection';
-import { dockingHosts } from '@/domain/docking';
+import { satelliteSightingsQuery, upcomingPassesQuery, type UpcomingPass } from '@/data/queries';
+import { useCollection } from '@/data/useCollection';
 
 import { summarizeCatch } from './catchSummary';
 import { CaughtView } from './CaughtView';
@@ -29,18 +20,8 @@ export function CaughtOverlay({ pass, caughtAt, angleError, now }: CaughtOverlay
   const { data: sightings } = useLiveQuery(satelliteSightingsQuery(db, pass.noradId), [
     pass.noradId,
   ]);
-  const { data: satellites } = useLiveQuery(collectableSatellitesQuery(db));
-  const { data: records } = useLiveQuery(sightingRecordsQuery(db));
-  const { data: elements } = useLiveQuery(orbitElementsQuery(db));
+  const collection = useCollection();
   const { data: passes } = useLiveQuery(upcomingPassesQuery(db, now), [now]);
-  const docked = useMemo(
-    () => new Set(dockingHosts(elements.map((row) => row.omm)).keys()),
-    [elements],
-  );
-  const collection = useMemo(
-    () => deriveCollection(satellites, records, docked),
-    [satellites, records, docked],
-  );
   const summary = summarizeCatch({
     noradId: pass.noradId,
     rarity: pass.rarity,

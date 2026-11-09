@@ -1,4 +1,4 @@
-import { deriveCollection, type CollectableSatellite } from '../collection';
+import { caughtIds, deriveCollection, type CollectableSatellite } from '../collection';
 
 const CATALOGUE: CollectableSatellite[] = [
   {
@@ -157,6 +157,19 @@ describe('deriveCollection', () => {
 
     test('then the total counts the module that was seen', () => {
       expect(collection().total).toBe(6);
+    });
+  });
+});
+
+describe('caughtIds', () => {
+  describe('given the ISS was caught three times and a docked module once', () => {
+    test('then it lists each caught satellite once', () => {
+      const collection = deriveCollection(
+        CATALOGUE_WITH_DOCKED_MODULES,
+        [...ISS_SIGHTINGS_OUT_OF_ORDER, { noradId: 36086, observedAt: T }],
+        DOCKED,
+      );
+      expect(caughtIds(collection)).toEqual(new Set([25544, 36086]));
     });
   });
 });

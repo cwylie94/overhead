@@ -4,16 +4,11 @@ import { useTranslation } from 'react-i18next';
 
 import { useAppData } from '@/data/AppDataContext';
 import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
-import {
-  collectableSatellitesQuery,
-  orbitElementsQuery,
-  sightingRecordsQuery,
-  upcomingPassesQuery,
-} from '@/data/queries';
+import { upcomingPassesQuery } from '@/data/queries';
+import { useCollection } from '@/data/useCollection';
 import { catchTonight } from '@/domain/catchTonight';
 import { catchWindow } from '@/domain/catchWindow';
-import { deriveCollection } from '@/domain/collection';
-import { dockingHosts } from '@/domain/docking';
+import { caughtIds } from '@/domain/collection';
 import { useNow } from '@/environment/clock';
 import { useReminders } from '@/reminders/useReminders';
 import { Screen } from '@/ui/Screen';
@@ -26,20 +21,10 @@ export function CollectionScreen() {
   const { db } = useAppData();
   const now = useNow(60_000);
   const reminders = useReminders();
-  const { data: satellites } = useLiveQuery(collectableSatellitesQuery(db));
-  const { data: sightings } = useLiveQuery(sightingRecordsQuery(db));
-  const { data: elements } = useLiveQuery(orbitElementsQuery(db));
+  const collection = useCollection();
   const { data: passes } = useLiveQuery(upcomingPassesQuery(db, now), [now]);
-  const docked = useMemo(
-    () => new Set(dockingHosts(elements.map((row) => row.omm)).keys()),
-    [elements],
-  );
   const [filters, setFilters] = useState<CollectionFilters>({ set: null, rarity: null });
-  const collection = useMemo(
-    () => deriveCollection(satellites, sightings, docked),
-    [satellites, sightings, docked],
-  );
-  const caught = useMemo(() => new Set(sightings.map((sighting) => sighting.noradId)), [sightings]);
+  const caught = useMemo(() => caughtIds(collection), [collection]);
   const chances = useMemo(() => catchTonight(passes, caught, now), [passes, caught, now]);
 
   return (

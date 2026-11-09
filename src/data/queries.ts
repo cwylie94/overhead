@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, lt, lte, max } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, isNotNull, lt, lte, max } from 'drizzle-orm';
 
 import { NAKED_EYE_LIMIT } from '@/domain/brightness';
 
@@ -34,8 +34,8 @@ export function orbitFreshnessQuery(db: Database) {
     .groupBy(orbits.group);
 }
 
-export function orbitElementsQuery(db: Database) {
-  return db.select({ omm: orbits.omm }).from(orbits);
+export function dockedObjectsQuery(db: Database) {
+  return db.select({ noradId: orbits.noradId }).from(orbits).where(isNotNull(orbits.dockedTo));
 }
 
 export function skyPassesQuery(db: Database, from: number, to: number) {
