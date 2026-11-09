@@ -1,40 +1,20 @@
 import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  type SharedValue,
-} from 'react-native-reanimated';
+import { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 import { haptics } from '@/ui/haptics';
-import { MAX_FONT_SCALE, Text } from '@/ui/Text';
-import { colors, radius, spacing, typography } from '@/ui/theme';
+import { spacing } from '@/ui/theme';
 
+import { Loupe, LOUPE_MAX_WIDTH, LoupeBracket, type ScrubLabel, type ScrubPass } from './Loupe';
 import { axisScale, timeAtX, type TimelineAxis } from './timelineLayout';
-import { LOUPE_SPAN, loupeLeft, loupeX, nearestStart } from './timelineScrub';
+import { LOUPE_SPAN, loupeLeft, nearestStart } from './timelineScrub';
 
-const LOUPE_MAX_WIDTH = 260;
-const LOUPE_HEIGHT = 78;
-const STRIP_HEIGHT = 30;
-const SELECTED_HEIGHT = 28;
 const ACTIVATE_AFTER = 8;
 const VERTICAL_ESCAPE = 14;
-const LABEL_WIDTH = 56;
-const BRACKET_FILL_ALPHA = '1F';
 
-export type ScrubPass = {
-  id: number;
-  startAt: number;
-  name: string;
-  time: string;
-  color: string;
-  height: number;
-};
-
-export type ScrubLabel = { time: number; text: string };
+export type { ScrubLabel, ScrubPass } from './Loupe';
 
 type TimelineScrubberProps = {
   width: number;
@@ -45,52 +25,6 @@ type TimelineScrubberProps = {
   onSelect(id: number): void;
   children: ReactNode;
 };
-
-type LoupeProps = {
-  center: SharedValue<number>;
-  selected: SharedValue<number>;
-  loupeWidth: number;
-};
-
-function LoupeTick({
-  pass,
-  index,
-  center,
-  selected,
-  loupeWidth,
-}: LoupeProps & { pass: ScrubPass; index: number }) {
-  const style = useAnimatedStyle(() => {
-    const isSelected = selected.get() === index;
-    const x = loupeX(pass.startAt, center.get(), loupeWidth);
-    const height = isSelected ? SELECTED_HEIGHT : pass.height;
-    const width = isSelected ? 4 : 2;
-    return {
-      left: x - width / 2,
-      width,
-      height,
-      top: (STRIP_HEIGHT - height) / 2,
-      opacity: x < -width || x > loupeWidth + width ? 0 : 1,
-      backgroundColor: isSelected ? colors.text : pass.color,
-    };
-  });
-  return <Animated.View style={[styles.tick, style]} />;
-}
-
-function LoupeLabel({
-  label,
-  center,
-  loupeWidth,
-}: Omit<LoupeProps, 'selected'> & { label: ScrubLabel }) {
-  const style = useAnimatedStyle(() => {
-    const x = loupeX(label.time, center.get(), loupeWidth);
-    return { left: x - LABEL_WIDTH / 2, opacity: x < 0 || x > loupeWidth ? 0 : 1 };
-  });
-  return (
-    <Animated.Text maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.label, style]}>
-      {label.text}
-    </Animated.Text>
-  );
-}
 
 export function TimelineScrubber({
   width,
@@ -166,85 +100,17 @@ export function TimelineScrubber({
     <GestureDetector gesture={pan}>
       <View>
         {children}
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.bracket, { width: bracketWidth, height: trackHeight }, bracketStyle]}
+        <LoupeBracket width={bracketWidth} height={trackHeight} style={bracketStyle} />
+        <Loupe
+          passes={passes}
+          labels={labels}
+          center={center}
+          selected={selected}
+          loupeWidth={loupeWidth}
+          caption={pass ? `${pass.name} · ${pass.time}` : t('timeline.noPass')}
+          style={[{ bottom: trackHeight + spacing.sm }, loupeStyle]}
         />
-        <Animated.View
-          pointerEvents="none"
-          style={[
-            styles.loupe,
-            { width: loupeWidth, bottom: trackHeight + spacing.sm },
-            loupeStyle,
-          ]}>
-          <View style={styles.strip}>
-            {passes.map((scrubPass, index) => (
-              <LoupeTick
-                key={scrubPass.id}
-                pass={scrubPass}
-                index={index}
-                center={center}
-                selected={selected}
-                loupeWidth={loupeWidth}
-              />
-            ))}
-          </View>
-          <View style={styles.labels}>
-            {labels.map((label) => (
-              <LoupeLabel key={label.time} label={label} center={center} loupeWidth={loupeWidth} />
-            ))}
-          </View>
-          <Text style={styles.name} numberOfLines={1}>
-            {pass ? `${pass.name} · ${pass.time}` : t('timeline.noPass')}
-          </Text>
-        </Animated.View>
       </View>
     </GestureDetector>
   );
 }
-
-const styles = StyleSheet.create({
-  bracket: {
-    position: 'absolute',
-    top: 0,
-    borderWidth: 1,
-    borderColor: colors.accent,
-    borderRadius: radius.sm,
-    backgroundColor: `${colors.accent}${BRACKET_FILL_ALPHA}`,
-  },
-  loupe: {
-    position: 'absolute',
-    height: LOUPE_HEIGHT,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.accent,
-    backgroundColor: colors.surfaceRaised,
-    overflow: 'hidden',
-    paddingTop: spacing.xs,
-  },
-  strip: {
-    height: STRIP_HEIGHT,
-  },
-  tick: {
-    position: 'absolute',
-    borderRadius: 1,
-  },
-  labels: {
-    height: typography.label.lineHeight,
-  },
-  label: {
-    ...typography.label,
-    fontWeight: '400',
-    color: colors.textMuted,
-    position: 'absolute',
-    width: LABEL_WIDTH,
-    textAlign: 'center',
-  },
-  name: {
-    ...typography.label,
-    color: colors.text,
-    textAlign: 'center',
-    marginTop: spacing.xs,
-    paddingHorizontal: spacing.sm,
-  },
-});
