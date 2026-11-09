@@ -2,7 +2,7 @@ import { Canvas, Circle, Path, Skia } from '@shopify/react-native-skia';
 
 import { positionOnTrack } from '@/domain/sky';
 import type { TrackPoint } from '@/domain/types';
-import { projectToDome } from '@/features/sky/projection';
+import { projectToDome, type DomeLayout } from '@/features/sky/projection';
 import { colors } from '@/ui/theme';
 
 type SkyGlyphProps = {
@@ -12,9 +12,12 @@ type SkyGlyphProps = {
   size: number;
 };
 
-export function SkyGlyph({ track, startAt, endAt, size }: SkyGlyphProps) {
-  const stroke = size > 40 ? 2 : 1.5;
-  const layout = { centerX: size / 2, centerY: size / 2, radius: size / 2 - stroke };
+export function visibleTrackPath(
+  track: TrackPoint[],
+  startAt: number,
+  endAt: number,
+  layout: DomeLayout,
+) {
   const visible = [
     positionOnTrack(track, startAt),
     ...track.filter((point) => point.time > startAt && point.time < endAt),
@@ -27,8 +30,13 @@ export function SkyGlyph({ track, startAt, endAt, size }: SkyGlyphProps) {
   visible.forEach((point, index) =>
     index === 0 ? builder.moveTo(point.x, point.y) : builder.lineTo(point.x, point.y),
   );
-  const path = builder.build();
-  const first = visible[0];
+  return { path: builder.build(), first: visible[0] };
+}
+
+export function SkyGlyph({ track, startAt, endAt, size }: SkyGlyphProps) {
+  const stroke = size > 40 ? 2 : 1.5;
+  const layout = { centerX: size / 2, centerY: size / 2, radius: size / 2 - stroke };
+  const { path, first } = visibleTrackPath(track, startAt, endAt, layout);
 
   return (
     <Canvas style={{ width: size, height: size }} pointerEvents="none">

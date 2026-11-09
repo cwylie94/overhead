@@ -48,11 +48,28 @@
     "bestOn": "Lo mejor del {{night}}",
     "soon": "A punto de pasar",
     "live": "Visible ahora",
-    "duration_one": "{{count}} min",
-    "duration_many": "{{count}} min",
-    "duration_other": "{{count}} min",
     "details": "Detalles",
     "detailsFor": "Detalles de {{name}}"
+  },
+  "look": {
+    "upcoming": "Aparece por el {{direction}}",
+    "upcomingOverhead": "Aparece justo encima",
+    "live": "Mira al {{direction}}",
+    "liveOverhead": "Mira justo hacia arriba",
+    "over": "Visto por última vez al {{direction}}",
+    "overOverhead": "Visto por última vez justo encima",
+    "heading": "{{height}}, rumbo al {{toward}}",
+    "headingOnly": "Rumbo al {{toward}}",
+    "moving": "{{height}}, moviéndose hacia el {{toward}}",
+    "movingOnly": "Moviéndose hacia el {{toward}}",
+    "height": {
+      "horizon": "Justo sobre el horizonte",
+      "low": "Bajo en el cielo",
+      "halfway": "A media altura",
+      "high": "Alto en el cielo",
+      "overhead": "Casi en la vertical"
+    },
+    "endsIn": "Termina {{countdown}}"
   },
   "filters": {
     "label": "Filtrar pasos",

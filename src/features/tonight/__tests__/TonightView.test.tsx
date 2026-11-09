@@ -10,6 +10,7 @@ import { timelineAxis, timelineRange, xOfTime } from '../timelineLayout';
 import { TonightView, type TonightViewProps } from '../TonightView';
 
 jest.mock('../SkyGlyph', () => ({ SkyGlyph: () => null }));
+jest.mock('../LookDial', () => ({ LookDial: () => null }));
 jest.mock('../TimelineScrubber', () => ({
   TimelineScrubber: ({ children }: { children: React.ReactNode }) => children,
 }));
@@ -77,13 +78,14 @@ async function renderView(props: Partial<TonightViewProps> = {}, clockNow = NOW)
 }
 
 describe('TonightView', () => {
-  test('features the best pass of the night with its countdown, path, brightness and rarity', async () => {
+  test('features the best pass of the night with where it appears, its countdown, brightness and rarity', async () => {
     await renderView();
 
     expect(screen.getByText('Best tonight')).toBeOnTheScreen();
     expect(screen.getByText('SL-16 R/B')).toBeOnTheScreen();
-    expect(screen.getByText('in 12 minutes')).toBeOnTheScreen();
-    expect(screen.getByText(/SW → NE · 55° · 4 min/)).toBeOnTheScreen();
+    expect(screen.getByText('Appears in the southwest')).toBeOnTheScreen();
+    expect(screen.getByText('Low in the sky, heading northeast')).toBeOnTheScreen();
+    expect(screen.getByText(/· in 12 minutes$/)).toBeOnTheScreen();
     expect(screen.getByText('Bright')).toBeOnTheScreen();
     expect(screen.getByText('Uncommon')).toBeOnTheScreen();
   });
@@ -242,7 +244,9 @@ describe('TonightView', () => {
     await renderView({ passes: [pass] }, pass.startAt + 10_000);
 
     expect(screen.queryByText('Coming up')).toBeNull();
-    expect(screen.getAllByText('Visible now')).toHaveLength(2);
+    expect(screen.getByText('Visible now')).toBeOnTheScreen();
+    expect(screen.getByText(/^Look /)).toBeOnTheScreen();
+    expect(screen.getByText('Ends in 4 minutes')).toBeOnTheScreen();
   });
 
   test('stops calling a featured pass visible as soon as it ends', async () => {
@@ -251,6 +255,7 @@ describe('TonightView', () => {
 
     expect(screen.getByText('Just ended')).toBeOnTheScreen();
     expect(screen.queryByText('Visible now')).toBeNull();
+    expect(screen.getByText(/^Last seen in the /)).toBeOnTheScreen();
   });
 
   test('lists later nights under their own heading, counting only tonight', async () => {

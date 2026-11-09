@@ -45,10 +45,28 @@
     "bestOn": "Best on {{night}}",
     "soon": "Coming up",
     "live": "Visible now",
-    "duration_one": "{{count}} min",
-    "duration_other": "{{count}} min",
     "details": "Details",
     "detailsFor": "Details for {{name}}"
+  },
+  "look": {
+    "upcoming": "Appears in the {{direction}}",
+    "upcomingOverhead": "Appears overhead",
+    "live": "Look {{direction}}",
+    "liveOverhead": "Look straight up",
+    "over": "Last seen in the {{direction}}",
+    "overOverhead": "Last seen overhead",
+    "heading": "{{height}}, heading {{toward}}",
+    "headingOnly": "Heading {{toward}}",
+    "moving": "{{height}}, moving {{toward}}",
+    "movingOnly": "Moving {{toward}}",
+    "height": {
+      "horizon": "Just above the horizon",
+      "low": "Low in the sky",
+      "halfway": "About halfway up",
+      "high": "High up",
+      "overhead": "Nearly overhead"
+    },
+    "endsIn": "Ends {{countdown}}"
   },
   "filters": {
     "label": "Filter passes",

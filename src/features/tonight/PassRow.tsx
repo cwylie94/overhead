@@ -25,7 +25,7 @@ import { SkyGlyph } from './SkyGlyph';
 const SOON = 60 * 60_000;
 const LARGE_TEXT_SCALE = 1.3;
 
-export function usePathText(pass: UpcomingPass): string | null {
+function usePathText(pass: UpcomingPass): string | null {
   const { t } = useTranslation(['tonight', 'common']);
   const start = positionOnTrack(pass.track, pass.startAt);
   const end = positionOnTrack(pass.track, pass.endAt);
@@ -39,7 +39,9 @@ export function usePathText(pass: UpcomingPass): string | null {
   });
 }
 
-export function CatchButton({ pass, onCatch }: { pass: UpcomingPass; onCatch(): void }) {
+type CatchButtonProps = { pass: UpcomingPass; wide?: boolean; onCatch(): void };
+
+export function CatchButton({ pass, wide = false, onCatch }: CatchButtonProps) {
   const { t } = useTranslation('catch');
   const window = catchWindow(pass, useNow(1_000));
   if (window !== 'ready' && window !== 'live') {
@@ -52,8 +54,8 @@ export function CatchButton({ pass, onCatch }: { pass: UpcomingPass; onCatch(): 
       testID={`catch-${pass.noradId}`}
       hitSlop={spacing.sm}
       onPress={onCatch}
-      style={[styles.action, styles.actionOn]}>
-      <Text style={[styles.actionText, styles.actionTextOn]}>
+      style={[styles.action, styles.actionOn, wide && styles.actionWide]}>
+      <Text style={[styles.actionText, styles.actionTextOn, wide && styles.actionTextWide]}>
         {live ? t('catch') : t('getReady')}
       </Text>
     </Pressable>
@@ -195,5 +197,16 @@ const styles = StyleSheet.create({
   },
   actionTextOn: {
     color: colors.background,
+  },
+  actionWide: {
+    flexGrow: 1,
+    alignItems: 'center',
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+  },
+  actionTextWide: {
+    ...typography.heading,
+    fontSize: 15,
+    lineHeight: 20,
   },
 });

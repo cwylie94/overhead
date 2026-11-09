@@ -18,6 +18,16 @@
     "W": "W",
     "NW": "NW"
   },
+  "directions": {
+    "N": "north",
+    "NE": "northeast",
+    "E": "east",
+    "SE": "southeast",
+    "S": "south",
+    "SW": "southwest",
+    "W": "west",
+    "NW": "northwest"
+  },
   "brightness": {
     "brilliant": "Brilliant",
     "bright": "Bright",
