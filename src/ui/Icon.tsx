@@ -21,6 +21,9 @@ export function Icon({ name, size, tintColor, fallback = null }: IconProps) {
       size={size}
       tintColor={tintColor}
       fallback={fallback}
+      accessible={false}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
       style={{ width: box, height: box }}
     />
   );
