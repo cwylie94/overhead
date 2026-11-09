@@ -7,49 +7,90 @@ import {
   TIMELINE_SPAN,
 } from '../timeline';
 
+const NINE_PM = new Date(2026, 10, 8, 21, 5).getTime();
+const HALF_PAST_MIDNIGHT = new Date(2026, 10, 9, 0, 30).getTime();
+
 describe('offsetAtX', () => {
-  test('puts the time under the finger', () => {
-    expect(offsetAtX(0, 300)).toBe(0);
-    expect(offsetAtX(150, 300)).toBe(TIMELINE_SPAN / 2);
-    expect(offsetAtX(300, 300)).toBe(TIMELINE_SPAN);
+  describe('given a finger on a timeline 300 points wide', () => {
+    test.each([
+      { x: 0, place: 'the start', offset: 0 },
+      { x: 150, place: 'the middle', offset: TIMELINE_SPAN / 2 },
+      { x: 300, place: 'the end', offset: TIMELINE_SPAN },
+    ])('then at $x it puts $place of the timeline under the finger', ({ x, offset }) => {
+      expect(offsetAtX(x, 300)).toBe(offset);
+    });
   });
 
-  test('stays within the timeline', () => {
-    expect(offsetAtX(-20, 300)).toBe(0);
-    expect(offsetAtX(320, 300)).toBe(TIMELINE_SPAN);
-    expect(offsetAtX(50, 0)).toBe(0);
-    expect(clampOffset(-1)).toBe(0);
+  describe('given a finger past either end of a timeline 300 points wide', () => {
+    test.each([
+      { x: -20, place: 'the start', offset: 0 },
+      { x: 320, place: 'the end', offset: TIMELINE_SPAN },
+    ])('then at $x it stays at $place of the timeline', ({ x, offset }) => {
+      expect(offsetAtX(x, 300)).toBe(offset);
+    });
+  });
+
+  describe('given a timeline with no width', () => {
+    test('then it stays at the start', () => {
+      expect(offsetAtX(50, 0)).toBe(0);
+    });
+  });
+});
+
+describe('clampOffset', () => {
+  describe('given an offset before the start', () => {
+    test('then it stays within the timeline', () => {
+      expect(clampOffset(-1)).toBe(0);
+    });
   });
 });
 
 describe('formatClock', () => {
-  const time = new Date(2026, 10, 8, 21, 5).getTime();
+  describe('given 9:05 in the evening, local time', () => {
+    test.each([
+      { clock: '24-hour', hour12: false, expected: '21:05' },
+      { clock: '12-hour', hour12: true, expected: '9:05 PM' },
+    ])('then a $clock clock shows $expected', ({ hour12, expected }) => {
+      expect(formatClock(NINE_PM, { hour12, am: 'AM', pm: 'PM' })).toBe(expected);
+    });
+  });
 
-  test('formats 24-hour and 12-hour clocks in local time', () => {
-    expect(formatClock(time, { hour12: false, am: 'AM', pm: 'PM' })).toBe('21:05');
-    expect(formatClock(time, { hour12: true, am: 'AM', pm: 'PM' })).toBe('9:05 PM');
-    expect(
-      formatClock(new Date(2026, 10, 9, 0, 30).getTime(), { hour12: true, am: 'AM', pm: 'PM' }),
-    ).toBe('12:30 AM');
+  describe('given half past midnight, local time', () => {
+    test('then a 12-hour clock shows 12:30 AM', () => {
+      expect(formatClock(HALF_PAST_MIDNIGHT, { hour12: true, am: 'AM', pm: 'PM' })).toBe(
+        '12:30 AM',
+      );
+    });
   });
 });
 
 describe('formatOffset', () => {
-  test.each([
-    [0, ''],
-    [5 * 60_000, '+5m'],
-    [135 * 60_000, '+2h 15m'],
-  ])('%i ms is %s', (offset, expected) => {
-    expect(formatOffset(offset)).toBe(expected);
+  describe('given no offset', () => {
+    test('then it shows nothing', () => {
+      expect(formatOffset(0)).toBe('');
+    });
+  });
+
+  describe('given an offset ahead of now', () => {
+    test.each([
+      { minutes: 5, expected: '+5m' },
+      { minutes: 135, expected: '+2h 15m' },
+    ])('then $minutes minutes ahead is $expected', ({ minutes, expected }) => {
+      expect(formatOffset(minutes * 60_000)).toBe(expected);
+    });
   });
 });
 
 describe('clockStyleFor', () => {
-  test('English uses a 12-hour clock with AM and PM', () => {
-    expect(clockStyleFor('en-US')).toMatchObject({ hour12: true, am: 'AM', pm: 'PM' });
+  describe('given English', () => {
+    test('then it uses a 12-hour clock with AM and PM', () => {
+      expect(clockStyleFor('en-US')).toMatchObject({ hour12: true, am: 'AM', pm: 'PM' });
+    });
   });
 
-  test('Spanish uses a 24-hour clock', () => {
-    expect(clockStyleFor('es').hour12).toBe(false);
+  describe('given Spanish', () => {
+    test('then it uses a 24-hour clock', () => {
+      expect(clockStyleFor('es').hour12).toBe(false);
+    });
   });
 });

@@ -22,8 +22,20 @@ async function renderHeading(enabled: boolean) {
   return hook;
 }
 
+type HeadingHook = Awaited<ReturnType<typeof renderHeading>>;
+
 async function emit(reading: HeadingReading) {
   await act(async () => mockListener!(reading));
+}
+
+async function emitHeading(heading: number) {
+  await emit({ trueHeading: heading, magHeading: heading });
+}
+
+async function turnOnceRoundPastNorth() {
+  for (const heading of [90, 180, 270, 350, 10]) {
+    await emitHeading(heading);
+  }
 }
 
 beforeEach(() => {
@@ -36,66 +48,143 @@ beforeEach(() => {
 });
 
 describe('useCompassHeading', () => {
-  test('stays pointing north while the compass is off', async () => {
-    const { result } = await renderHeading(false);
+  let hook: HeadingHook;
 
-    expect(result.current.get()).toBe(0);
-    expect(Location.watchHeadingAsync).not.toHaveBeenCalled();
+  describe('given the compass is off', () => {
+    describe('when the hook starts', () => {
+      beforeEach(async () => {
+        hook = await renderHeading(false);
+      });
+
+      test('then it points north', () => {
+        expect(hook.result.current.get()).toBe(0);
+      });
+
+      test('then it doesn’t watch the heading', () => {
+        expect(Location.watchHeadingAsync).not.toHaveBeenCalled();
+      });
+    });
   });
 
-  test('turns with the true heading, or the magnetic one without it', async () => {
-    const { result } = await renderHeading(true);
+  describe('given the compass is on', () => {
+    beforeEach(async () => {
+      hook = await renderHeading(true);
+    });
 
-    await emit({ trueHeading: 120, magHeading: 118 });
-    expect(result.current.get()).toBe(120);
+    describe('when a reading with a true heading arrives', () => {
+      beforeEach(async () => {
+        await emit({ trueHeading: 120, magHeading: 118 });
+      });
 
-    await emit({ trueHeading: -1, magHeading: 95 });
-    expect(result.current.get()).toBe(95);
+      test('then it turns to the true heading', () => {
+        expect(hook.result.current.get()).toBe(120);
+      });
+    });
+
+    describe('when readings arrive turning once round past north', () => {
+      beforeEach(async () => {
+        await turnOnceRoundPastNorth();
+      });
+
+      test('then it carries on past a whole turn', () => {
+        expect(hook.result.current.get()).toBe(370);
+      });
+    });
   });
 
-  test('turns the short way across north', async () => {
-    const { result } = await renderHeading(true);
+  describe('given the compass is on and turned to a true heading of 120°', () => {
+    beforeEach(async () => {
+      hook = await renderHeading(true);
+      await emit({ trueHeading: 120, magHeading: 118 });
+    });
 
-    await emit({ trueHeading: 10, magHeading: 10 });
-    await emit({ trueHeading: 350, magHeading: 350 });
+    describe('when a reading without a true heading arrives', () => {
+      beforeEach(async () => {
+        await emit({ trueHeading: -1, magHeading: 95 });
+      });
 
-    expect(result.current.get()).toBe(-10);
+      test('then it turns to the magnetic heading', () => {
+        expect(hook.result.current.get()).toBe(95);
+      });
+    });
   });
 
-  test('settles on the nearest whole turn when the compass is switched off', async () => {
-    const { result, rerender } = await renderHeading(true);
-    for (const heading of [90, 180, 270, 350, 10]) {
-      await emit({ trueHeading: heading, magHeading: heading });
-    }
-    expect(result.current.get()).toBe(370);
+  describe('given the compass is on and pointing at 10°', () => {
+    beforeEach(async () => {
+      hook = await renderHeading(true);
+      await emitHeading(10);
+    });
 
-    await act(async () => rerender({ on: false }));
+    describe('when a reading of 350° arrives', () => {
+      beforeEach(async () => {
+        await emitHeading(350);
+      });
 
-    expect(result.current.get()).toBe(360);
-    expect(mockRemove).toHaveBeenCalled();
+      test('then it turns the short way across north', () => {
+        expect(hook.result.current.get()).toBe(-10);
+      });
+    });
   });
 
-  test('carries on without a compass', async () => {
-    jest.mocked(Location.watchHeadingAsync).mockRejectedValue(new Error('no compass'));
+  describe('given the compass has turned once round past north', () => {
+    beforeEach(async () => {
+      hook = await renderHeading(true);
+      await turnOnceRoundPastNorth();
+    });
 
-    const { result } = await renderHeading(true);
+    describe('when the compass is switched off', () => {
+      beforeEach(async () => {
+        await act(async () => hook.rerender({ on: false }));
+      });
 
-    expect(result.current.get()).toBe(0);
+      test('then it settles on the nearest whole turn', () => {
+        expect(hook.result.current.get()).toBe(360);
+      });
+
+      test('then it stops watching the heading', () => {
+        expect(mockRemove).toHaveBeenCalled();
+      });
+    });
   });
 
-  test('drops a compass that starts after the view has gone', async () => {
-    let start!: () => void;
-    jest.mocked(Location.watchHeadingAsync).mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          start = () => resolve({ remove: mockRemove });
-        }),
-    );
-    const { unmount } = await renderHeading(true);
+  describe('given the phone has no compass', () => {
+    beforeEach(() => {
+      jest.mocked(Location.watchHeadingAsync).mockRejectedValue(new Error('no compass'));
+    });
 
-    await act(async () => unmount());
-    await act(async () => start());
+    describe('when the hook starts with the compass on', () => {
+      beforeEach(async () => {
+        hook = await renderHeading(true);
+      });
 
-    expect(mockRemove).toHaveBeenCalled();
+      test('then it carries on pointing north', () => {
+        expect(hook.result.current.get()).toBe(0);
+      });
+    });
+  });
+
+  describe('given the compass is slow to start and the view has gone before it does', () => {
+    let start: () => void;
+
+    beforeEach(async () => {
+      jest.mocked(Location.watchHeadingAsync).mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            start = () => resolve({ remove: mockRemove });
+          }),
+      );
+      hook = await renderHeading(true);
+      await act(async () => hook.unmount());
+    });
+
+    describe('when the compass starts', () => {
+      beforeEach(async () => {
+        await act(async () => start());
+      });
+
+      test('then it drops the compass', () => {
+        expect(mockRemove).toHaveBeenCalled();
+      });
+    });
   });
 });

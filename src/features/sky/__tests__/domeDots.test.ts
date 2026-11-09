@@ -23,17 +23,23 @@ function pass(noradId: number, startAt: number, endAt: number): SkyPass {
 }
 
 describe('activeDots', () => {
-  test('places only satellites inside their visible window', () => {
-    const dots = activeDots([pass(1, 0, 60_000), pass(2, 120_000, 180_000)], 0, layout, 0);
+  describe('given one satellite inside its visible window and one still to come', () => {
+    const passes = [pass(1, 0, 60_000), pass(2, 120_000, 180_000)];
 
-    expect(dots).toHaveLength(1);
-    expect(dots[0]).toMatchObject({ noradId: 1, x: expect.closeTo(100), y: expect.closeTo(40) });
+    test('then it places only the satellite inside its window', () => {
+      const dots = activeDots(passes, 0, layout, 0);
+
+      expect(dots).toHaveLength(1);
+      expect(dots[0]).toMatchObject({ noradId: 1, x: expect.closeTo(100), y: expect.closeTo(40) });
+    });
   });
 
-  test('rotates with the compass heading', () => {
-    const [dot] = activeDots([pass(1, 0, 60_000)], 0, layout, 180);
+  describe('given a compass heading of 180°', () => {
+    test('then the dots rotate with it', () => {
+      const [dot] = activeDots([pass(1, 0, 60_000)], 0, layout, 180);
 
-    expect(dot!.y).toBeCloseTo(160);
+      expect(dot!.y).toBeCloseTo(160);
+    });
   });
 });
 
@@ -43,11 +49,15 @@ describe('nearestDot', () => {
     { noradId: 2, x: 20, y: 10 },
   ];
 
-  test('picks the closest dot within reach', () => {
-    expect(nearestDot(dots, { x: 18, y: 12 }, 28)).toBe(2);
+  describe('given a touch within reach of both dots', () => {
+    test('then it picks the closest dot', () => {
+      expect(nearestDot(dots, { x: 18, y: 12 }, 28)).toBe(2);
+    });
   });
 
-  test('picks nothing when every dot is too far away', () => {
-    expect(nearestDot(dots, { x: 80, y: 80 }, 28)).toBeNull();
+  describe('given a touch too far from every dot', () => {
+    test('then it picks nothing', () => {
+      expect(nearestDot(dots, { x: 80, y: 80 }, 28)).toBeNull();
+    });
   });
 });
