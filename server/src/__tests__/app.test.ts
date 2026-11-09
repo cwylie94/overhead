@@ -100,6 +100,42 @@ describe('sync worker', () => {
     expect(changes[0]).toMatchObject({ id: 's1', note: 'second' });
   });
 
+  test('a deletion reaches other devices and nothing brings the sighting back', async () => {
+    const { push, pull } = setup();
+    await push(ALICE, [sighting('s1')]);
+    const { cursor } = await pull(ALICE);
+    const remove: PushChange = {
+      id: 2,
+      entity: 'sighting',
+      operation: 'delete',
+      payload: { id: 's1', updatedAt: 3_000 },
+    };
+
+    await push(ALICE, [remove]);
+    const afterDelete = await pull(ALICE, cursor);
+    await push(ALICE, [
+      sighting('s1', 3),
+      {
+        id: 4,
+        entity: 'sighting',
+        operation: 'update',
+        payload: { id: 's1', note: 'hi', updatedAt: 4_000 },
+      },
+    ]);
+    const later = await pull(ALICE, afterDelete.cursor);
+
+    expect(afterDelete.changes).toHaveLength(1);
+    expect(afterDelete.changes[0]).toMatchObject({ id: 's1', deletedAt: 3_000, note: null });
+    expect(later.changes).toEqual([]);
+  });
+
+  test('new sightings are not marked deleted', async () => {
+    const { push, pull } = setup();
+    await push(ALICE, [sighting('s1')]);
+
+    expect((await pull(ALICE)).changes[0]).toMatchObject({ deletedAt: null });
+  });
+
   test('keeps accounts apart', async () => {
     const { push, pull } = setup();
 

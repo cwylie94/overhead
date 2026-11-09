@@ -1,17 +1,23 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
 import BetterSqlite3 from 'better-sqlite3';
 
 import type { D1Like } from '../d1';
 
-const MIGRATION = readFileSync(path.resolve(__dirname, '../../migrations/0001_init.sql'), 'utf8');
+const MIGRATIONS_DIR = path.resolve(__dirname, '../../migrations');
+const MIGRATIONS = readdirSync(MIGRATIONS_DIR)
+  .filter((file) => file.endsWith('.sql'))
+  .sort()
+  .map((file) => readFileSync(path.join(MIGRATIONS_DIR, file), 'utf8'));
 
 type Params = (string | number | null)[];
 
 export function createFakeD1(): D1Like {
   const sqlite = new BetterSqlite3(':memory:');
-  sqlite.exec(MIGRATION);
+  for (const migration of MIGRATIONS) {
+    sqlite.exec(migration);
+  }
 
   class Statement {
     constructor(

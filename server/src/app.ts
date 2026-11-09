@@ -24,6 +24,7 @@ type SightingRow = {
   note: string | null;
   updated_at: number;
   version: number;
+  deleted_at: number | null;
 };
 
 function isChange(value: unknown): value is PushChange {
@@ -40,6 +41,9 @@ function isChange(value: unknown): value is PushChange {
   }
   if (change.operation === 'update') {
     return payload.note === null || typeof payload.note === 'string';
+  }
+  if (change.operation === 'delete') {
+    return true;
   }
   return (
     change.operation === 'insert' &&
@@ -59,6 +63,7 @@ function toServerSighting(row: SightingRow): ServerSighting {
     note: row.note,
     updatedAt: row.updated_at,
     version: row.version,
+    deletedAt: row.deleted_at,
   };
 }
 
@@ -116,15 +121,25 @@ export function createApp() {
               accountId,
             ),
         );
-      } else {
+      } else if (change.operation === 'update') {
         const { id, note, updatedAt } = change.payload;
         statements.push(
           db
             .prepare(
               `UPDATE sightings SET note = ?, updated_at = ?, version = ${currentVersion}
-               WHERE account_id = ? AND id = ?`,
+               WHERE account_id = ? AND id = ? AND deleted_at IS NULL`,
             )
             .bind(note, updatedAt, accountId, accountId, id),
+        );
+      } else {
+        const { id, updatedAt } = change.payload;
+        statements.push(
+          db
+            .prepare(
+              `UPDATE sightings SET deleted_at = ?, note = NULL, updated_at = ?, version = ${currentVersion}
+               WHERE account_id = ? AND id = ? AND deleted_at IS NULL`,
+            )
+            .bind(updatedAt, updatedAt, accountId, accountId, id),
         );
       }
     }
@@ -140,7 +155,7 @@ export function createApp() {
       return c.json({ error: 'since must be a non-negative integer' }, 400);
     }
     const { results } = await c.env.DB.prepare(
-      `SELECT id, norad_id, observed_at, verified, angle_error, note, updated_at, version
+      `SELECT id, norad_id, observed_at, verified, angle_error, note, updated_at, version, deleted_at
        FROM sightings WHERE account_id = ? AND version > ? ORDER BY version LIMIT ?`,
     )
       .bind(c.get('accountId'), since, PULL_PAGE_SIZE)
