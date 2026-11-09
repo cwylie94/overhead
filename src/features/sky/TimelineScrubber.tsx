@@ -15,6 +15,8 @@ import { formatClock, formatOffset, offsetAtX, TIMELINE_SPAN, type ClockStyle } 
 const HEIGHT = 56;
 const TRACK_Y = 44;
 const HOUR = 60 * 60 * 1_000;
+// Keeps the start of the track clear of Android's edge-swipe Back gesture.
+const TRACK_INSET = Platform.OS === 'android' ? 16 : 0;
 
 const font = matchFont({
   fontFamily: Platform.select({ ios: 'Helvetica', default: 'sans-serif' }),
@@ -42,13 +44,14 @@ export function TimelineScrubber({
     const clock = formatClock(base.get() + offset.get(), clockStyle);
     return extra ? `${clock}  ${extra}` : clock;
   });
-  const progress = useDerivedValue(() => (offset.get() / TIMELINE_SPAN) * width);
+  const trackWidth = width - TRACK_INSET;
+  const progress = useDerivedValue(() => (offset.get() / TIMELINE_SPAN) * trackWidth);
   const ticks = useDerivedValue(() => {
     const start = base.get();
     const firstHour = Math.ceil(start / HOUR) * HOUR;
     const xs: number[] = [];
     for (let hour = firstHour; hour <= start + TIMELINE_SPAN; hour += HOUR) {
-      xs.push(((hour - start) / TIMELINE_SPAN) * width);
+      xs.push(TRACK_INSET + ((hour - start) / TIMELINE_SPAN) * trackWidth);
     }
     return xs;
   });
@@ -57,10 +60,10 @@ export function TimelineScrubber({
     .activeOffsetX([-8, 8])
     .onStart((event) => {
       cancelAnimation(offset);
-      offset.set(offsetAtX(event.x, width));
+      offset.set(offsetAtX(event.x - TRACK_INSET, trackWidth));
     })
     .onUpdate((event) => {
-      offset.set(offsetAtX(event.x, width));
+      offset.set(offsetAtX(event.x - TRACK_INSET, trackWidth));
     })
     .onEnd(() => {
       runOnJS(onCommit)(offset.get());
@@ -72,9 +75,9 @@ export function TimelineScrubber({
         style={{ width, height: HEIGHT }}
         accessibilityRole="adjustable"
         accessibilityLabel="Timeline">
-        <Text x={0} y={20} text={label} font={font} color={colors.text} />
-        <Rect x={0} y={TRACK_Y - 2} width={width} height={4} color={colors.border} />
-        <Rect x={0} y={TRACK_Y - 2} width={progress} height={4} color={colors.accent} />
+        <Text x={TRACK_INSET} y={20} text={label} font={font} color={colors.text} />
+        <Rect x={TRACK_INSET} y={TRACK_Y - 2} width={trackWidth} height={4} color={colors.border} />
+        <Rect x={TRACK_INSET} y={TRACK_Y - 2} width={progress} height={4} color={colors.accent} />
         <TickMarks ticks={ticks} />
       </Canvas>
     </GestureDetector>
