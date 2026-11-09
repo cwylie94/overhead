@@ -2,12 +2,22 @@ appId: com.craigwylie.overhead
 ---
 - tapOn:
     id: onboarding-start
-- extendedWaitUntil:
-    visible:
-      id: onboarding-continue
-    timeout: 15000
-- tapOn:
-    id: onboarding-continue
+- assertVisible: Where are you watching from?
+- runFlow:
+    when:
+      visible:
+        id: onboarding-use-location
+    commands:
+      - tapOn:
+          id: onboarding-use-location
+          optional: true
+- runFlow:
+    when:
+      visible:
+        id: onboarding-continue
+    commands:
+      - tapOn:
+          id: onboarding-continue
 - tapOn:
     id: onboarding-next
 - tapOn:
