@@ -6,6 +6,7 @@ name: Five taps on the version turn demo mode on and off
     permissions:
       location: allow
       notifications: deny
+- runFlow: subflows/finish-onboarding.yaml
 - tapOn: Settings
 - scrollUntilVisible:
     element:

@@ -71,7 +71,8 @@ It is an interview showcase project, so code quality, tests and a working demo m
   - Catch mode opens up to 10 minutes early (`catchWindow` in `src/domain/catchWindow.ts`): Tonight shows Get ready, the marker waits dimmed where the satellite will appear, and nothing can be caught or logged as seen until it does.
   - Log sightings through `logSighting` (UUIDv7 IDs), and guard against duplicates with something stable such as the catch time, never a flag an effect resets.
   - Untested on real hardware: whether the iOS heading follows the back camera when the phone is upright, and how accurate the field of view is. Check both on a phone, using the Moon marker, before the demo.
-- Routes outside the tabs: `catch/[passId]` (full-screen modal) and `satellite/[noradId]` (modal), both declared in the root `Stack`.
+- Routes outside the tabs: `catch/[passId]` (full-screen modal), `satellite/[noradId]` (modal) and `onboarding`, all declared in the root `Stack`.
+- Onboarding (`src/features/onboarding/`) shows on first launch until `onboardingComplete` is set in `settingsStore`, and never in demo mode (`needsOnboarding`). The tabs layout redirects to it and it redirects back, rather than using `Stack.Protected`: a protected screen falling back could land on the `demo` route, and that link turns demo mode on. The settings migration marks installs that already had a location as complete. Location isn't requested at launch until onboarding is done, so the iOS prompt appears from its location step. Show intro again under About replays it.
 - Compute pass tracks once, as a point every 10 s stored in `passes`. Worklets interpolate between points, so no orbit maths runs per frame.
 - The pass finder (`src/domain/passFinder.ts`) is checked against Skyfield fixtures across all 172 satellites: rise, set and visible boundaries within 2 s. Keep those tolerances. If a change breaks them, fix the change, not the test. It skips ahead while a satellite is out of reach, so one night for the whole catalogue costs about 117k SGP4 propagations: 1.6 s in Node, 1.2 s under Hermes on the simulator. Check `npm run bench` after touching it.
 - The database sits behind repository interfaces, so the same code runs on the device and in Node tests.
@@ -164,7 +165,7 @@ There is no collection table. The collection is derived from sightings.
 - Sync tests run two simulated devices against the real Worker app over in-memory SQLite (`src/sync/__tests__/sync.test.ts`): push replay is harmless, the cursor advances, a crash mid-sync loses nothing, and note edits reach the other device. CelesTrak tests cover the 2-hour rule and backoff with a fake fetcher and clock.
 - Store tests call actions directly, with no rendering, and cover forbidden state transitions.
 - Translation tests fail if any locale is missing a key or a plural form its language needs (Spanish needs `_many` as well as `_one` and `_other`).
-- Maestro flows live in `.maestro/` and run with `npm run e2e` against a running build. They start from `clearState` and use the `overhead://demo` link for a known evening. Give elements a flow needs a `testID` (such as `catch-<noradId>`) rather than matching on text that changes. Maestro can't hold a drag in place, so it can't complete an aimed catch.
+- Maestro flows live in `.maestro/` and run with `npm run e2e` against a running build. They start from `clearState` and use the `overhead://demo` link for a known evening. Give elements a flow needs a `testID` (such as `catch-<noradId>`) rather than matching on text that changes. Flows that don't open the demo link start with `subflows/finish-onboarding.yaml`. Maestro can't hold a drag in place, so it can't complete an aimed catch.
 
 ## Demo mode
 

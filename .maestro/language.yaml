@@ -6,6 +6,7 @@ name: Switching the language to Spanish and back
     permissions:
       location: allow
       notifications: deny
+- runFlow: subflows/finish-onboarding.yaml
 - tapOn: Settings
 - tapOn: Español
 - assertVisible: Ajustes

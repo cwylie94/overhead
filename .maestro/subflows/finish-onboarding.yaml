@@ -1,0 +1,10 @@
+appId: com.craigwylie.overhead
+---
+- tapOn:
+    id: onboarding-start
+- tapOn:
+    id: onboarding-use-location
+- tapOn:
+    id: onboarding-next
+- tapOn:
+    id: onboarding-finish
