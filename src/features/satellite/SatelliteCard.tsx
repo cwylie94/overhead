@@ -8,20 +8,30 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import type { Rarity } from '@/domain/types';
+import { HoloStripes } from '@/ui/CardFinish';
 import { useReduceMotion } from '@/ui/motion';
-import { colors, radius, spacing } from '@/ui/theme';
+import { colors, radius, rarityColors, spacing } from '@/ui/theme';
 
 const MAX_TILT = 15;
 const POINTS_PER_DEGREE = 8;
 const FLIP_MS = 450;
 
+const SHEEN_BASE: Readonly<Record<Rarity, number>> = {
+  common: 0.05,
+  uncommon: 0.05,
+  rare: 0.22,
+  legendary: 0.1,
+};
+
 type SatelliteCardProps = {
   accent: string;
+  rarity: Rarity;
   front: ReactNode;
   back: ReactNode;
 };
 
-export function SatelliteCard({ accent, front, back }: SatelliteCardProps) {
+export function SatelliteCard({ accent, rarity, front, back }: SatelliteCardProps) {
   const reduceMotion = useReduceMotion();
   const tiltX = useSharedValue(0);
   const tiltY = useSharedValue(0);
@@ -63,7 +73,7 @@ export function SatelliteCard({ accent, front, back }: SatelliteCardProps) {
     ],
   }));
   const sheenStyle = useAnimatedStyle(() => ({
-    opacity: 0.05 + (Math.abs(tiltX.get()) + Math.abs(tiltY.get())) / (MAX_TILT * 8),
+    opacity: SHEEN_BASE[rarity] + (Math.abs(tiltX.get()) + Math.abs(tiltY.get())) / (MAX_TILT * 8),
     transform: [{ translateX: tiltY.get() * 10 - tiltX.get() * 4 }, { rotate: '25deg' }],
   }));
 
@@ -72,7 +82,15 @@ export function SatelliteCard({ accent, front, back }: SatelliteCardProps) {
       <View style={styles.container}>
         <Animated.View style={[styles.face, { borderColor: accent }, frontStyle]}>
           {front}
-          <Animated.View pointerEvents="none" style={[styles.sheen, sheenStyle]} />
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              rarity === 'rare' ? styles.holo : styles.sheen,
+              rarity === 'legendary' && { backgroundColor: rarityColors.legendary },
+              sheenStyle,
+            ]}>
+            {rarity === 'rare' && <HoloStripes alpha="99" />}
+          </Animated.View>
         </Animated.View>
         <Animated.View style={[styles.face, styles.back, { borderColor: accent }, backStyle]}>
           {back}
@@ -98,6 +116,9 @@ const styles = StyleSheet.create({
   },
   back: {
     backgroundColor: colors.surface,
+  },
+  holo: {
+    ...StyleSheet.absoluteFill,
   },
   sheen: {
     position: 'absolute',

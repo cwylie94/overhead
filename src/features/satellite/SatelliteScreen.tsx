@@ -8,10 +8,12 @@ import { useAppData } from '@/data/AppDataContext';
 import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
 import { satelliteSightingsQuery } from '@/data/queries';
 import { perigeeAltitudeKm, apogeeAltitudeKm, periodMinutes } from '@/domain/orbit';
+import { silhouetteFor } from '@/domain/silhouette';
 import { useClock, useNow } from '@/environment/clock';
 import { formatCalendarDate, formatDistance, formatNightDate, formatPassTime } from '@/i18n/format';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Chip } from '@/ui/Chip';
+import { SilhouetteArt } from '@/ui/SilhouetteArt';
 import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 
 import { SatelliteCard } from './SatelliteCard';
@@ -92,6 +94,13 @@ export function SatelliteScreen() {
 
   const front = (
     <View style={styles.side}>
+      <View style={styles.art}>
+        <SilhouetteArt
+          silhouette={silhouetteFor(satellite)}
+          color={firstCatch === null ? colors.border : accent}
+          solid={firstCatch === null}
+        />
+      </View>
       <Text style={styles.name}>{satellite.name}</Text>
       <View style={styles.chips}>
         <Chip label={t(`common:rarity.${satellite.rarity}`)} color={accent} />
@@ -180,7 +189,7 @@ export function SatelliteScreen() {
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        <SatelliteCard accent={accent} front={front} back={back} />
+        <SatelliteCard accent={accent} rarity={satellite.rarity} front={front} back={back} />
         <SightingList sightings={sightings} onDelete={confirmDelete} />
         <Pressable accessibilityRole="button" style={styles.close} onPress={() => router.back()}>
           <Text style={styles.closeText}>{t('detail.close')}</Text>
@@ -191,6 +200,11 @@ export function SatelliteScreen() {
 }
 
 const styles = StyleSheet.create({
+  art: {
+    alignSelf: 'center',
+    width: '62%',
+    marginBottom: spacing.sm,
+  },
   screen: {
     flex: 1,
     backgroundColor: colors.background,
