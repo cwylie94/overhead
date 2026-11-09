@@ -1,3 +1,16 @@
+const { readFileSync } = require('node:fs');
+
+const REQUIRED_NODE = Number(readFileSync(require.resolve('./.nvmrc'), 'utf8').trim());
+const runningNode = Number(process.versions.node.split('.')[0]);
+
+if (runningNode < REQUIRED_NODE) {
+  console.error(
+    `The tests need Node ${REQUIRED_NODE} (see .nvmrc), but this is Node ${process.versions.node}. ` +
+      'Run `nvm use` first. Older versions crash loading better-sqlite3.',
+  );
+  process.exit(1);
+}
+
 const TRANSFORMED_PACKAGES = [
   '.pnpm',
   'react-native',

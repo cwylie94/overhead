@@ -21,7 +21,7 @@ Demo mode replays a fixed evening so the app can be shown anywhere, any time. Tu
 
 ## Getting started
 
-Requires Node 22.13 or later (`nvm use` picks up `.nvmrc`). iOS builds also need Xcode and Ruby 3.3 or later for CocoaPods, which is pinned in the `Gemfile`.
+Requires Node 24 (`nvm use` picks up `.nvmrc`). The tests refuse to run on older versions, where better-sqlite3 crashes. iOS builds also need Xcode and Ruby 3.3 or later for CocoaPods, which is pinned in the `Gemfile`.
 
 The app runs as a [development build](https://docs.expo.dev/develop/development-builds/introduction/), not Expo Go, because it uses native modules Expo Go doesn't include.
 

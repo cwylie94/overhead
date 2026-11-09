@@ -41,7 +41,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
 - Android: `npx expo prebuild --platform android`, then `./gradlew app:assembleDebug` (or `assembleRelease`) in `android/` with `JAVA_HOME` set to Android Studio's bundled JBR. The `Pixel_9_API_37` emulator (Android 17, 6 GB RAM) is set up for testing; its virtual sensors can be posed with `adb emu sensor set acceleration|magnetic-field`. The debug build's "nearby devices" prompt comes from `expo-dev-launcher` and isn't in release builds.
 - Real-iPhone builds: `npm run ios:device` (Release, no dev server). The team ID comes from `APPLE_TEAM_ID` in `.env.local` through `app.config.ts`, so it stays out of git. A new profile needs `xcodebuild … -allowProvisioningUpdates` once, which `expo run:ios` doesn't pass.
 - Routes live in `src/app/` and stay thin: each route file re-exports a screen from `src/features/`.
-- Run `npm run lint`, `npm run typecheck` and the tests before calling a task done.
+- Run `npm run lint`, `npm run typecheck` and the tests before calling a task done. `jest.config.js` exits early below the `.nvmrc` Node version, because better-sqlite3 segfaults Jest workers on Node 20.
 
 ## Architecture rules
 
