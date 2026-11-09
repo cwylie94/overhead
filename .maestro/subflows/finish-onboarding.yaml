@@ -2,8 +2,12 @@ appId: com.craigwylie.overhead
 ---
 - tapOn:
     id: onboarding-start
+- extendedWaitUntil:
+    visible:
+      id: onboarding-continue
+    timeout: 15000
 - tapOn:
-    id: onboarding-use-location
+    id: onboarding-continue
 - tapOn:
     id: onboarding-next
 - tapOn:

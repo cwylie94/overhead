@@ -4,7 +4,7 @@ name: First launch onboarding, choosing a city
 - launchApp:
     clearState: true
     permissions:
-      location: deny
+      location: never
       notifications: deny
 - assertVisible: Satellites cross your sky every night
 - tapOn:
@@ -13,8 +13,7 @@ name: First launch onboarding, choosing a city
     id: onboarding-choose-city
 - tapOn: Search cities
 - inputText: Madrid
-- tapOn: Spain
-- assertVisible: Madrid, Spain
+- tapOn: Madrid, Spain
 - tapOn:
     id: onboarding-continue
 - assertVisible: Catch one in three steps

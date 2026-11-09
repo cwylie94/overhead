@@ -4,7 +4,7 @@ name: Demo evening, from the Tonight list to the collection
 - launchApp:
     clearState: true
     permissions:
-      location: allow
+      location: inuse
       notifications: deny
 - openLink: overhead://demo
 - tapOn:
@@ -12,7 +12,7 @@ name: Demo evening, from the Tonight list to the collection
     optional: true
 - assertVisible: 'Demo mode: .* in London. Turn it off in Settings.'
 - extendedWaitUntil:
-    visible: "ISS \\(ZARYA\\)"
+    visible: "ISS \\(ZARYA\\).*"
     timeout: 60000
 - extendedWaitUntil:
     visible:
@@ -35,7 +35,7 @@ name: Demo evening, from the Tonight list to the collection
 - scrollUntilVisible:
     element:
       id: demo-mode
+    centerElement: true
 - tapOn:
     id: demo-mode
-- tapOn: Tonight
-- assertNotVisible: 'Demo mode: .*'
+- assertVisible: Satellites cross your sky every night

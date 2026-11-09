@@ -4,12 +4,12 @@ name: Switching the language to Spanish and back
 - launchApp:
     clearState: true
     permissions:
-      location: allow
+      location: inuse
       notifications: deny
 - runFlow: subflows/finish-onboarding.yaml
 - tapOn: Settings
 - tapOn: Español
 - assertVisible: Ajustes
-- assertVisible: Esta noche
+- assertVisible: Idioma
 - tapOn: English
-- assertVisible: Settings
+- assertVisible: Language

@@ -4,13 +4,14 @@ name: Five taps on the version turn demo mode on and off
 - launchApp:
     clearState: true
     permissions:
-      location: allow
+      location: inuse
       notifications: deny
 - runFlow: subflows/finish-onboarding.yaml
 - tapOn: Settings
 - scrollUntilVisible:
     element:
       id: app-version
+    centerElement: true
 - tapOn:
     id: app-version
     repeat: 5
@@ -21,6 +22,7 @@ name: Five taps on the version turn demo mode on and off
 - scrollUntilVisible:
     element:
       id: app-version
+    centerElement: true
 - tapOn:
     id: app-version
     repeat: 5
