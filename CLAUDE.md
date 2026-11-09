@@ -159,8 +159,8 @@ There is no collection table. The collection is derived from sightings.
   - Maestro matches an element's whole accessibility label, and a pressable row joins its texts into one ("ISS (ZARYA), 6:21 PM, Brilliant, …"), so match rows by `testID` or a regex ending in `.*`.
   - Location permission takes `inuse`, `always` or `never`, not `allow` or `deny`.
   - Use `centerElement: true` with `scrollUntilVisible`, or the tap can land on the floating tab bar.
-  - Flows that don't open the demo link start with `subflows/finish-onboarding.yaml`. It waits for Continue on the location step, because with location granted the app finds a place before the button can be tapped.
-  - The native tab bar keeps its first language's accessibility labels after a language switch, so don't assert on tab names after switching.
+  - Flows that don't open the demo link start with `subflows/finish-onboarding.yaml`. On the location step it taps whichever of Use my location and Continue is showing, because with location granted the app may get a GPS fix and swap the button at any moment.
+  - Tap tabs by `testID` (`tab-tonight`, `tab-sky`, `tab-collection`, `tab-settings`). Maestro keeps the tab bar's labels from when a flow started, so after a language switch it still sees the English names, though the app and VoiceOver use the new ones.
   - Maestro can't hold a drag in place, so it can't complete an aimed catch.
 
 ## Demo mode
