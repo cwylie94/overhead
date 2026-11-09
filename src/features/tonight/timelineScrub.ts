@@ -5,12 +5,6 @@ const MINUTE = 60_000;
 export const LOUPE_SPAN = 45 * MINUTE;
 export const LOUPE_LABEL_EVERY = 15 * MINUTE;
 
-export function timeAtX(x: number, range: Interval, width: number): number {
-  'worklet';
-  const fraction = width > 0 ? Math.min(1, Math.max(0, x / width)) : 0;
-  return range.from + fraction * (range.to - range.from);
-}
-
 export function nearestStart(starts: number[], time: number, reach: number): number {
   'worklet';
   let nearest = -1;

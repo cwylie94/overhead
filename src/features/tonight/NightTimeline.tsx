@@ -7,8 +7,19 @@ import { brightnessTier, type BrightnessTier } from '@/domain/brightness';
 import { formatHour, formatPassTime } from '@/i18n/format';
 import { brightnessMarkColors, colors, radius, spacing, typography } from '@/ui/theme';
 
-import type { NightSky } from './nightSky';
-import { clip, fractionOf, hourMarks, nearestPass, timelineRange } from './timelineLayout';
+import type { NightSky, Interval } from './nightSky';
+import {
+  axisScale,
+  BREAK_WIDTH,
+  clip,
+  hourMarks,
+  hourStep,
+  nearestPass,
+  timeAtX,
+  timelineAxis,
+  timelineRange,
+  xOfTime,
+} from './timelineLayout';
 import { loupeLabelTimes } from './timelineScrub';
 import { TimelineScrubber, type ScrubPass } from './TimelineScrubber';
 
@@ -41,17 +52,22 @@ export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightT
   if (!range) {
     return null;
   }
-  const at = (time: number) => fractionOf(time, range) * width;
-  const band = (from: number | null, to: number | null) => {
-    if (from === null || to === null) {
-      return null;
-    }
-    const clipped = clip({ from, to }, range);
-    return clipped && { left: at(clipped.from), width: at(clipped.to) - at(clipped.from) };
-  };
-  const dusk = band(range.from, sky?.darkFrom ?? null);
-  const dawn = band(sky?.darkUntil ?? null, range.to);
-  const moon = (sky?.moonUp ?? []).map((interval) => band(interval.from, interval.to));
+  const axis = timelineAxis(range, passes);
+  const at = (time: number) => xOfTime(time, axis, width);
+  const span = (interval: Interval) => ({
+    left: at(interval.from),
+    width: at(interval.to) - at(interval.from),
+  });
+  const pieces = (intervals: Interval[]) =>
+    axis.segments.flatMap((segment) =>
+      intervals.flatMap((interval) => clip(interval, segment) ?? []),
+    );
+  const twilight = [
+    sky?.darkFrom ? { from: range.from, to: sky.darkFrom } : null,
+    sky?.darkUntil ? { from: sky.darkUntil, to: range.to } : null,
+  ].filter((interval): interval is Interval => interval !== null);
+  const moon = pieces(sky?.moonUp ?? []).map(span);
+  const hours = axis.segments.flatMap((segment) => hourMarks(segment, hourStep(axis, width)));
   const showNow = now > range.from && now < range.to;
   const bright = passes.filter((pass) => tierOf(pass) !== 'faint');
   const featured = passes.find((pass) => pass.id === featuredId);
@@ -60,9 +76,8 @@ export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightT
     if (width === 0) {
       return;
     }
-    const time = range.from + (nativeEvent.locationX / width) * (range.to - range.from);
-    const reach = (TOUCH_REACH / width) * (range.to - range.from);
-    const pass = nearestPass(passes, time, reach);
+    const time = timeAtX(nativeEvent.locationX, axis, width);
+    const pass = nearestPass(passes, time, TOUCH_REACH / axisScale(axis, width));
     if (pass) {
       onSelect(pass);
     }
@@ -109,7 +124,7 @@ export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightT
       <TimelineScrubber
         width={width}
         trackHeight={TRACK_HEIGHT}
-        range={range}
+        axis={axis}
         passes={scrubPasses}
         labels={loupeLabels}
         onSelect={selectById}>
@@ -133,8 +148,37 @@ export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightT
           style={styles.track}>
           {width > 0 && (
             <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-              {dusk && <View style={[styles.twilight, dusk]} />}
-              {dawn && <View style={[styles.twilight, dawn]} />}
+              {axis.segments.map((segment) => {
+                const box = span(segment);
+                return (
+                  <View key={segment.from} style={[styles.segment, box]}>
+                    {twilight.flatMap((interval) => {
+                      const shade = clip(interval, segment);
+                      return shade
+                        ? [
+                            <View
+                              key={interval.from}
+                              style={[
+                                styles.twilight,
+                                {
+                                  left: at(shade.from) - box.left,
+                                  width: at(shade.to) - at(shade.from),
+                                },
+                              ]}
+                            />,
+                          ]
+                        : [];
+                    })}
+                  </View>
+                );
+              })}
+              {axis.segments.slice(1).map((segment) => (
+                <Text
+                  key={segment.from}
+                  style={[styles.break, { left: at(segment.from) - BREAK_WIDTH }]}>
+                  ⋯
+                </Text>
+              ))}
               {passes.map((pass) => {
                 const tier = tierOf(pass);
                 const height = TICK_HEIGHT[tier];
@@ -162,13 +206,11 @@ export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightT
       </TimelineScrubber>
       <View style={styles.moonRow}>
         {width > 0 &&
-          moon.map(
-            (interval, index) => interval && <View key={index} style={[styles.moon, interval]} />,
-          )}
+          moon.map((interval) => <View key={interval.left} style={[styles.moon, interval]} />)}
       </View>
       <View style={styles.labels}>
         {width > 0 &&
-          hourMarks(range).map((time) => (
+          hours.map((time) => (
             <Text key={time} style={[styles.hour, { left: at(time) - 20 }]}>
               {formatHour(time, i18n.language)}
             </Text>
@@ -184,11 +226,24 @@ const styles = StyleSheet.create({
   },
   track: {
     height: TRACK_HEIGHT,
+  },
+  segment: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
     borderRadius: radius.sm,
     backgroundColor: colors.surface,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
     overflow: 'hidden',
+  },
+  break: {
+    ...typography.label,
+    position: 'absolute',
+    width: BREAK_WIDTH,
+    top: (TRACK_HEIGHT - typography.label.lineHeight) / 2,
+    textAlign: 'center',
+    color: colors.textMuted,
   },
   twilight: {
     position: 'absolute',

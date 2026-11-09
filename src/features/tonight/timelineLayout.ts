@@ -19,10 +19,6 @@ export function timelineRange(sky: NightSky | null, passes: TimelinePass[]): Int
   };
 }
 
-export function fractionOf(time: number, range: Interval): number {
-  return Math.min(1, Math.max(0, (time - range.from) / (range.to - range.from)));
-}
-
 export function clip(interval: Interval, range: Interval): Interval | null {
   const from = Math.max(interval.from, range.from);
   const to = Math.min(interval.to, range.to);
@@ -57,4 +53,85 @@ export function nearestPass<T extends TimelinePass>(
     }
   }
   return nearest;
+}
+
+export const SPLIT_GAP = 3 * HOUR;
+export const SPLIT_PADDING = 20 * MINUTE;
+export const BREAK_WIDTH = 14;
+
+export type TimelineAxis = { segments: Interval[] };
+
+export function timelineAxis(range: Interval, passes: TimelinePass[]): TimelineAxis {
+  const sorted = [...passes].sort((a, b) => a.startAt - b.startAt);
+  let gap: Interval | null = null;
+  let coveredUntil = sorted[0]?.endAt ?? range.from;
+  for (const pass of sorted.slice(1)) {
+    if (pass.startAt - coveredUntil > (gap ? gap.to - gap.from : 0)) {
+      gap = { from: coveredUntil, to: pass.startAt };
+    }
+    coveredUntil = Math.max(coveredUntil, pass.endAt);
+  }
+  if (!gap || gap.to - gap.from < SPLIT_GAP) {
+    return { segments: [range] };
+  }
+  return {
+    segments: [
+      { from: range.from, to: gap.from + SPLIT_PADDING },
+      { from: gap.to - SPLIT_PADDING, to: range.to },
+    ],
+  };
+}
+
+export function axisScale(axis: TimelineAxis, width: number): number {
+  'worklet';
+  let total = 0;
+  for (let index = 0; index < axis.segments.length; index += 1) {
+    total += axis.segments[index]!.to - axis.segments[index]!.from;
+  }
+  const usable = width - BREAK_WIDTH * (axis.segments.length - 1);
+  return total > 0 && usable > 0 ? usable / total : 0;
+}
+
+export function xOfTime(time: number, axis: TimelineAxis, width: number): number {
+  'worklet';
+  const scale = axisScale(axis, width);
+  let left = 0;
+  for (let index = 0; index < axis.segments.length; index += 1) {
+    const segment = axis.segments[index]!;
+    if (time < segment.from) {
+      return index === 0 ? 0 : left - BREAK_WIDTH / 2;
+    }
+    if (time <= segment.to) {
+      return left + (time - segment.from) * scale;
+    }
+    left += (segment.to - segment.from) * scale + BREAK_WIDTH;
+  }
+  return width;
+}
+
+export function timeAtX(x: number, axis: TimelineAxis, width: number): number {
+  'worklet';
+  const scale = axisScale(axis, width);
+  let left = 0;
+  for (let index = 0; index < axis.segments.length; index += 1) {
+    const segment = axis.segments[index]!;
+    const right = left + (segment.to - segment.from) * scale;
+    if (x < left) {
+      const previous = axis.segments[index - 1];
+      return previous && x - (left - BREAK_WIDTH) < BREAK_WIDTH / 2 ? previous.to : segment.from;
+    }
+    if (x <= right) {
+      return scale > 0 ? segment.from + (x - left) / scale : segment.from;
+    }
+    left = right + BREAK_WIDTH;
+  }
+  return axis.segments[axis.segments.length - 1]?.to ?? 0;
+}
+
+export const MIN_HOUR_SPACING = 48;
+const HOUR_STEPS = [1, 2, 3, 6];
+
+export function hourStep(axis: TimelineAxis, width: number): number {
+  const pointsPerHour = axisScale(axis, width) * HOUR;
+  return HOUR_STEPS.find((step) => step * pointsPerHour >= MIN_HOUR_SPACING) ?? 6;
 }

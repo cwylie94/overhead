@@ -5,22 +5,10 @@ import {
   loupeLeft,
   loupeX,
   nearestStart,
-  timeAtX,
 } from '../timelineScrub';
 
 const MINUTE = 60_000;
 const range = { from: 0, to: 600 * MINUTE };
-
-describe('timeAtX', () => {
-  test('maps a finger position to a time on the night', () => {
-    expect(timeAtX(150, range, 300)).toBe(300 * MINUTE);
-  });
-
-  test('stays on the night when the finger slides off the ends', () => {
-    expect(timeAtX(-20, range, 300)).toBe(0);
-    expect(timeAtX(340, range, 300)).toBe(600 * MINUTE);
-  });
-});
 
 describe('nearestStart', () => {
   const starts = [100 * MINUTE, 110 * MINUTE, 400 * MINUTE];

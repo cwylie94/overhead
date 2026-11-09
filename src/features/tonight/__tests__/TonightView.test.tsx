@@ -6,7 +6,7 @@ import { ClockProvider } from '@/environment/clock';
 import { nightNoon, nightOf } from '../nights';
 import { nightSky } from '../nightSky';
 import { staleDaysFor } from '../staleness';
-import { fractionOf, timelineRange } from '../timelineLayout';
+import { timelineAxis, timelineRange, xOfTime } from '../timelineLayout';
 import { TonightView, type TonightViewProps } from '../TonightView';
 
 jest.mock('../SkyGlyph', () => ({ SkyGlyph: () => null }));
@@ -185,7 +185,9 @@ describe('TonightView', () => {
 
     await fireEvent(timeline, 'layout', { nativeEvent: { layout: { width, height: 30 } } });
     await fireEvent.press(timeline, {
-      nativeEvent: { locationX: fractionOf(passes[1]!.startAt + MINUTE, range) * width },
+      nativeEvent: {
+        locationX: xOfTime(passes[1]!.startAt + MINUTE, timelineAxis(range, passes), width),
+      },
     });
 
     expect(screen.getByText('COSMOS 1867')).toBeOnTheScreen();

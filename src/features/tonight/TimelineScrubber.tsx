@@ -12,8 +12,8 @@ import Animated, {
 import { haptics } from '@/ui/haptics';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
-import type { Interval } from './nightSky';
-import { LOUPE_SPAN, loupeLeft, loupeX, nearestStart, timeAtX } from './timelineScrub';
+import { axisScale, timeAtX, type TimelineAxis } from './timelineLayout';
+import { LOUPE_SPAN, loupeLeft, loupeX, nearestStart } from './timelineScrub';
 
 const LOUPE_MAX_WIDTH = 260;
 const LOUPE_HEIGHT = 78;
@@ -38,7 +38,7 @@ export type ScrubLabel = { time: number; text: string };
 type TimelineScrubberProps = {
   width: number;
   trackHeight: number;
-  range: Interval;
+  axis: TimelineAxis;
   passes: ScrubPass[];
   labels: ScrubLabel[];
   onSelect(id: number): void;
@@ -90,7 +90,7 @@ function LoupeLabel({
 export function TimelineScrubber({
   width,
   trackHeight,
-  range,
+  axis,
   passes,
   labels,
   onSelect,
@@ -99,11 +99,11 @@ export function TimelineScrubber({
   const { t } = useTranslation('tonight');
   const active = useSharedValue(false);
   const fingerX = useSharedValue(0);
-  const center = useSharedValue(range.from);
+  const center = useSharedValue(axis.segments[0]?.from ?? 0);
   const selected = useSharedValue(-1);
   const [chosen, setChosen] = useState<number | null>(null);
   const loupeWidth = Math.min(LOUPE_MAX_WIDTH, width);
-  const bracketWidth = width > 0 ? (LOUPE_SPAN / (range.to - range.from)) * width : 0;
+  const bracketWidth = LOUPE_SPAN * axisScale(axis, width);
   const starts = passes.map((pass) => pass.startAt);
   const ids = passes.map((pass) => pass.id);
 
@@ -117,7 +117,7 @@ export function TimelineScrubber({
   const follow = (rawX: number) => {
     'worklet';
     const x = Math.min(Math.max(rawX, 0), width);
-    const time = timeAtX(x, range, width);
+    const time = timeAtX(x, axis, width);
     fingerX.set(x);
     center.set(time);
     const index = nearestStart(starts, time, LOUPE_SPAN / 2);
