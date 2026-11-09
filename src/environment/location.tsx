@@ -13,9 +13,11 @@ import { AppState, Linking, Platform } from 'react-native';
 import type { Observer } from '@/domain/observer';
 import { useSettingsStore } from '@/stores/settingsStore';
 
+import { estimatedObserver } from './estimatedLocation';
+
 export type LocationState =
   | { status: 'locating' }
-  | { status: 'ready'; observer: Observer }
+  | { status: 'ready'; observer: Observer; estimated?: boolean }
   | { status: 'denied'; canAskAgain: boolean };
 
 type LocationContextValue = {
@@ -47,14 +49,25 @@ export function observerFromCoordinates(coords: Location.LocationObjectCoords): 
   };
 }
 
-export function locationState(cached: Observer | null, permission: Permission): LocationState {
+export function locationState(
+  cached: Observer | null,
+  permission: Permission,
+  estimate: Observer,
+): LocationState {
   if (cached) {
     return { status: 'ready', observer: cached };
   }
   if (permission.status === 'denied') {
     return { status: 'denied', canAskAgain: permission.canAskAgain };
   }
+  if (permission.status === 'granted') {
+    return { status: 'ready', observer: estimate, estimated: true };
+  }
   return { status: 'locating' };
+}
+
+export function isEstimated(state: LocationState): boolean {
+  return state.status === 'ready' && state.estimated === true;
 }
 
 type ProviderProps = { children: ReactNode };
@@ -64,6 +77,22 @@ function useDeviceLocation(enabled: boolean): LocationContextValue {
   const mayPrompt = useSettingsStore((settings) => settings.onboardingComplete);
   const rememberLocation = useSettingsStore((settings) => settings.rememberLocation);
   const [permission, setPermission] = useState<Permission>({ status: 'unknown' });
+  const [estimate] = useState(estimatedObserver);
+  const waitingForFix = enabled && permission.status === 'granted' && cached === null;
+
+  const locate = useCallback(async () => {
+    const lastKnown = await Location.getLastKnownPositionAsync({ maxAge: LAST_KNOWN_MAX_AGE });
+    if (lastKnown) {
+      rememberLocation(observerFromCoordinates(lastKnown.coords));
+    }
+    const current = await Location.getCurrentPositionAsync({
+      accuracy: FIX_ACCURACY,
+      mayShowUserSettingsDialog: false,
+    }).catch(() => null);
+    if (current) {
+      rememberLocation(observerFromCoordinates(current.coords));
+    }
+  }, [rememberLocation]);
 
   const refresh = useCallback(
     async (askIfUndetermined: boolean): Promise<Permission> => {
@@ -74,21 +103,10 @@ function useDeviceLocation(enabled: boolean): LocationContextValue {
       if (!response.granted) {
         return { status: 'denied', canAskAgain: response.canAskAgain };
       }
-
-      const lastKnown = await Location.getLastKnownPositionAsync({ maxAge: LAST_KNOWN_MAX_AGE });
-      if (lastKnown) {
-        rememberLocation(observerFromCoordinates(lastKnown.coords));
-      }
-      const current = await Location.getCurrentPositionAsync({
-        accuracy: FIX_ACCURACY,
-        mayShowUserSettingsDialog: false,
-      }).catch(() => null);
-      if (current) {
-        rememberLocation(observerFromCoordinates(current.coords));
-      }
+      locate().catch(() => {});
       return { status: 'granted' };
     },
-    [rememberLocation],
+    [locate],
   );
 
   useEffect(() => {
@@ -106,6 +124,31 @@ function useDeviceLocation(enabled: boolean): LocationContextValue {
     return () => subscription.remove();
   }, [enabled, mayPrompt, refresh]);
 
+  useEffect(() => {
+    if (!waitingForFix) {
+      return;
+    }
+    let cancelled = false;
+    let watch: Location.LocationSubscription | null = null;
+    Location.watchPositionAsync(
+      { accuracy: FIX_ACCURACY, mayShowUserSettingsDialog: false },
+      (position) => rememberLocation(observerFromCoordinates(position.coords)),
+    ).then(
+      (subscription) => {
+        if (cancelled) {
+          subscription.remove();
+        } else {
+          watch = subscription;
+        }
+      },
+      () => {},
+    );
+    return () => {
+      cancelled = true;
+      watch?.remove();
+    };
+  }, [waitingForFix, rememberLocation]);
+
   const ask = useCallback(async () => {
     const response = await Location.requestForegroundPermissionsAsync();
     refresh(false).then(setPermission, () => {});
@@ -122,8 +165,12 @@ function useDeviceLocation(enabled: boolean): LocationContextValue {
   const askPermission = useCallback(async () => (await ask()).granted, [ask]);
 
   return useMemo(
-    () => ({ state: locationState(cached, permission), requestPermission, askPermission }),
-    [cached, permission, requestPermission, askPermission],
+    () => ({
+      state: locationState(cached, permission, estimate),
+      requestPermission,
+      askPermission,
+    }),
+    [cached, permission, estimate, requestPermission, askPermission],
   );
 }
 

@@ -3,31 +3,45 @@ import { act, render, screen } from '@testing-library/react-native';
 import { Text } from '@/ui/Text';
 
 import { ClockProvider, useNow, type Clock } from '../clock';
-import { locationState, observerFromCoordinates } from '../location';
+import { isEstimated, locationState, observerFromCoordinates } from '../location';
 
 const london = { latitude: 51.51, longitude: -0.13, altitude: 0 };
+const guess = { latitude: 40.42, longitude: -3.7, altitude: 0 };
 
 describe('locationState', () => {
   test('uses the cached location even before permission is known', () => {
-    expect(locationState(london, { status: 'unknown' })).toEqual({
+    expect(locationState(london, { status: 'unknown' }, guess)).toEqual({
       status: 'ready',
       observer: london,
     });
   });
 
   test('keeps using the cached location if permission is later denied', () => {
-    expect(locationState(london, { status: 'denied', canAskAgain: false }).status).toBe('ready');
+    expect(locationState(london, { status: 'denied', canAskAgain: false }, guess).status).toBe(
+      'ready',
+    );
   });
 
   test('is denied with no cached location', () => {
-    expect(locationState(null, { status: 'denied', canAskAgain: true })).toEqual({
+    expect(locationState(null, { status: 'denied', canAskAgain: true }, guess)).toEqual({
       status: 'denied',
       canAskAgain: true,
     });
   });
 
-  test('is locating while waiting for a first fix', () => {
-    expect(locationState(null, { status: 'granted' })).toEqual({ status: 'locating' });
+  test('uses the estimate while waiting for a first fix', () => {
+    const state = locationState(null, { status: 'granted' }, guess);
+
+    expect(state).toEqual({ status: 'ready', observer: guess, estimated: true });
+    expect(isEstimated(state)).toBe(true);
+  });
+
+  test('is locating until permission is known', () => {
+    expect(locationState(null, { status: 'unknown' }, guess)).toEqual({ status: 'locating' });
+  });
+
+  test('a real fix is not an estimate', () => {
+    expect(isEstimated(locationState(london, { status: 'granted' }, guess))).toBe(false);
   });
 });
 
