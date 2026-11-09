@@ -13,7 +13,7 @@ Built with Expo (SDK 58), React Native and TypeScript, in English and Spanish.
 
 ## Demo mode
 
-Demo mode replays a fixed evening so the app can be shown anywhere, any time. Open Settings and tap the version number five times, or open the `overhead://demo` link (`overhead://demo?enabled=0` turns it off).
+Demo mode replays a fixed evening so the app can be shown anywhere, any time. Turn on the Demo mode switch in Settings (tapping the version number five times also works), or open the `overhead://demo` link (`overhead://demo?enabled=0` turns it off).
 
 - The clock starts a minute before a bright ISS pass over London, picked from the bundled orbit data, and runs in real time from there.
 - Catch mode uses drag-to-aim instead of the compass.

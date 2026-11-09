@@ -130,11 +130,17 @@ function StepButton({ symbol, label, enabled, onPress }: StepButtonProps) {
   );
 }
 
-type ToggleProps = { label: string; value: boolean; onChange(value: boolean): void };
+type ToggleProps = {
+  label: string;
+  value: boolean;
+  testID?: string;
+  onChange(value: boolean): void;
+};
 
-export function Toggle({ label, value, onChange }: ToggleProps) {
+export function Toggle({ label, value, testID, onChange }: ToggleProps) {
   return (
     <Switch
+      testID={testID}
       accessibilityLabel={label}
       value={value}
       onValueChange={onChange}

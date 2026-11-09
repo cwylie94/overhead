@@ -60,9 +60,10 @@
     "replayIntro": "Show intro again"
   },
   "demo": {
-    "title": "Demo mode",
+    "title": "Demo",
     "body": "Replaying {{date}} in London from {{time}}, with the orbit data bundled in the app.",
     "separate": "Demo catches go into a separate collection that is wiped each time the demo starts, and nothing syncs.",
-    "turnOff": "Turn off demo mode"
+    "toggle": "Demo mode",
+    "hint": "Replays a clear evening over London, so you can try catching at any time."
   }
 }

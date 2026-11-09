@@ -91,9 +91,7 @@ export function SettingsScreen() {
           onUseGps={() => setCustomLocation(null)}
         />
         <PreferencesSections preferences={preferences} actions={actions} />
-        {demo ? (
-          <DemoSection startsAt={demo.startsAt} onTurnOff={() => setDemoMode(false)} />
-        ) : (
+        {demo === null && (
           <SyncSection
             configured={configured}
             status={status}
@@ -106,6 +104,7 @@ export function SettingsScreen() {
             }}
           />
         )}
+        <DemoSection startsAt={demo?.startsAt ?? null} onChange={setDemoMode} />
         <AboutSection
           version={APP_VERSION}
           onToggleDemo={() => setDemoMode(demo === null)}

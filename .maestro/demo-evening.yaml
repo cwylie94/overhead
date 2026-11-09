@@ -33,7 +33,9 @@ name: Demo evening, from the Tonight list to the collection
 - assertVisible: Space stations
 - tapOn: Settings
 - scrollUntilVisible:
-    element: Turn off demo mode
-- tapOn: Turn off demo mode
+    element:
+      id: demo-mode
+- tapOn:
+    id: demo-mode
 - tapOn: Tonight
 - assertNotVisible: 'Demo mode: .*'
