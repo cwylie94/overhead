@@ -29,6 +29,7 @@
   },
   "location": {
     "current": "Your location",
+    "demo": "London, United Kingdom",
     "change": "Choose a location"
   },
   "timeline": {

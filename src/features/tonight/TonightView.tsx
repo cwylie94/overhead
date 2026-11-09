@@ -255,7 +255,11 @@ export function TonightView({
   const header = (
     <Header
       locationName={
-        chosenLocation ? `${chosenLocation.name}, ${chosenLocation.country}` : t('location.current')
+        demoStartsAt !== null
+          ? t('location.demo')
+          : chosenLocation
+            ? `${chosenLocation.name}, ${chosenLocation.country}`
+            : t('location.current')
       }
       summary={summary}
       onChooseCity={onChooseCity}

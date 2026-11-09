@@ -285,6 +285,7 @@ describe('TonightView', () => {
     expect(
       screen.getByText('Demo mode: Sunday, November 8 in London. Turn it off in Settings.'),
     ).toBeOnTheScreen();
+    expect(screen.getByText('London, United Kingdom')).toBeOnTheScreen();
   });
 
   test('names the chosen city under the title and lets the user change it', async () => {
