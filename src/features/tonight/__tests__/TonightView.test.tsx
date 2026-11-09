@@ -237,6 +237,14 @@ describe('TonightView', () => {
     expect(screen.queryByText(/ago/)).toBeNull();
   });
 
+  test('calls a featured pass visible as soon as it starts', async () => {
+    const pass = makePass({ startAt: NOW + 2 * MINUTE });
+    await renderView({ passes: [pass] }, pass.startAt + 10_000);
+
+    expect(screen.queryByText('Coming up')).toBeNull();
+    expect(screen.getAllByText('Visible now')).toHaveLength(2);
+  });
+
   test('stops calling a featured pass visible as soon as it ends', async () => {
     const pass = makePass({ startAt: NOW - 3 * MINUTE });
     await renderView({ passes: [pass] }, pass.endAt + 10_000);

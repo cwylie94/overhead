@@ -50,11 +50,12 @@ export function FeaturedPass({
   const minutes = Math.max(1, Math.round((pass.endAt - pass.startAt) / MINUTE));
   const now = useNow(1_000);
   const timely = reason !== 'best';
-  const ended = timely && catchWindow(pass, now) === 'over';
+  const window = catchWindow(pass, now);
+  const ended = timely && window === 'over';
   const heading = timely
     ? ended
       ? t('justEnded')
-      : t(`featured.${reason}`)
+      : t(window === 'live' ? 'featured.live' : 'featured.soon')
     : night.kind === 'later'
       ? t('featured.bestOn', { night: nightTitle })
       : t(`featured.best.${night.kind}`);
@@ -137,6 +138,7 @@ const styles = StyleSheet.create({
   },
   chips: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.xs,
   },
   detail: {
