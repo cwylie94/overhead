@@ -1,4 +1,4 @@
-import { clip, fractionOf, hourMarks, nearestPass, timelineRange } from '../nightTimeline';
+import { clip, fractionOf, hourMarks, nearestPass, timelineRange } from '../timelineLayout';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
