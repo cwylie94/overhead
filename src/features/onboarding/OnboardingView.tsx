@@ -8,31 +8,16 @@ import { formatPassTime } from '@/i18n/format';
 import { Chip } from '@/ui/Chip';
 import { Icon } from '@/ui/Icon';
 import { Text } from '@/ui/Text';
-import {
-  brightnessMarkColors,
-  colors,
-  radius,
-  rarityColors,
-  spacing,
-  typography,
-} from '@/ui/theme';
+import { colors, radius, rarityColors, spacing, typography } from '@/ui/theme';
 
 import { CameraWalkthrough } from './CameraWalkthrough';
 import { DomeIllustration } from './DomeIllustration';
+import { LoupeDemo } from './LoupeDemo';
 
 export const ONBOARDING_STEPS = ['welcome', 'location', 'catching', 'camera', 'reminders'] as const;
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
 const SAMPLE_PASS_TIME = new Date(2026, 0, 1, 20, 57).getTime();
-const SAMPLE_TICKS = [
-  { at: 0.16, tier: 'bright' },
-  { at: 0.28, tier: 'brilliant' },
-  { at: 0.38, tier: 'faint' },
-  { at: 0.54, tier: 'bright' },
-  { at: 0.72, tier: 'brilliant' },
-  { at: 0.84, tier: 'faint' },
-] as const;
-const TICK_HEIGHT = { brilliant: 16, bright: 10, faint: 6 } as const;
 const SAMPLE_RARITIES: Rarity[] = ['legendary', 'rare', 'uncommon'];
 
 export type OnboardingViewProps = {
@@ -105,7 +90,7 @@ function StepContent({ step, place }: OnboardingViewProps) {
           <Heading title={t('catching.title')} />
           <View style={styles.card}>
             <HowStep number={1} title={t('catching.pick')} hint={t('catching.pickHint')}>
-              <SampleTimeline />
+              <LoupeDemo />
             </HowStep>
             <HowStep number={2} title={t('catching.open')} hint={t('catching.openHint')} />
             <HowStep number={3} title={t('catching.hold')} hint={t('catching.holdHint')}>
@@ -258,26 +243,6 @@ function HowStep({
   );
 }
 
-function SampleTimeline() {
-  return (
-    <View style={styles.timeline}>
-      {SAMPLE_TICKS.map(({ at, tier }) => (
-        <View
-          key={at}
-          style={[
-            styles.tick,
-            {
-              left: `${at * 100}%`,
-              height: TICK_HEIGHT[tier],
-              backgroundColor: brightnessMarkColors[tier],
-            },
-          ]}
-        />
-      ))}
-    </View>
-  );
-}
-
 function Progress({ index }: { index: number }) {
   const { t } = useTranslation('onboarding');
   return (
@@ -407,20 +372,6 @@ const styles = StyleSheet.create({
   numberText: {
     ...typography.label,
     color: colors.accent,
-  },
-  timeline: {
-    height: 24,
-    marginTop: spacing.sm,
-    borderRadius: radius.sm,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    backgroundColor: colors.surfaceRaised,
-    justifyContent: 'center',
-  },
-  tick: {
-    position: 'absolute',
-    width: 2,
-    borderRadius: 1,
   },
   chips: {
     flexDirection: 'row',

@@ -20,7 +20,7 @@
   "catching": {
     "title": "Atrapa uno en tres pasos",
     "pick": "Elige un paso en Esta noche",
-    "pickHint": "Las marcas doradas son las más brillantes",
+    "pickHint": "Las marcas doradas son las más brillantes. Arrastra la línea de tiempo para ampliarla.",
     "open": "Abre Atrapar cuando esté arriba",
     "openHint": "Levanta el teléfono hacia el cielo",
     "hold": "Mantén la mira sobre él",

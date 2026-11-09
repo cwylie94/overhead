@@ -4,6 +4,7 @@ import { OnboardingView, type OnboardingStep, type OnboardingViewProps } from '.
 
 jest.mock('../DomeIllustration', () => ({ DomeIllustration: () => null }));
 jest.mock('../CameraSky', () => ({ CameraSky: () => null }));
+jest.mock('../LoupeDemo', () => ({ LoupeDemo: () => null }));
 
 async function renderStep(step: OnboardingStep, overrides: Partial<OnboardingViewProps> = {}) {
   const props: OnboardingViewProps = {
