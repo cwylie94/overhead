@@ -10,6 +10,8 @@ import { useCalibrationStore } from '@/stores/calibrationStore';
 
 import type { Pointing } from './usePointing';
 
+export type CameraAim = ReturnType<typeof useCameraAim>;
+
 export function useCameraAim(
   pointing: Pointing,
   observer: Observer | null,

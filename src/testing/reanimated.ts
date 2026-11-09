@@ -16,3 +16,7 @@ export function useSharedValue<T>(initial: T) {
 export function withTiming<T>(target: T): T {
   return target;
 }
+
+export const Easing = {
+  linear: (t: number) => t,
+};
