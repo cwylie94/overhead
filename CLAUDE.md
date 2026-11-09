@@ -2,7 +2,7 @@
 
 Overhead is a React Native (Expo) app that finds satellites passing over the user tonight, guides them to each one in the sky, and lets them "catch" it into a collection. It must work fully offline, because the best viewing spots have no signal.
 
-Core loop: **Plan** (Tonight list) → **Point** (Sky view) → **Catch** (hold aim for 2 s) → **Collect** (card in the collection).
+Core loop: **Plan** (Tonight list) → **Point** (Sky view) → **Catch** (hold aim for 3 s) → **Collect** (card in the collection).
 
 It is an interview showcase project, so code quality, tests and a working demo mode matter more than feature count.
 
@@ -66,7 +66,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
   - Moon calibration stores the offset between the raw reading and the Moon (`src/domain/moon.ts`, within 0.4° of Skyfield) in `calibrationStore`, in memory only. `usePointing` applies it to every reading, and `pointing.raw` keeps the uncorrected one for calibrating. Offsets over 45° are rejected as aimed at the wrong thing.
   - Camera mode (`CameraCatchView`, VisionCamera 5) is offered only with sensors and a back camera, so never on the simulator or in demo mode. The overlay projects the sky with `cameraProjection.ts`: the field of view comes from the lens's 35 mm-equivalent focal length, assuming the 4:3 photo frame fills the view (`resizeMode="cover"`). The catch logic is the same in both modes; only the drawing changes.
   - With no sensor data within 2.5 s (as on the simulator), it falls back to drag-to-aim. Demo mode can force that.
-  - A 50 ms JS ticker feeds the catch machine, with readings that count only while a finger is down and the pass has started.
+  - A 50 ms JS ticker feeds the catch machine (`aimCounts`): readings count once the pass has started, always with sensors and only while a finger is down in drag-to-aim.
   - Catch mode opens up to 10 minutes early (`catchWindow` in `src/domain/catchWindow.ts`): Tonight shows Get ready, the marker waits dimmed where the satellite will appear, and nothing can be caught or logged as seen until it does.
   - Log sightings through `logSighting` (UUIDv7 IDs), and guard against duplicates with something stable such as the catch time, never a flag an effect resets.
   - Untested on real hardware: whether the iOS heading follows the back camera when the phone is upright, and how accurate the field of view is. Check both on a phone, using the Moon marker, before the demo.
@@ -107,7 +107,7 @@ There is no collection table. The collection is derived from sightings.
 
 ## Domain rules
 
-- **Catch:** only inside a predicted visible pass window, with the aim (heading plus tilt) within about 10° of the predicted position for 2 s, in any aiming mode (sensors, camera or drag-to-aim). Every catch adds to the collection, and there is no separate "seen" state.
+- **Catch:** only inside a predicted visible pass window, with the aim (heading plus tilt) within about 10° of the predicted position for 3 s, in any aiming mode (sensors, camera or drag-to-aim). With sensors the aim counts on its own; in drag-to-aim it counts only while a finger is down, because the finger is the aim. Every catch adds to the collection, and there is no separate "seen" state.
 - **Catch state machine** (in `catchStore`): idle → aiming → locked → caught / failed.
 - **Visibility:** the sun is more than 6° below the horizon, the satellite is in sunlight, and the elevation is above the user's minimum.
 - **Rarity** is a fixed function of catalogue data, so every device agrees. It forms a pyramid, each tier larger than the one above (18 / 28 / 57 / 69 in the current snapshot):

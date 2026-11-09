@@ -41,7 +41,11 @@ describe('catch state machine', () => {
     expect(run([start, aim(CATCH_TOLERANCE_DEGREES, 0)]).status).toBe('locked');
   });
 
-  test('holding for just under 2 seconds stays locked', () => {
+  test('a catch takes 3 seconds on target', () => {
+    expect(CATCH_HOLD_MS).toBe(3_000);
+  });
+
+  test('holding for just under 3 seconds stays locked', () => {
     const state = run([start, aim(ON, 0), aim(ON, CATCH_HOLD_MS - 1)]);
 
     expect(state).toEqual({ status: 'locked', target, lockedAt: T0 });

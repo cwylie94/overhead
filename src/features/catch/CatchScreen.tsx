@@ -114,13 +114,13 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
 
   const manual = pointing.mode === 'manual';
   const { azimuth, elevation, setManual } = pointing;
-  const { setHolding } = session;
+  const { setTouching } = session;
 
   const hold = Gesture.Pan()
     .minDistance(0)
     .onBegin(() => {
       dragStart.set({ azimuth: azimuth.get(), elevation: elevation.get() });
-      runOnJS(setHolding)(true);
+      runOnJS(setTouching)(true);
     })
     .onUpdate((event) => {
       if (!manual) {
@@ -137,7 +137,7 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
       runOnJS(setManual)(position);
     })
     .onFinalize(() => {
-      runOnJS(setHolding)(false);
+      runOnJS(setTouching)(false);
     });
 
   const waiting = catchWindow(pass, now) === 'ready';

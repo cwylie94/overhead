@@ -24,7 +24,7 @@
     "open": "Open Catch when it’s up",
     "openHint": "Hold your phone up to the sky",
     "hold": "Keep the crosshair on it",
-    "holdHint": "Two seconds adds its card",
+    "holdHint": "Three seconds adds its card",
     "next": "Next"
   },
   "camera": {
@@ -38,7 +38,7 @@
     "captions": {
       "show": "Tap Show camera in Catch. The satellite’s path is drawn over the real sky.",
       "moon": "Tap Calibrate on the Moon, put it in the crosshair and tap Set. The marker jumps onto the Moon, and every path moves with it.",
-      "hold": "Follow the path and keep the crosshair on the satellite. The ring fills in 2 seconds."
+      "hold": "Follow the path and keep the crosshair on the satellite. The ring fills in 3 seconds."
     },
     "off": "Marker 12° off the Moon",
     "linedUp": "Lined up",

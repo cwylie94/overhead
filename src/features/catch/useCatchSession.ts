@@ -9,7 +9,7 @@ import { useClock } from '@/environment/clock';
 import { useCatchStore } from '@/stores/catchStore';
 import { haptics } from '@/ui/haptics';
 
-import { pulseInterval } from './pointing';
+import { aimCounts, pulseInterval } from './pointing';
 import type { Pointing } from './usePointing';
 
 const AIM_TICK_MS = 50;
@@ -22,9 +22,14 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
   const aim = useCatchStore((state) => state.aim);
   const passEnded = useCatchStore((state) => state.passEnded);
   const reset = useCatchStore((state) => state.reset);
-  const holding = useRef(false);
+  const touching = useRef(false);
+  const mode = useRef(pointing.mode);
   const latestError = useRef<number | null>(null);
   const loggedCatchAt = useRef<number | null>(null);
+
+  useEffect(() => {
+    mode.current = pointing.mode;
+  }, [pointing.mode]);
 
   useEffect(() => {
     start({ noradId: pass.noradId, passEndAt: pass.endAt }, clock.now());
@@ -40,8 +45,14 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
       }
       const error = aimError(pointing.latest.current, pass.track, Math.max(now, pass.startAt));
       latestError.current = error;
-      const counts = holding.current && error !== null && now >= pass.startAt;
-      aim(counts ? error : Number.POSITIVE_INFINITY, now);
+      const counts = aimCounts({
+        mode: mode.current,
+        touching: touching.current,
+        error,
+        now,
+        startAt: pass.startAt,
+      });
+      aim(counts && error !== null ? error : Number.POSITIVE_INFINITY, now);
     }, AIM_TICK_MS);
     return () => clearInterval(timer);
   }, [pass.startAt, pass.endAt, pass.track, pointing.latest, aim, passEnded, clock]);
@@ -49,7 +60,8 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
     const pulse = () => {
-      const interval = holding.current ? pulseInterval(latestError.current) : null;
+      const aiming = mode.current !== 'manual' || touching.current;
+      const interval = aiming ? pulseInterval(latestError.current) : null;
       if (interval !== null) {
         haptics.aimPulse();
       }
@@ -84,8 +96,8 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
 
   return {
     machine,
-    setHolding: (value: boolean) => {
-      holding.current = value;
+    setTouching: (value: boolean) => {
+      touching.current = value;
     },
   };
 }

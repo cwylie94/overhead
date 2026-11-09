@@ -1,5 +1,7 @@
 import type { SkyPosition } from '@/domain/sky';
 
+import type { PointingMode } from './usePointing';
+
 export type Vector = { x: number; y: number; z: number };
 
 const DEG = Math.PI / 180;
@@ -67,4 +69,20 @@ export function pulseInterval(angleError: number | null): number | null {
     return 120;
   }
   return Math.round(200 + ((angleError - 10) / 30) * 600);
+}
+
+export function aimCounts({
+  mode,
+  touching,
+  error,
+  now,
+  startAt,
+}: {
+  mode: PointingMode;
+  touching: boolean;
+  error: number | null;
+  now: number;
+  startAt: number;
+}): boolean {
+  return (mode !== 'manual' || touching) && error !== null && now >= startAt;
 }

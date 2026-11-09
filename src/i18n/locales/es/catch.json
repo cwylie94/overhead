@@ -1,7 +1,7 @@
 {
   "title": "Atrapa {{name}}",
   "look": "Mira al {{direction}}, {{degrees}}° de altura",
-  "hold": "Mantén para atraparlo",
+  "hold": "Mantén la mira sobre él durante 3 segundos",
   "holdManual": "Arrastra para apuntar. Mantén el dedo para sostener.",
   "status": {
     "aiming": "Alinea la mira con el satélite",

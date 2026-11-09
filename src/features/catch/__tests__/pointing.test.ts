@@ -6,6 +6,7 @@ import {
   pulseInterval,
   smoothVector,
   wrapDegrees,
+  aimCounts,
 } from '../pointing';
 
 const G = 9.81;
@@ -110,5 +111,23 @@ describe('smoothVector', () => {
       y: -7,
       z: 2,
     });
+  });
+});
+
+describe('aimCounts', () => {
+  const onTarget = { error: 3, now: 1_000, startAt: 500 };
+
+  test('with sensors, aiming counts without touching the screen', () => {
+    expect(aimCounts({ mode: 'sensors', touching: false, ...onTarget })).toBe(true);
+  });
+
+  test('when dragging to aim, only a finger on the screen counts', () => {
+    expect(aimCounts({ mode: 'manual', touching: false, ...onTarget })).toBe(false);
+    expect(aimCounts({ mode: 'manual', touching: true, ...onTarget })).toBe(true);
+  });
+
+  test('nothing counts before the pass starts or without a position', () => {
+    expect(aimCounts({ mode: 'sensors', touching: false, ...onTarget, now: 400 })).toBe(false);
+    expect(aimCounts({ mode: 'sensors', touching: false, ...onTarget, error: null })).toBe(false);
   });
 });

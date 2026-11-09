@@ -1,7 +1,7 @@
 {
   "title": "Catch {{name}}",
   "look": "Look {{direction}}, {{degrees}}° up",
-  "hold": "Hold to catch",
+  "hold": "Keep the crosshair on it for 3 seconds",
   "holdManual": "Drag to aim. Keep your finger down to hold.",
   "status": {
     "aiming": "Line up the crosshair with the satellite",

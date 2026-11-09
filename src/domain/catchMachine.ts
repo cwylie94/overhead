@@ -1,4 +1,4 @@
-export const CATCH_HOLD_MS = 2_000;
+export const CATCH_HOLD_MS = 3_000;
 export const CATCH_TOLERANCE_DEGREES = 10;
 
 export type CatchTarget = {
