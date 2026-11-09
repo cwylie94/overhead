@@ -27,10 +27,18 @@ export function nightLabel(night: NightKey, now: number): NightLabel {
 
 export type NightGroup<T> = { night: NightKey; label: NightLabel; data: T[] };
 
+function labelAnchor(items: { startAt: number }[], now: number): number {
+  const currentNight = nightOf(now);
+  const morning = new Date(now).getHours() < 12;
+  const nightIsOver = !items.some((item) => nightOf(item.startAt) === currentNight);
+  return morning && nightIsOver ? now + NIGHT_STARTS_AT_NOON : now;
+}
+
 export function groupByNight<T extends { startAt: number }>(
   items: T[],
   now: number,
 ): NightGroup<T>[] {
+  const anchor = labelAnchor(items, now);
   const groups: NightGroup<T>[] = [];
   for (const item of items) {
     const night = nightOf(item.startAt);
@@ -38,7 +46,7 @@ export function groupByNight<T extends { startAt: number }>(
     if (last && last.night === night) {
       last.data.push(item);
     } else {
-      groups.push({ night, label: nightLabel(night, now), data: [item] });
+      groups.push({ night, label: nightLabel(night, anchor), data: [item] });
     }
   }
   return groups;

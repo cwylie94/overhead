@@ -53,3 +53,25 @@ describe('groupByNight', () => {
     expect(groupByNight([], local(8, 17))).toEqual([]);
   });
 });
+
+describe('groupByNight in the morning', () => {
+  const pass = (day: number, hour: number, minute = 0) => ({ startAt: local(day, hour, minute) });
+  const labels = (passes: { startAt: number }[], now: number) =>
+    groupByNight(passes, now).map((group) => group.label.kind);
+
+  test('calls this evening tonight once last night is over', () => {
+    expect(labels([pass(9, 19), pass(10, 20)], local(9, 9))).toEqual(['tonight', 'tomorrow']);
+  });
+
+  test('keeps last night as tonight while it still has passes to come', () => {
+    expect(labels([pass(9, 5, 30), pass(9, 19)], local(9, 5))).toEqual(['tonight', 'tomorrow']);
+  });
+
+  test('moves on to this evening as soon as the last pass of the night is gone', () => {
+    expect(labels([pass(9, 19), pass(10, 19)], local(9, 5, 45))).toEqual(['tonight', 'tomorrow']);
+  });
+
+  test('changes nothing in the afternoon and evening', () => {
+    expect(labels([pass(9, 23), pass(10, 19)], local(9, 22))).toEqual(['tonight', 'tomorrow']);
+  });
+});
