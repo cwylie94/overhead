@@ -3,7 +3,9 @@ import i18n from '@/i18n';
 import {
   DEFAULT_MIN_ELEVATION,
   deviceUnitSystem,
+  migrateSettings,
   MIN_ELEVATION_LIMITS,
+  needsOnboarding,
   unitSystemFor,
   useSettingsStore,
 } from '../settingsStore';
@@ -75,7 +77,7 @@ describe('settings store', () => {
     useSettingsStore.getState().setUnits('imperial');
 
     expect(persisted()).toEqual({
-      version: 1,
+      version: 2,
       state: {
         language: null,
         units: 'imperial',
@@ -86,6 +88,7 @@ describe('settings store', () => {
         demoMode: false,
         customLocation: null,
         lastLocation: null,
+        onboardingComplete: false,
       },
     });
   });
@@ -137,5 +140,33 @@ describe('settings store', () => {
 
     useSettingsStore.getState().setCustomLocation(null);
     expect(useSettingsStore.getState().customLocation).toBeNull();
+  });
+
+  test('installs that already have a location skip onboarding after the upgrade', async () => {
+    storeStorage.set(
+      'settings',
+      JSON.stringify({
+        version: 1,
+        state: { lastLocation: { latitude: 1, longitude: 2, altitude: 0 } },
+      }),
+    );
+
+    await useSettingsStore.persist.rehydrate();
+
+    expect(useSettingsStore.getState().onboardingComplete).toBe(true);
+  });
+
+  test('installs without a location still see onboarding after the upgrade', () => {
+    expect(migrateSettings({ units: 'metric' }, 1)).toEqual({
+      units: 'metric',
+      onboardingComplete: false,
+    });
+    expect(migrateSettings({ onboardingComplete: true }, 2)).toEqual({ onboardingComplete: true });
+  });
+
+  test('onboarding shows until it is finished, and never in demo mode', () => {
+    expect(needsOnboarding(false, false)).toBe(true);
+    expect(needsOnboarding(true, false)).toBe(false);
+    expect(needsOnboarding(false, true)).toBe(false);
   });
 });

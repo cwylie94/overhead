@@ -31,6 +31,7 @@ export type SettingsState = {
   demoMode: boolean;
   customLocation: CustomLocation | null;
   lastLocation: Observer | null;
+  onboardingComplete: boolean;
 };
 
 type SettingsActions = {
@@ -43,6 +44,7 @@ type SettingsActions = {
   setDemoMode(enabled: boolean): void;
   setCustomLocation(location: CustomLocation | null): void;
   rememberLocation(location: Observer): void;
+  setOnboardingComplete(complete: boolean): void;
 };
 
 const LOCATION_DECIMALS = 2;
@@ -73,6 +75,21 @@ function clampElevation(degrees: number): number {
   return Math.min(MIN_ELEVATION_LIMITS.max, Math.max(MIN_ELEVATION_LIMITS.min, rounded));
 }
 
+type PersistedSettings = Partial<SettingsState>;
+
+export function migrateSettings(persisted: unknown, version: number): PersistedSettings {
+  const settings = (persisted ?? {}) as PersistedSettings;
+  if (version < 2) {
+    const hasUsedApp = settings.lastLocation != null || settings.customLocation != null;
+    return { ...settings, onboardingComplete: hasUsedApp };
+  }
+  return settings;
+}
+
+export function needsOnboarding(onboardingComplete: boolean, inDemo: boolean): boolean {
+  return !onboardingComplete && !inDemo;
+}
+
 export const useSettingsStore = create<SettingsState & SettingsActions>()(
   persist(
     (set) => ({
@@ -85,6 +102,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       demoMode: false,
       customLocation: null,
       lastLocation: null,
+      onboardingComplete: false,
 
       setLanguage: (language) => set({ language }),
       setUnits: (units) => set({ units }),
@@ -95,11 +113,13 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       setDemoMode: (demoMode) => set({ demoMode }),
       setCustomLocation: (customLocation) => set({ customLocation }),
       rememberLocation: (location) => set({ lastLocation: coarseLocation(location) }),
+      setOnboardingComplete: (onboardingComplete) => set({ onboardingComplete }),
     }),
     {
       name: 'settings',
-      version: 1,
+      version: 2,
       storage: persistStorage,
+      migrate: (persisted, version) => migrateSettings(persisted, version),
       partialize: ({
         language,
         units,
@@ -110,6 +130,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
         demoMode,
         customLocation,
         lastLocation,
+        onboardingComplete,
       }) => ({
         language,
         units,
@@ -120,6 +141,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
         demoMode,
         customLocation,
         lastLocation,
+        onboardingComplete,
       }),
     },
   ),
