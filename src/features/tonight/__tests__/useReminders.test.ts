@@ -87,7 +87,7 @@ describe('useReminders', () => {
 
     expect(setReminder).toHaveBeenCalledWith(pass, {
       title: 'ISS (ZARYA) in 5 minutes',
-      body: 'Look SW. It climbs to 56°.',
+      body: 'Look southwest. It climbs to 56°.',
     });
     expect(result.current!.isSet(pass)).toBe(true);
   });

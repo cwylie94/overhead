@@ -55,7 +55,7 @@ export function useReminders(): Reminders | null {
       const scheduled = await setReminder(pass, {
         title: t('reminder.title', { name: pass.name, minutes: REMINDER_LEAD / 60_000 }),
         body: t('reminder.body', {
-          direction: t(`common:compass.${compassPoint(start?.azimuth ?? 0)}`),
+          direction: t(`common:directions.${compassPoint(start?.azimuth ?? 0)}`),
           degrees: Math.round(pass.maxElevation),
         }),
       });
