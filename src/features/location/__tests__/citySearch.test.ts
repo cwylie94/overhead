@@ -12,75 +12,107 @@ const rows: CityRow[] = [
   ['Newcastle upon Tyne', 'United Kingdom', 54.973, -1.614, 192_382],
 ];
 
+const { CITIES } = jest.requireActual<typeof import('@/data/cities')>('@/data/cities');
+
 const names = (query: string) =>
   searchCities(rows, query).map((city) => `${city.name}, ${city.country}`);
 
 describe('foldText', () => {
-  test('ignores case and accents', () => {
-    expect(foldText('Reykjavík')).toBe('reykjavik');
-    expect(foldText('SÃO Paulo')).toBe('sao paulo');
+  describe('given text with capitals and accents', () => {
+    test.each([
+      { text: 'Reykjavík', folded: 'reykjavik' },
+      { text: 'SÃO Paulo', folded: 'sao paulo' },
+    ])('then $text folds to $folded', ({ text, folded }) => {
+      expect(foldText(text)).toBe(folded);
+    });
   });
 });
 
 describe('searchCities', () => {
-  test('finds nothing for an empty query', () => {
-    expect(searchCities(rows, '  ')).toEqual([]);
-  });
-
-  test('puts bigger cities first among equal matches', () => {
-    expect(names('london')).toEqual(['London, United Kingdom', 'London, Canada']);
-  });
-
-  test('ranks names that start with the query above words inside them', () => {
-    expect(names('new')).toEqual([
-      'New York City, United States',
-      'Newcastle upon Tyne, United Kingdom',
-    ]);
-    expect(names('york')).toEqual(['New York City, United States']);
-  });
-
-  test('matches without accents', () => {
-    expect(names('reykjavik')).toEqual(['Reykjavík, Iceland']);
-    expect(names('sao')).toEqual(['São Paulo, Brazil']);
-  });
-
-  test('narrows by country after a comma', () => {
-    expect(names('cambridge, united k')).toEqual(['Cambridge, United Kingdom']);
-  });
-
-  test('includes partial matches after better ones', () => {
-    expect(names('lond')).toEqual(['London, United Kingdom', 'Londrina, Brazil', 'London, Canada']);
-    expect(names('ondr')).toEqual(['Londrina, Brazil']);
-  });
-
-  test('returns usable coordinates', () => {
-    expect(searchCities(rows, 'reykjavik')[0]).toEqual({
-      name: 'Reykjavík',
-      country: 'Iceland',
-      latitude: 64.135,
-      longitude: -21.895,
-      population: 118_918,
+  describe('given a blank query', () => {
+    test('then it finds nothing', () => {
+      expect(searchCities(rows, '  ')).toEqual([]);
     });
   });
 
-  test('stops at the limit', () => {
-    expect(searchCities(rows, 'n', 2)).toHaveLength(2);
+  describe('given two cities with the same name', () => {
+    test('then it puts the bigger city first', () => {
+      expect(names('london')).toEqual(['London, United Kingdom', 'London, Canada']);
+    });
+  });
+
+  describe('given names that start with the query and names with a later word that does', () => {
+    test.each([
+      {
+        query: 'new',
+        found: ['New York City, United States', 'Newcastle upon Tyne, United Kingdom'],
+      },
+      { query: 'york', found: ['New York City, United States'] },
+    ])('then $query lists names that start with it above words inside them', ({ query, found }) => {
+      expect(names(query)).toEqual(found);
+    });
+  });
+
+  describe('given names with accents', () => {
+    test.each([
+      { query: 'reykjavik', found: ['Reykjavík, Iceland'] },
+      { query: 'sao', found: ['São Paulo, Brazil'] },
+    ])('then $query matches without them', ({ query, found }) => {
+      expect(names(query)).toEqual(found);
+    });
+  });
+
+  describe('given a query with a country after a comma', () => {
+    test('then it narrows to that country', () => {
+      expect(names('cambridge, united k')).toEqual(['Cambridge, United Kingdom']);
+    });
+  });
+
+  describe('given a query that is only part of some names', () => {
+    test.each([
+      { query: 'lond', found: ['London, United Kingdom', 'Londrina, Brazil', 'London, Canada'] },
+      { query: 'ondr', found: ['Londrina, Brazil'] },
+    ])('then $query includes the partial matches after better ones', ({ query, found }) => {
+      expect(names(query)).toEqual(found);
+    });
+  });
+
+  describe('given a query that finds a city', () => {
+    test('then it returns usable coordinates', () => {
+      expect(searchCities(rows, 'reykjavik')[0]).toEqual({
+        name: 'Reykjavík',
+        country: 'Iceland',
+        latitude: 64.135,
+        longitude: -21.895,
+        population: 118_918,
+      });
+    });
+  });
+
+  describe('given more matches than the limit', () => {
+    test('then it stops at the limit', () => {
+      expect(searchCities(rows, 'n', 2)).toHaveLength(2);
+    });
+  });
+
+  describe('given the bundled city list', () => {
+    test.each([
+      { query: 'reykjavik', country: 'Iceland' },
+      { query: 'edinburgh', country: 'United Kingdom' },
+      { query: 'london', country: 'United Kingdom' },
+    ])('then $query finds the place in $country first', ({ query, country }) => {
+      expect(searchCities(CITIES, query)[0]?.country).toBe(country);
+    });
   });
 });
 
-describe('the bundled city list', () => {
-  const { CITIES } = jest.requireActual<typeof import('@/data/cities')>('@/data/cities');
-
-  test('finds places people are likely to look for', () => {
-    expect(searchCities(CITIES, 'reykjavik')[0]?.country).toBe('Iceland');
-    expect(searchCities(CITIES, 'edinburgh')[0]?.country).toBe('United Kingdom');
-    expect(searchCities(CITIES, 'london')[0]?.country).toBe('United Kingdom');
-  });
-
-  test('has sensible coordinates for every city', () => {
-    for (const [, , latitude, longitude] of CITIES) {
-      expect(Math.abs(latitude)).toBeLessThanOrEqual(90);
-      expect(Math.abs(longitude)).toBeLessThanOrEqual(180);
-    }
+describe('CITIES', () => {
+  describe('given every bundled city', () => {
+    test('then its coordinates are on the globe', () => {
+      for (const [, , latitude, longitude] of CITIES) {
+        expect(Math.abs(latitude)).toBeLessThanOrEqual(90);
+        expect(Math.abs(longitude)).toBeLessThanOrEqual(180);
+      }
+    });
   });
 });

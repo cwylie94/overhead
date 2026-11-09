@@ -10,53 +10,97 @@ const reykjavik = {
   population: 118_918,
 };
 
-async function renderPicker(props: Partial<CityPickerProps> = {}) {
-  const merged: CityPickerProps = {
+function makeProps(overrides: Partial<CityPickerProps> = {}): CityPickerProps {
+  return {
     query: '',
     results: [],
     onChangeQuery: jest.fn(),
     onSelect: jest.fn(),
     onCancel: jest.fn(),
-    ...props,
+    ...overrides,
   };
-  await render(<CityPicker {...merged} />);
-  return merged;
+}
+
+async function openThePicker(props: CityPickerProps) {
+  await render(<CityPicker {...props} />);
 }
 
 describe('CityPicker', () => {
-  test('explains how to search before anything is typed', async () => {
-    await renderPicker();
+  let props: CityPickerProps;
 
-    expect(screen.getByText(/Type a city name/)).toBeOnTheScreen();
+  describe('given nothing is typed', () => {
+    beforeEach(() => {
+      props = makeProps({ query: '', results: [] });
+    });
+
+    describe('when the picker opens', () => {
+      beforeEach(async () => {
+        await openThePicker(props);
+      });
+
+      test('then it explains how to search', () => {
+        expect(screen.getByText(/Type a city name/)).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('passes typing on', async () => {
-    const props = await renderPicker();
+  describe('given the picker is open with nothing typed', () => {
+    beforeEach(async () => {
+      props = makeProps({ query: '', results: [] });
+      await openThePicker(props);
+    });
 
-    await fireEvent.changeText(screen.getByLabelText('Search cities'), 'reyk');
+    describe('when the user types reyk', () => {
+      beforeEach(async () => {
+        await fireEvent.changeText(screen.getByLabelText('Search cities'), 'reyk');
+      });
 
-    expect(props.onChangeQuery).toHaveBeenCalledWith('reyk');
+      test('then it passes the typing on', () => {
+        expect(props.onChangeQuery).toHaveBeenCalledWith('reyk');
+      });
+    });
+
+    describe('when the user presses Cancel', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+      });
+
+      test('then the picker is cancelled', () => {
+        expect(props.onCancel).toHaveBeenCalled();
+      });
+    });
   });
 
-  test('lists results and picks one', async () => {
-    const props = await renderPicker({ query: 'reyk', results: [reykjavik] });
+  describe('given the picker is open with Reykjavík found for reyk', () => {
+    beforeEach(async () => {
+      props = makeProps({ query: 'reyk', results: [reykjavik] });
+      await openThePicker(props);
+    });
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Reykjavík, Iceland' }));
+    describe('when the user presses Reykjavík', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Reykjavík, Iceland' }));
+      });
 
-    expect(props.onSelect).toHaveBeenCalledWith(reykjavik);
+      test('then it picks Reykjavík', () => {
+        expect(props.onSelect).toHaveBeenCalledWith(reykjavik);
+      });
+    });
   });
 
-  test('says when nothing matches', async () => {
-    await renderPicker({ query: 'atlantis ' });
+  describe('given a search for atlantis that finds nothing', () => {
+    beforeEach(() => {
+      props = makeProps({ query: 'atlantis ', results: [] });
+    });
 
-    expect(screen.getByText('No cities match “atlantis”.')).toBeOnTheScreen();
-  });
+    describe('when the picker opens', () => {
+      beforeEach(async () => {
+        await openThePicker(props);
+      });
 
-  test('can be cancelled', async () => {
-    const props = await renderPicker();
-
-    await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
-
-    expect(props.onCancel).toHaveBeenCalled();
+      test('then it says no cities match', () => {
+        expect(screen.getByText('No cities match “atlantis”.')).toBeOnTheScreen();
+      });
+    });
   });
 });
