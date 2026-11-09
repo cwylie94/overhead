@@ -152,10 +152,12 @@ export function CollectionView({
       renderItem={({ item }) => (
         <View style={styles.row}>
           {item.map((card) => (
-            <CollectionCard key={card.noradId} card={card} onOpen={onOpen} />
+            <View key={card.noradId} style={styles.cell}>
+              <CollectionCard card={card} onOpen={onOpen} />
+            </View>
           ))}
           {Array.from({ length: CARDS_PER_ROW - item.length }, (_, index) => (
-            <View key={`gap-${index}`} style={styles.gap} />
+            <View key={`gap-${index}`} style={styles.cell} />
           ))}
         </View>
       )}
@@ -235,7 +237,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginBottom: spacing.sm,
   },
-  gap: {
+  cell: {
     flex: 1,
   },
   empty: {

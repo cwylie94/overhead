@@ -51,7 +51,7 @@ export function CollectionCard({ card, onOpen }: CollectionCardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    flex: 1,
+    width: '100%',
     aspectRatio: 0.72,
     borderRadius: radius.md,
     padding: spacing.sm,
