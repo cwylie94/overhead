@@ -9,13 +9,13 @@ import {
 } from '../timeline';
 
 describe('offsetAfterDrag', () => {
-  test('dragging left moves forward in time', () => {
-    expect(offsetAfterDrag(0, -100)).toBe(100 * MS_PER_POINT);
+  test('dragging right moves forward in time', () => {
+    expect(offsetAfterDrag(0, 100)).toBe(100 * MS_PER_POINT);
   });
 
   test('stays within the timeline', () => {
-    expect(offsetAfterDrag(0, 50)).toBe(0);
-    expect(offsetAfterDrag(TIMELINE_SPAN, -50)).toBe(TIMELINE_SPAN);
+    expect(offsetAfterDrag(0, -50)).toBe(0);
+    expect(offsetAfterDrag(TIMELINE_SPAN, 50)).toBe(TIMELINE_SPAN);
     expect(clampOffset(-1)).toBe(0);
   });
 });

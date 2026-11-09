@@ -75,7 +75,7 @@ export function TimelineScrubber({
     })
     .onEnd((event) => {
       offset.set(
-        withDecay({ velocity: -event.velocityX * MS_PER_POINT, clamp: [0, TIMELINE_SPAN] }, () => {
+        withDecay({ velocity: event.velocityX * MS_PER_POINT, clamp: [0, TIMELINE_SPAN] }, () => {
           runOnJS(onCommit)(offset.get());
         }),
       );

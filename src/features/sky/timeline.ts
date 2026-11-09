@@ -15,7 +15,7 @@ export function clampOffset(offset: number): number {
 
 export function offsetAfterDrag(start: number, translationX: number): number {
   'worklet';
-  return clampOffset(start - translationX * MS_PER_POINT);
+  return clampOffset(start + translationX * MS_PER_POINT);
 }
 
 export function formatClock(time: number, style: ClockStyle): string {
