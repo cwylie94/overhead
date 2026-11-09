@@ -53,7 +53,7 @@ The first time, Xcode has to create a signing profile, which `expo run:ios` does
 | `npm run format`                  | Format with Prettier                        |
 | `npm run typecheck`               | Type-check with TypeScript                  |
 | `npm test`                        | Run the Jest test suite                     |
-| `npm run test:coverage`           | Run the tests and print a coverage report   |
+| `npm run test:coverage`           | Run the tests and check coverage thresholds |
 | `npm run db:generate`             | Generate a migration from the schema        |
 | `npm run snapshot:update`         | Refresh the bundled CelesTrak snapshot      |
 | `npm run cities:update`           | Refresh the bundled GeoNames city list      |

@@ -44,7 +44,17 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/**/__tests__/**',
     '!src/**/__benchmarks__/**',
+    '!src/**/testing/**',
     '!src/data/migrations/**',
   ],
   coverageReporters: ['text', 'text-summary', 'html'],
+  coverageThreshold: {
+    global: { statements: 58, branches: 63, functions: 52, lines: 58 },
+    './src/domain/': { statements: 98, branches: 94, functions: 100, lines: 98 },
+    './src/stores/': { statements: 97, branches: 95, functions: 96, lines: 96 },
+    './src/sync/': { statements: 98, branches: 90, functions: 100, lines: 98 },
+    './src/data/repositories/': { statements: 100, branches: 100, functions: 100, lines: 100 },
+    './src/demo/': { statements: 97, branches: 100, functions: 100, lines: 97 },
+    './src/i18n/': { statements: 100, branches: 91, functions: 100, lines: 100 },
+  },
 };
