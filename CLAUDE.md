@@ -151,6 +151,7 @@ There is no collection table. The collection is derived from sightings.
 
 ## Testing
 
+- Unit tests are Given/When/Then scenarios in nested `describe` blocks, as set out in `docs/unit-tests.md`. Migrate older files with the `migrate-tests` skill.
 - Write domain tests first. Pass predictions use a fixed orbit snapshot, a London location and a fixed clock, and must match the Skyfield fixtures within ±2 s.
 - CelesTrak tests cover the 2-hour rule and backoff with a fake fetcher and clock. Migration tests check that schema changes keep existing sightings.
 - Store tests call actions directly, with no rendering, and cover forbidden state transitions.
