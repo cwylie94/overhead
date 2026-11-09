@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
@@ -22,6 +22,7 @@ import { ReminderButton, type ReminderControl } from './ReminderButton';
 import { SkyGlyph } from './SkyGlyph';
 
 const SOON = 60 * 60_000;
+const LARGE_TEXT_SCALE = 1.3;
 
 export function usePathText(pass: UpcomingPass): string | null {
   const { t } = useTranslation(['tonight', 'common']);
@@ -74,6 +75,7 @@ export function PassRow({ pass, reminder, highlighted = false, onOpen, onCatch }
   const window = catchWindow(pass, now);
   const close = window !== 'early' || pass.startAt - now < SOON;
   const time = formatPassTime(pass.startAt, i18n.language);
+  const largeText = useWindowDimensions().fontScale > LARGE_TEXT_SCALE;
 
   return (
     <View style={[styles.row, highlighted && styles.highlighted]}>
@@ -87,7 +89,7 @@ export function PassRow({ pass, reminder, highlighted = false, onOpen, onCatch }
         style={styles.main}>
         <Text style={styles.time}>{time}</Text>
         <View style={styles.text}>
-          <View style={styles.title}>
+          <View style={[styles.title, largeText && styles.titleWrapped]}>
             <Text style={styles.name} numberOfLines={1}>
               {pass.name}
             </Text>
@@ -153,6 +155,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: spacing.xs,
+  },
+  titleWrapped: {
+    flexWrap: 'wrap',
   },
   name: {
     ...typography.body,

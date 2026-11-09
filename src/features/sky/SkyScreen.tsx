@@ -92,7 +92,9 @@ export function SkyScreen() {
                 onCommit={setTimeOffset}
               />
               <Pressable accessibilityRole="button" style={styles.button} onPress={backToNow}>
-                <Text style={styles.buttonText}>{t('now')}</Text>
+                <Text style={styles.buttonText} numberOfLines={1} adjustsFontSizeToFit>
+                  {t('now')}
+                </Text>
               </Pressable>
             </View>
             <Pressable

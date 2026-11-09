@@ -1,4 +1,3 @@
-import { SymbolView } from 'expo-symbols';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -7,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { Rarity } from '@/domain/types';
 import { formatPassTime } from '@/i18n/format';
 import { Chip } from '@/ui/Chip';
-import { icons } from '@/ui/icons';
+import { Icon } from '@/ui/Icon';
 import {
   brightnessMarkColors,
   colors,
@@ -88,8 +87,8 @@ function StepContent({ step, place }: OnboardingViewProps) {
           <Heading title={t('location.title')} body={t('location.body')} />
           {place && (
             <View style={[styles.card, styles.placeCard]}>
-              <SymbolView
-                name={icons.location}
+              <Icon
+                name={'location'}
                 size={18}
                 tintColor={colors.accent}
                 fallback={<Text style={styles.icon}>⌖</Text>}
@@ -141,8 +140,8 @@ function StepContent({ step, place }: OnboardingViewProps) {
                 {common('rarity.legendary')}
               </Text>
             </View>
-            <SymbolView
-              name={icons.bell}
+            <Icon
+              name={'bell'}
               size={18}
               tintColor={colors.accent}
               fallback={<Text style={styles.icon}>○</Text>}

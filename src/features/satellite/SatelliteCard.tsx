@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -16,6 +16,7 @@ import { colors, radius, rarityColors, spacing } from '@/ui/theme';
 const MAX_TILT = 15;
 const POINTS_PER_DEGREE = 8;
 const FLIP_MS = 450;
+const CARD_ASPECT = 0.68;
 
 const SHEEN_BASE: Readonly<Record<Rarity, number>> = {
   common: 0.05,
@@ -33,6 +34,7 @@ type SatelliteCardProps = {
 
 export function SatelliteCard({ accent, rarity, front, back }: SatelliteCardProps) {
   const reduceMotion = useReduceMotion();
+  const [width, setWidth] = useState(0);
   const tiltX = useSharedValue(0);
   const tiltY = useSharedValue(0);
   const flip = useSharedValue(0);
@@ -79,8 +81,13 @@ export function SatelliteCard({ accent, rarity, front, back }: SatelliteCardProp
 
   return (
     <GestureDetector gesture={Gesture.Simultaneous(tilt, turn)}>
-      <View style={styles.container}>
-        <Animated.View style={[styles.face, { borderColor: accent }, frontStyle]}>
+      <View style={styles.container} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
+        <Animated.View
+          style={[
+            styles.face,
+            { borderColor: accent, minHeight: width / CARD_ASPECT },
+            frontStyle,
+          ]}>
           {front}
           <Animated.View
             pointerEvents="none"
@@ -103,10 +110,8 @@ export function SatelliteCard({ accent, rarity, front, back }: SatelliteCardProp
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    aspectRatio: 0.68,
   },
   face: {
-    ...StyleSheet.absoluteFill,
     backgroundColor: colors.surfaceRaised,
     borderRadius: radius.md * 1.5,
     borderWidth: 2,
@@ -115,6 +120,7 @@ const styles = StyleSheet.create({
     backfaceVisibility: 'hidden',
   },
   back: {
+    ...StyleSheet.absoluteFill,
     backgroundColor: colors.surface,
   },
   holo: {

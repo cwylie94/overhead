@@ -123,6 +123,8 @@ const styles = StyleSheet.create({
   },
   headingRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: spacing.sm,
     justifyContent: 'space-between',
     alignItems: 'baseline',
   },

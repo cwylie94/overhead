@@ -1,4 +1,3 @@
-import { SymbolView } from 'expo-symbols';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, RefreshControl, SectionList, StyleSheet, Text, View } from 'react-native';
@@ -8,7 +7,7 @@ import { brightnessTier } from '@/domain/brightness';
 import type { LocationState } from '@/environment/location';
 import { formatNightDate } from '@/i18n/format';
 import { Banner } from '@/ui/Banner';
-import { icons } from '@/ui/icons';
+import { Icon } from '@/ui/Icon';
 import { colors, radius, spacing, typography } from '@/ui/theme';
 
 import { featuredPass, matchesFilter, PASS_FILTERS, type PassFilter } from './featured';
@@ -86,12 +85,7 @@ function Header({ locationName, summary, onChooseCity }: HeaderProps) {
           <Text style={styles.locationText} numberOfLines={1}>
             {locationName}
           </Text>
-          <SymbolView
-            name={icons.chevronDown}
-            size={12}
-            tintColor={colors.textMuted}
-            fallback={null}
-          />
+          <Icon name={'chevronDown'} size={12} tintColor={colors.textMuted} fallback={null} />
         </Pressable>
       </View>
       {summary && <Text style={styles.summary}>{summary}</Text>}
@@ -409,6 +403,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     gap: spacing.md,
@@ -440,6 +435,7 @@ const styles = StyleSheet.create({
   },
   chips: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
   },
   chip: {
