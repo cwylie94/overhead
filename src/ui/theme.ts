@@ -12,6 +12,7 @@ export const colors = {
   warning: '#F2C46D',
   warningSurface: '#2A2414',
   now: '#FF6B6B',
+  success: '#7FD6A4',
 } as const;
 
 export const rarityColors: Readonly<Record<Rarity, string>> = {

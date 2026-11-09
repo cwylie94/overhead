@@ -27,6 +27,26 @@ export function upcomingPassesQuery(db: Database, now: number) {
 
 export type UpcomingPass = Awaited<ReturnType<typeof upcomingPassesQuery>>[number];
 
+export function collectionPassesQuery(db: Database, now: number) {
+  return db
+    .select({
+      id: passes.id,
+      noradId: passes.noradId,
+      startAt: passes.startAt,
+      endAt: passes.endAt,
+      maxElevation: passes.maxElevation,
+      peakMagnitude: passes.peakMagnitude,
+      name: satellites.name,
+      rarity: satellites.rarity,
+    })
+    .from(passes)
+    .innerJoin(satellites, eq(passes.noradId, satellites.noradId))
+    .where(and(gt(passes.endAt, now), lte(passes.peakMagnitude, NAKED_EYE_LIMIT)))
+    .orderBy(asc(passes.startAt));
+}
+
+export type CollectionPass = Awaited<ReturnType<typeof collectionPassesQuery>>[number];
+
 export function orbitFreshnessQuery(db: Database) {
   return db
     .select({ group: orbits.group, fetchedAt: max(orbits.fetchedAt) })

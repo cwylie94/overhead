@@ -78,6 +78,14 @@ export function formatNightDate(time: number, language: string): string {
   return formatter.format(time);
 }
 
+export function formatShortDate(time: number, language: string): string {
+  const formatter = cached(
+    `short:${language}`,
+    () => new Intl.DateTimeFormat(language, { day: 'numeric', month: 'short' }),
+  );
+  return formatter.format(time);
+}
+
 export function formatCalendarDate(date: string | number, language: string): string {
   const time =
     typeof date === 'number' ? date : new Date(`${date.slice(0, 10)}T12:00:00`).getTime();

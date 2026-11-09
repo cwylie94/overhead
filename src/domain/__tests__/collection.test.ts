@@ -34,6 +34,17 @@ describe('deriveCollection', () => {
     expect(collection.caught).toBe(1);
   });
 
+  test('counts progress for each rarity across the sets', () => {
+    const collection = deriveCollection(satellites, [{ noradId: 3597, observedAt: T }]);
+
+    expect(collection.rarities).toEqual([
+      { id: 'legendary', caught: 1, total: 2 },
+      { id: 'rare', caught: 0, total: 1 },
+      { id: 'uncommon', caught: 0, total: 0 },
+      { id: 'common', caught: 0, total: 2 },
+    ]);
+  });
+
   test('sets keep the defined order, skip empty sets and sort cards by rarity then name', () => {
     const collection = deriveCollection(satellites, []);
 

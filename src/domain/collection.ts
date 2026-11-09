@@ -25,8 +25,15 @@ export type CollectionSetProgress = {
   total: number;
 };
 
+export type RarityProgress = {
+  id: Rarity;
+  caught: number;
+  total: number;
+};
+
 export type Collection = {
   sets: CollectionSetProgress[];
+  rarities: RarityProgress[];
   caught: number;
   total: number;
 };
@@ -71,8 +78,19 @@ export function deriveCollection(
     };
   }).filter((set) => set.total > 0);
 
+  const cards = sets.flatMap((set) => set.cards);
+  const rarities = RARITIES.map((id): RarityProgress => {
+    const ofRarity = cards.filter((card) => card.rarity === id);
+    return {
+      id,
+      caught: ofRarity.filter((card) => card.caughtAt !== null).length,
+      total: ofRarity.length,
+    };
+  });
+
   return {
     sets,
+    rarities,
     caught: sets.reduce((sum, set) => sum + set.caught, 0),
     total: sets.reduce((sum, set) => sum + set.total, 0),
   };
