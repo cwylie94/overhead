@@ -57,6 +57,22 @@ async function settle() {
   await act(async () => {});
 }
 
+async function launch(enabled = true) {
+  const rendered = await renderProvider(enabled);
+  await settle();
+  return rendered;
+}
+
+function checkWillReturn(outcomes: Record<string, RefreshOutcome>) {
+  jest.mocked(refreshOrbits).mockResolvedValue(outcomes);
+}
+
+function checkWillWait() {
+  const run = deferred<Record<string, RefreshOutcome>>();
+  jest.mocked(refreshOrbits).mockReturnValue(run.promise);
+  return run;
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
   useOrbitRefreshStore.setState(useOrbitRefreshStore.getInitialState());
@@ -72,109 +88,250 @@ beforeEach(() => {
 });
 
 describe('OrbitRefreshProvider', () => {
-  test('checks for new orbits on launch and records when it did', async () => {
-    await renderProvider();
-    await settle();
+  describe('given CelesTrak has nothing new', () => {
+    beforeEach(() => {
+      checkWillReturn(FRESH);
+    });
 
-    expect(refreshOrbits).toHaveBeenCalledTimes(1);
-    expect(useOrbitRefreshStore.getState()).toMatchObject({ status: 'idle', lastCheckedAt: NOW });
-    expect(mockRefreshPasses).not.toHaveBeenCalled();
-  });
+    describe('when the app launches', () => {
+      beforeEach(async () => {
+        await launch();
+      });
 
-  test('shows that a check is running', async () => {
-    const run = deferred<Record<string, RefreshOutcome>>();
-    jest.mocked(refreshOrbits).mockReturnValue(run.promise);
+      test('then it checks for new orbits', () => {
+        expect(refreshOrbits).toHaveBeenCalledTimes(1);
+      });
 
-    await renderProvider();
+      test('then it records when it checked', () => {
+        expect(useOrbitRefreshStore.getState()).toMatchObject({
+          status: 'idle',
+          lastCheckedAt: NOW,
+        });
+      });
 
-    expect(useOrbitRefreshStore.getState().status).toBe('checking');
-    await act(async () => run.resolve(FRESH));
-    expect(useOrbitRefreshStore.getState().status).toBe('idle');
-  });
-
-  test('recomputes the passes when an orbit group was updated', async () => {
-    jest.mocked(refreshOrbits).mockResolvedValue(UPDATED);
-
-    await renderProvider();
-    await settle();
-
-    expect(mockRefreshPasses).toHaveBeenCalledTimes(1);
-  });
-
-  test('records a failed group', async () => {
-    jest.mocked(refreshOrbits).mockResolvedValue(FAILED);
-
-    await renderProvider();
-    await settle();
-
-    expect(useOrbitRefreshStore.getState()).toMatchObject({
-      status: 'failed',
-      lastCheckedAt: NOW,
+      test('then it leaves the passes alone', () => {
+        expect(mockRefreshPasses).not.toHaveBeenCalled();
+      });
     });
   });
 
-  test('records a refresh that throws as failed', async () => {
-    jest.mocked(refreshOrbits).mockRejectedValue(new Error('offline'));
+  describe('given a check that has not finished yet', () => {
+    beforeEach(() => {
+      checkWillWait();
+    });
 
-    await renderProvider();
-    await settle();
+    describe('when the app launches', () => {
+      beforeEach(async () => {
+        await renderProvider();
+      });
 
-    expect(useOrbitRefreshStore.getState().status).toBe('failed');
+      test('then it shows that a check is running', () => {
+        expect(useOrbitRefreshStore.getState().status).toBe('checking');
+      });
+    });
   });
 
-  test('checks again on returning to the foreground', async () => {
-    await renderProvider();
-    await settle();
+  describe('given the app launched while a check was running', () => {
+    let run: ReturnType<typeof checkWillWait>;
 
-    await act(async () => appStateListener!('background'));
-    expect(refreshOrbits).toHaveBeenCalledTimes(1);
-    await act(async () => appStateListener!('active'));
+    beforeEach(async () => {
+      run = checkWillWait();
+      await renderProvider();
+    });
 
-    expect(refreshOrbits).toHaveBeenCalledTimes(2);
+    describe('when the check finishes', () => {
+      beforeEach(async () => {
+        await act(async () => run.resolve(FRESH));
+      });
+
+      test('then it shows that no check is running', () => {
+        expect(useOrbitRefreshStore.getState().status).toBe('idle');
+      });
+    });
+
+    describe('when the app returns to the foreground', () => {
+      beforeEach(async () => {
+        await act(async () => appStateListener!('active'));
+      });
+
+      test('then it does not start a second check', () => {
+        expect(refreshOrbits).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
-  test('runs one check at a time', async () => {
-    const run = deferred<Record<string, RefreshOutcome>>();
-    jest.mocked(refreshOrbits).mockReturnValue(run.promise);
-    await renderProvider();
+  describe('given an orbit group will be updated', () => {
+    beforeEach(() => {
+      checkWillReturn(UPDATED);
+    });
 
-    await act(async () => appStateListener!('active'));
-    expect(refreshOrbits).toHaveBeenCalledTimes(1);
+    describe('when the app launches', () => {
+      beforeEach(async () => {
+        await launch();
+      });
 
-    await act(async () => run.resolve(FRESH));
-    jest.mocked(refreshOrbits).mockResolvedValue(FRESH);
-    await act(async () => appStateListener!('active'));
-    expect(refreshOrbits).toHaveBeenCalledTimes(2);
+      test('then it recomputes the passes', () => {
+        expect(mockRefreshPasses).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
-  test('checks again on reconnecting, but not on the first network report', async () => {
-    await renderProvider();
-    await settle();
+  describe('given an orbit group will fail', () => {
+    beforeEach(() => {
+      checkWillReturn(FAILED);
+    });
 
-    await act(async () => networkListener!({ isConnected: true }));
-    expect(refreshOrbits).toHaveBeenCalledTimes(1);
+    describe('when the app launches', () => {
+      beforeEach(async () => {
+        await launch();
+      });
 
-    await act(async () => networkListener!({ isConnected: false }));
-    await act(async () => networkListener!({ isConnected: true }));
-    expect(refreshOrbits).toHaveBeenCalledTimes(2);
+      test('then it records the failure and when it checked', () => {
+        expect(useOrbitRefreshStore.getState()).toMatchObject({
+          status: 'failed',
+          lastCheckedAt: NOW,
+        });
+      });
+    });
   });
 
-  test('does nothing in demo mode', async () => {
-    await renderProvider(false);
-    await settle();
+  describe('given the check will throw', () => {
+    beforeEach(() => {
+      jest.mocked(refreshOrbits).mockRejectedValue(new Error('offline'));
+    });
 
-    expect(refreshOrbits).not.toHaveBeenCalled();
-    expect(NetInfo.addEventListener).not.toHaveBeenCalled();
-    expect(useOrbitRefreshStore.getState().status).toBe('idle');
+    describe('when the app launches', () => {
+      beforeEach(async () => {
+        await launch();
+      });
+
+      test('then it records the check as failed', () => {
+        expect(useOrbitRefreshStore.getState().status).toBe('failed');
+      });
+    });
   });
 
-  test('stops listening when it unmounts', async () => {
-    const { unmount } = await renderProvider();
-    await settle();
+  describe('given the app launched and checked for orbits', () => {
+    let unmount: Awaited<ReturnType<typeof renderProvider>>['unmount'];
 
-    await act(async () => unmount());
+    beforeEach(async () => {
+      checkWillReturn(FRESH);
+      ({ unmount } = await launch());
+    });
 
-    expect(unsubscribeNetwork).toHaveBeenCalled();
-    expect(removeAppState).toHaveBeenCalled();
+    describe('when the app goes to the background', () => {
+      beforeEach(async () => {
+        await act(async () => appStateListener!('background'));
+      });
+
+      test('then it does not check again', () => {
+        expect(refreshOrbits).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('when the first network report arrives', () => {
+      beforeEach(async () => {
+        await act(async () => networkListener!({ isConnected: true }));
+      });
+
+      test('then it does not check again', () => {
+        expect(refreshOrbits).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('when the provider unmounts', () => {
+      beforeEach(async () => {
+        await act(async () => unmount());
+      });
+
+      test('then it stops listening for network changes', () => {
+        expect(unsubscribeNetwork).toHaveBeenCalled();
+      });
+
+      test('then it stops listening for the app going to the foreground', () => {
+        expect(removeAppState).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('given the app launched, checked for orbits and went to the background', () => {
+    beforeEach(async () => {
+      checkWillReturn(FRESH);
+      await launch();
+      await act(async () => appStateListener!('background'));
+    });
+
+    describe('when the app returns to the foreground', () => {
+      beforeEach(async () => {
+        await act(async () => appStateListener!('active'));
+      });
+
+      test('then it checks again', () => {
+        expect(refreshOrbits).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe('given the app returned to the foreground during the launch check, which then finished', () => {
+    beforeEach(async () => {
+      const run = checkWillWait();
+      await renderProvider();
+      await act(async () => appStateListener!('active'));
+      await act(async () => run.resolve(FRESH));
+      checkWillReturn(FRESH);
+    });
+
+    describe('when the app returns to the foreground again', () => {
+      beforeEach(async () => {
+        await act(async () => appStateListener!('active'));
+      });
+
+      test('then it checks again', () => {
+        expect(refreshOrbits).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe('given the app launched and checked, then the network was reported connected and then lost', () => {
+    beforeEach(async () => {
+      checkWillReturn(FRESH);
+      await launch();
+      await act(async () => networkListener!({ isConnected: true }));
+      await act(async () => networkListener!({ isConnected: false }));
+    });
+
+    describe('when the network reconnects', () => {
+      beforeEach(async () => {
+        await act(async () => networkListener!({ isConnected: true }));
+      });
+
+      test('then it checks again', () => {
+        expect(refreshOrbits).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe('given demo mode is on', () => {
+    beforeEach(() => {
+      checkWillReturn(FRESH);
+    });
+
+    describe('when the app launches', () => {
+      beforeEach(async () => {
+        await launch(false);
+      });
+
+      test('then it does not check for orbits', () => {
+        expect(refreshOrbits).not.toHaveBeenCalled();
+      });
+
+      test('then it does not listen for the network', () => {
+        expect(NetInfo.addEventListener).not.toHaveBeenCalled();
+      });
+
+      test('then it shows that no check is running', () => {
+        expect(useOrbitRefreshStore.getState().status).toBe('idle');
+      });
+    });
   });
 });
