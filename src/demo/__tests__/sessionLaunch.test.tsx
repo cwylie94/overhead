@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-native';
 
-import { useAppSession } from '../session';
+import { useAppSession, type AppSession } from '../session';
 import { DEMO_PASS } from '../testing/demoMocks';
 
 jest.mock('@/data/client', () => ({
@@ -21,9 +21,22 @@ jest.mock('@/stores/settingsStore', () => {
   return actual;
 });
 
-test('reopens in demo mode when it was left on', async () => {
-  const { result } = await renderHook(() => useAppSession());
+describe('useAppSession', () => {
+  describe('given demo mode was left on', () => {
+    describe('when the app opens', () => {
+      let session: { current: AppSession };
 
-  expect(result.current.data).toEqual({ key: 'demo-1' });
-  expect(result.current.demo?.pass).toEqual(DEMO_PASS);
+      beforeEach(async () => {
+        ({ result: session } = await renderHook(() => useAppSession()));
+      });
+
+      test('then it reopens on the demo database', () => {
+        expect(session.current.data).toEqual({ key: 'demo-1' });
+      });
+
+      test('then it reopens on the demo pass', () => {
+        expect(session.current.demo?.pass).toEqual(DEMO_PASS);
+      });
+    });
+  });
 });

@@ -1,10 +1,11 @@
 import { act, renderHook } from '@testing-library/react-native';
 
 import { deviceData, freshDemoData } from '@/data/client';
+import type { Clock } from '@/environment/clock';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 import { DEMO_LEAD, DEMO_OBSERVER, findDemoPass } from '../scenario';
-import { useAppSession, useDemo } from '../session';
+import { useAppSession, useDemo, type AppSession } from '../session';
 import { DEMO_PASS } from '../testing/demoMocks';
 
 jest.mock('@/data/client', () => {
@@ -28,6 +29,11 @@ async function setDemoMode(enabled: boolean) {
   await act(async () => useSettingsStore.getState().setDemoMode(enabled));
 }
 
+async function openSession() {
+  const { result } = await renderHook(() => useAppSession());
+  return result;
+}
+
 beforeEach(async () => {
   jest.useFakeTimers({ now: WALL_CLOCK });
   await setDemoMode(false);
@@ -39,75 +45,172 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-describe('the app session', () => {
-  test('stays on the device database when the snapshot has no demo pass', async () => {
-    jest.mocked(findDemoPass).mockReturnValue(null);
-    const { result } = await renderHook(() => useAppSession());
+describe('useAppSession', () => {
+  describe('given the snapshot has no demo pass and the session is open', () => {
+    let session: { current: AppSession };
 
-    await setDemoMode(true);
+    beforeEach(async () => {
+      jest.mocked(findDemoPass).mockReturnValue(null);
+      session = await openSession();
+    });
 
-    expect(result.current).toEqual({ data: { key: 'device' }, demo: null });
-    expect(freshDemoData).not.toHaveBeenCalled();
-  });
+    describe('when demo mode turns on', () => {
+      beforeEach(async () => {
+        await setDemoMode(true);
+      });
 
-  test('uses the device database outside demo mode', async () => {
-    const { result } = await renderHook(() => useAppSession());
+      test('then it stays on the device database', () => {
+        expect(session.current).toEqual({ data: { key: 'device' }, demo: null });
+      });
 
-    expect(result.current.data).toEqual({ key: 'device' });
-    expect(result.current.demo).toBeNull();
-  });
-
-  test('switches to a fresh demo database and London when demo mode turns on', async () => {
-    const { result } = await renderHook(() => useAppSession());
-
-    await setDemoMode(true);
-
-    expect(result.current.data.key).toMatch(/^demo-/);
-    expect(result.current.demo).toMatchObject({
-      observer: DEMO_OBSERVER,
-      pass: DEMO_PASS,
-      startsAt: DEMO_PASS.startAt - DEMO_LEAD,
+      test('then it makes no demo database', () => {
+        expect(freshDemoData).not.toHaveBeenCalled();
+      });
     });
   });
 
-  test('runs the demo clock in real time from just before the demo pass', async () => {
-    const { result } = await renderHook(() => useDemo());
-    await setDemoMode(true);
-    const clock = result.current!.clock;
+  describe('given demo mode is off', () => {
+    describe('when the session opens', () => {
+      let session: { current: AppSession };
 
-    expect(clock.now()).toBe(DEMO_PASS.startAt - DEMO_LEAD);
-    jest.advanceTimersByTime(90_000);
-    expect(clock.now()).toBe(DEMO_PASS.startAt - DEMO_LEAD + 90_000);
+      beforeEach(async () => {
+        session = await openSession();
+      });
+
+      test('then it uses the device database', () => {
+        expect(session.current.data).toEqual({ key: 'device' });
+      });
+
+      test('then there is no demo', () => {
+        expect(session.current.demo).toBeNull();
+      });
+    });
   });
 
-  test('starts every demo from a fresh database', async () => {
-    const { result } = await renderHook(() => useAppSession());
+  describe('given the session is open outside demo mode', () => {
+    let session: { current: AppSession };
+    let before: AppSession;
 
-    await setDemoMode(true);
-    const first = result.current.data.key;
-    await setDemoMode(false);
-    await setDemoMode(true);
+    beforeEach(async () => {
+      session = await openSession();
+      before = session.current;
+    });
 
-    expect(result.current.data.key).not.toBe(first);
-    expect(freshDemoData).toHaveBeenCalledTimes(2);
+    describe('when demo mode turns on', () => {
+      beforeEach(async () => {
+        await setDemoMode(true);
+      });
+
+      test('then it switches to a fresh demo database', () => {
+        expect(session.current.data.key).toMatch(/^demo-/);
+      });
+
+      test('then it puts the user in London a minute before the demo pass', () => {
+        expect(session.current.demo).toMatchObject({
+          observer: DEMO_OBSERVER,
+          pass: DEMO_PASS,
+          startsAt: DEMO_PASS.startAt - DEMO_LEAD,
+        });
+      });
+    });
+
+    describe('when the user changes another setting', () => {
+      beforeEach(async () => {
+        await act(async () => useSettingsStore.getState().setHapticsEnabled(false));
+      });
+
+      test('then it keeps the same session', () => {
+        expect(session.current).toBe(before);
+      });
+    });
   });
 
-  test('goes back to the device database when demo mode turns off', async () => {
-    const { result } = await renderHook(() => useAppSession());
-    await setDemoMode(true);
+  describe('given the session is open in demo mode', () => {
+    let session: { current: AppSession };
 
-    await setDemoMode(false);
+    beforeEach(async () => {
+      session = await openSession();
+      await setDemoMode(true);
+    });
 
-    expect(result.current).toEqual({ data: { key: 'device' }, demo: null });
-    expect(deviceData).toHaveBeenCalled();
+    describe('when demo mode turns off', () => {
+      beforeEach(async () => {
+        await setDemoMode(false);
+      });
+
+      test('then it goes back to the device database', () => {
+        expect(session.current).toEqual({ data: { key: 'device' }, demo: null });
+      });
+
+      test('then it reopens the device database', () => {
+        expect(deviceData).toHaveBeenCalled();
+      });
+    });
   });
 
-  test('keeps the same session when another setting changes', async () => {
-    const { result } = await renderHook(() => useAppSession());
-    const before = result.current;
+  describe('given a demo has run and been turned off', () => {
+    let session: { current: AppSession };
+    let first: string;
 
-    await act(async () => useSettingsStore.getState().setHapticsEnabled(false));
+    beforeEach(async () => {
+      session = await openSession();
+      await setDemoMode(true);
+      first = session.current.data.key;
+      await setDemoMode(false);
+    });
 
-    expect(result.current).toBe(before);
+    describe('when demo mode turns on again', () => {
+      beforeEach(async () => {
+        await setDemoMode(true);
+      });
+
+      test('then it starts from a different database', () => {
+        expect(session.current.data.key).not.toBe(first);
+      });
+
+      test('then it has made a fresh database for each demo', () => {
+        expect(freshDemoData).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+});
+
+describe('useDemo', () => {
+  describe('given demo mode is off and the demo is being watched', () => {
+    let demo: { current: ReturnType<typeof useDemo> };
+
+    beforeEach(async () => {
+      ({ result: demo } = await renderHook(() => useDemo()));
+    });
+
+    describe('when demo mode turns on', () => {
+      beforeEach(async () => {
+        await setDemoMode(true);
+      });
+
+      test('then the demo clock starts a minute before the demo pass', () => {
+        expect(demo.current!.clock.now()).toBe(DEMO_PASS.startAt - DEMO_LEAD);
+      });
+    });
+  });
+
+  describe('given the demo has just started', () => {
+    let clock: Clock;
+
+    beforeEach(async () => {
+      const { result } = await renderHook(() => useDemo());
+      await setDemoMode(true);
+      clock = result.current!.clock;
+    });
+
+    describe('when 90 seconds pass', () => {
+      beforeEach(() => {
+        jest.advanceTimersByTime(90_000);
+      });
+
+      test('then the demo clock runs in real time', () => {
+        expect(clock.now()).toBe(DEMO_PASS.startAt - DEMO_LEAD + 90_000);
+      });
+    });
   });
 });
