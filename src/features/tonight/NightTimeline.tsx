@@ -14,6 +14,7 @@ import {
   clip,
   hourMarks,
   hourStep,
+  MIN_HOUR_SPACING,
   nearestPass,
   timeAtX,
   timelineAxis,
@@ -26,6 +27,7 @@ import { TimelineScrubber, type ScrubPass } from './TimelineScrubber';
 const TRACK_HEIGHT = 30;
 const TOUCH_REACH = 16;
 const MARKER_SIZE = 8;
+const HOUR_LABEL_MAX_SCALE = 1.4;
 const TICK_HEIGHT: Readonly<Record<BrightnessTier, number>> = {
   brilliant: 24,
   bright: 16,
@@ -211,7 +213,10 @@ export function NightTimeline({ sky, passes, featuredId, now, onSelect }: NightT
       <View style={styles.labels}>
         {width > 0 &&
           hours.map((time) => (
-            <Text key={time} style={[styles.hour, { left: at(time) - 20 }]}>
+            <Text
+              key={time}
+              maxFontSizeMultiplier={HOUR_LABEL_MAX_SCALE}
+              style={[styles.hour, { left: at(time) - MIN_HOUR_SPACING / 2 }]}>
               {formatHour(time, i18n.language)}
             </Text>
           ))}
@@ -293,7 +298,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: colors.textMuted,
     position: 'absolute',
-    width: 40,
+    width: MIN_HOUR_SPACING,
     textAlign: 'center',
   },
 });
