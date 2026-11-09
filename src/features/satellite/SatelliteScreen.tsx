@@ -71,13 +71,12 @@ export function SatelliteScreen() {
     return null;
   }
 
-  const verified = sightings.filter((sighting) => sighting.verified);
-  const firstCatch = verified.reduce<number | null>(
+  const firstCatch = sightings.reduce<number | null>(
     (earliest, sighting) =>
       earliest === null ? sighting.observedAt : Math.min(earliest, sighting.observedAt),
     null,
   );
-  const bestAim = verified.reduce<number | null>(
+  const bestAim = sightings.reduce<number | null>(
     (best, sighting) =>
       sighting.angleError === null
         ? best
@@ -145,7 +144,7 @@ export function SatelliteScreen() {
       <Text style={styles.body}>
         {sightings.length === 0
           ? t('detail.noSightings')
-          : t('detail.sightings', { count: sightings.length, verified: verified.length })}
+          : t('detail.sightings', { count: sightings.length })}
       </Text>
       {firstCatch !== null && (
         <Text style={styles.body}>

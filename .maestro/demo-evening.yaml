@@ -24,10 +24,8 @@ name: Demo evening, from the Tonight list to the collection
 - assertVisible: 'Drag to aim. Keep your finger down to hold.'
 - assertVisible: 'Appears in .*'
 - extendedWaitUntil:
-    visible: I saw it
+    visible: Line up the crosshair with the satellite
     timeout: 90000
-- tapOn: I saw it
-- assertVisible: 'Logged as seen.*'
 - tapOn: Done
 - tapOn: Sky
 - assertVisible: 'Tap a satellite to see where to look.*'

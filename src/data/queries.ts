@@ -100,7 +100,6 @@ export function sightingRecordsQuery(db: Database) {
     .select({
       noradId: sightings.noradId,
       observedAt: sightings.observedAt,
-      verified: sightings.verified,
     })
     .from(sightings);
 }

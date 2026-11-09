@@ -12,10 +12,7 @@ const satellites: CollectableSatellite[] = [
   { noradId: 694, name: 'ATLAS CENTAUR 2', rarity: 'legendary', collectionSet: 'coldWarVeterans' },
 ];
 
-const collection = deriveCollection(satellites, [
-  { noradId: 25544, observedAt: 1, verified: true },
-  { noradId: 20580, observedAt: 2, verified: false },
-]);
+const collection = deriveCollection(satellites, [{ noradId: 25544, observedAt: 1 }]);
 
 async function renderView(props: Partial<CollectionViewProps> = {}) {
   const defaults: CollectionViewProps = {

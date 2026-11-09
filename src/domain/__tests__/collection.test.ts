@@ -20,30 +20,18 @@ describe('deriveCollection', () => {
     ).toBe(true);
   });
 
-  test('the first verified sighting catches a satellite', () => {
+  test('the first sighting catches a satellite', () => {
     const collection = deriveCollection(satellites, [
-      { noradId: 25544, observedAt: T + 5_000, verified: true },
-      { noradId: 25544, observedAt: T, verified: true },
-      { noradId: 25544, observedAt: T - 5_000, verified: false },
+      { noradId: 25544, observedAt: T + 5_000 },
+      { noradId: 25544, observedAt: T },
+      { noradId: 25544, observedAt: T - 5_000 },
     ]);
     const stations = collection.sets.find((set) => set.id === 'spaceStations')!;
     const iss = stations.cards.find((card) => card.noradId === 25544)!;
 
-    expect(iss).toMatchObject({ caughtAt: T, sightingCount: 3 });
+    expect(iss).toMatchObject({ caughtAt: T - 5_000, sightingCount: 3 });
     expect(stations).toMatchObject({ caught: 1, total: 2 });
     expect(collection.caught).toBe(1);
-  });
-
-  test('unverified sightings are logged but never catch', () => {
-    const collection = deriveCollection(satellites, [
-      { noradId: 20580, observedAt: T, verified: false },
-    ]);
-    const hubble = collection.sets
-      .find((set) => set.id === 'observatories')!
-      .cards.find((card) => card.noradId === 20580)!;
-
-    expect(hubble).toMatchObject({ caughtAt: null, sightingCount: 1 });
-    expect(collection.caught).toBe(0);
   });
 
   test('sets keep the defined order, skip empty sets and sort cards by rarity then name', () => {
@@ -62,9 +50,7 @@ describe('deriveCollection', () => {
   });
 
   test('sightings of satellites outside the catalogue are ignored', () => {
-    const collection = deriveCollection(satellites, [
-      { noradId: 1, observedAt: T, verified: true },
-    ]);
+    const collection = deriveCollection(satellites, [{ noradId: 1, observedAt: T }]);
 
     expect(collection.caught).toBe(0);
   });
@@ -77,7 +63,7 @@ describe('deriveCollection', () => {
     ];
     const collection = deriveCollection(
       withModules,
-      [{ noradId: 36086, observedAt: T, verified: true }],
+      [{ noradId: 36086, observedAt: T }],
       new Set([49044, 36086]),
     );
     const stations = collection.sets[0]!.cards.map((card) => card.name);

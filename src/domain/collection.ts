@@ -11,7 +11,6 @@ export type CollectableSatellite = {
 export type SightingRecord = {
   noradId: number;
   observedAt: number;
-  verified: boolean;
 };
 
 export type CollectionCard = CollectableSatellite & {
@@ -46,12 +45,10 @@ export function deriveCollection(
   const firstCatch = new Map<number, number>();
   const sightingCounts = new Map<number, number>();
 
-  for (const { noradId, observedAt, verified } of sightings) {
+  for (const { noradId, observedAt } of sightings) {
     sightingCounts.set(noradId, (sightingCounts.get(noradId) ?? 0) + 1);
-    if (verified) {
-      const earliest = firstCatch.get(noradId);
-      firstCatch.set(noradId, earliest === undefined ? observedAt : Math.min(earliest, observedAt));
-    }
+    const earliest = firstCatch.get(noradId);
+    firstCatch.set(noradId, earliest === undefined ? observedAt : Math.min(earliest, observedAt));
   }
 
   const sets = COLLECTION_SETS.map((id): CollectionSetProgress => {

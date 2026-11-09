@@ -101,7 +101,7 @@ server/      Hono Worker with D1: the sync API, its migrations and tests
 | `outbox`     | Changes waiting to sync                                                                |
 | `sync_meta`  | Pull cursor and last fetch time per CelesTrak group                                    |
 
-There is no collection table. The collection is derived from verified sightings.
+There is no collection table. The collection is derived from sightings.
 
 - The schema lives in `src/data/schema.ts`. After changing it, run `npm run db:generate` and commit the generated files in `src/data/migrations/`. Never edit the generated migrations by hand.
 - Times are stored as integer milliseconds since the Unix epoch, not `Date` objects.
@@ -109,7 +109,7 @@ There is no collection table. The collection is derived from verified sightings.
 
 ## Domain rules
 
-- **Catch:** only inside a predicted visible pass window, with the aim (heading plus tilt) within about 10° of the predicted position for 2 s. "I saw it" logs an unverified sighting. Only verified sightings add to the collection.
+- **Catch:** only inside a predicted visible pass window, with the aim (heading plus tilt) within about 10° of the predicted position for 2 s, in any aiming mode (sensors, camera or drag-to-aim). Every catch adds to the collection, and there is no separate "seen" state. The `verified` column stays in the schema and the sync protocol so older clients keep working; new sightings always set it.
 - **Catch state machine** (in `catchStore`): idle → aiming → locked → caught / failed.
 - **Visibility:** the sun is more than 6° below the horizon, the satellite is in sunlight, and the elevation is above the user's minimum.
 - **Rarity** is a fixed function of catalogue data, so every device agrees. It forms a pyramid, each tier larger than the one above (18 / 28 / 57 / 69 in the current snapshot):
@@ -119,7 +119,7 @@ There is no collection table. The collection is derived from verified sightings.
   - Common: everything else, including modern rocket bodies, stations, crew and cargo craft, constellation members and debris
 - How often a satellite is visible from the user's location is a card stat, never part of rarity, because it varies by place and over time.
 - **Collection sets** (`src/domain/collectionSets.ts`): each satellite is in exactly one set, decided in this order. Space stations (`stationMembers`: the objects in CelesTrak's stations group that are docked together, or named ISS, CSS or Tiangong; not the CubeSats and debris CelesTrak also lists there), Observatories and Earth watchers (NORAD ID lists with names), Cold War veterans (launched before 1992), Spent stages (later rocket bodies and debris), Constellations (commercial constellations only), and Spies & secrets for the rest. The set is stored on `satellites` at import, like rarity. A test fails if a listed ID's name no longer matches the bundled catalogue.
-- **The collection** is derived, never stored (`deriveCollection`): a satellite is caught at its earliest verified sighting.
+- **The collection** is derived, never stored (`deriveCollection`): a satellite is caught at its earliest sighting.
 - **Docked objects** share their station's element set exactly, so `dockingHosts` groups identical orbits and makes the oldest object the host (ISS ZARYA, CSS TIANHE). Docked objects get no passes and are hidden from the collection unless already seen. It's worked out when read, not stored, so a vehicle that undocks reappears as soon as its own orbit arrives.
 - **Brightness** is an estimate, accurate to about a magnitude (`src/domain/brightness.ts`):
   - The standard magnitude (at 1000 km, half lit) is `5.5 − 2.5·log10(RCS)`, from SATCAT's radar cross-section. It's calibrated roughly on the ISS and Hubble, and stored on `satellites` at import.

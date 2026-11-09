@@ -12,8 +12,6 @@
     "waiting": "Aparece {{countdown}}. Mientras, oriéntate."
   },
   "calibrate": "La brújula necesita calibrarse. Mueve el teléfono dibujando un ocho.",
-  "sawIt": "Lo he visto",
-  "sawItLogged": "Anotado como visto. Atrápalo con la mira para añadirlo a tu colección.",
   "caughtBody": "{{name}} ya está en tu colección.",
   "done": "Listo",
   "catch": "Atrapar",

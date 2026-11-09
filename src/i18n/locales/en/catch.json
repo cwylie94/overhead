@@ -12,8 +12,6 @@
     "waiting": "Appears {{countdown}}. Get your bearings in the meantime."
   },
   "calibrate": "Your compass needs calibrating. Move your phone in a figure of eight.",
-  "sawIt": "I saw it",
-  "sawItLogged": "Logged as seen. Catch it with the crosshair to add it to your collection.",
   "caughtBody": "{{name}} is in your collection.",
   "done": "Done",
   "catch": "Catch",

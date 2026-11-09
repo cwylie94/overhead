@@ -243,16 +243,6 @@ function CatchSession({ pass }: { pass: UpcomingPass }) {
           </Pressable>
         ))}
 
-      {session.sawIt ? (
-        <Text style={styles.hint}>{t('sawItLogged')}</Text>
-      ) : (
-        machine.status !== 'caught' &&
-        !waiting && (
-          <Pressable accessibilityRole="button" style={styles.secondary} onPress={session.logSawIt}>
-            <Text style={styles.secondaryText}>{t('sawIt')}</Text>
-          </Pressable>
-        )
-      )}
       <DoneButton />
 
       {machine.status === 'caught' && (

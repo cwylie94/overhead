@@ -1,5 +1,5 @@
 import * as Crypto from 'expo-crypto';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useAppData } from '@/data/AppDataContext';
 import type { UpcomingPass } from '@/data/queries';
@@ -25,8 +25,6 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
   const holding = useRef(false);
   const latestError = useRef<number | null>(null);
   const loggedCatchAt = useRef<number | null>(null);
-  const loggedSawIt = useRef(false);
-  const [sawIt, setSawIt] = useState(false);
 
   useEffect(() => {
     start({ noradId: pass.noradId, passEndAt: pass.endAt }, clock.now());
@@ -85,26 +83,10 @@ export function useCatchSession(pass: UpcomingPass, pointing: Pointing) {
     }
   }, [machine, pass.noradId, clock, repositories]);
 
-  const logSawIt = useCallback(() => {
-    if (loggedSawIt.current || loggedCatchAt.current !== null) {
-      return;
-    }
-    loggedSawIt.current = true;
-    const now = clock.now();
-    logSighting(
-      repositories,
-      { noradId: pass.noradId, observedAt: now, verified: false, angleError: null },
-      { now, randomBytes: Crypto.getRandomBytes },
-    );
-    setSawIt(true);
-  }, [pass.noradId, clock, repositories]);
-
   return {
     machine,
-    sawIt,
     setHolding: (value: boolean) => {
       holding.current = value;
     },
-    logSawIt,
   };
 }

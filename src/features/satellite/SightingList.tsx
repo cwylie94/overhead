@@ -7,7 +7,6 @@ import { colors, radius, spacing, typography } from '@/ui/theme';
 export type SightingListItem = {
   id: string;
   observedAt: number;
-  verified: boolean;
   angleError: number | null;
 };
 
@@ -33,11 +32,10 @@ export function SightingList({ sightings, onDelete }: SightingListProps) {
           sighting.observedAt,
           i18n.language,
         )}`;
-        const what = sighting.verified
-          ? sighting.angleError === null
+        const what =
+          sighting.angleError === null
             ? t('detail.caught')
-            : t('detail.caughtWithin', { degrees: sighting.angleError.toFixed(1) })
-          : t('detail.seen');
+            : t('detail.caughtWithin', { degrees: sighting.angleError.toFixed(1) });
         return (
           <View key={sighting.id} style={styles.row}>
             <View style={styles.text}>
