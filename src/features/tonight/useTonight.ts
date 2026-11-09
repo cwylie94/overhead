@@ -11,6 +11,7 @@ import { useNow } from '@/environment/clock';
 import { useLocation } from '@/environment/location';
 import { useSettingsStore } from '@/stores/settingsStore';
 
+import { passListProgress } from './passListProgress';
 import { staleDaysFor } from './staleness';
 import type { TonightViewProps } from './TonightView';
 import { useReminders } from './useReminders';
@@ -25,12 +26,12 @@ export function useTonight(): TonightViewProps {
   const reminders = useReminders();
   const [refreshing, setRefreshing] = useState(false);
   const net = useNetInfo();
-  const { data: passes } = useLiveQuery(upcomingPassesQuery(db, now), [now]);
+  const { data: passes, loadedAt } = useLiveQuery(upcomingPassesQuery(db, now), [now]);
   const { data: freshness } = useLiveQuery(orbitFreshnessQuery(db));
 
   return {
     location: location.state,
-    computing: cache.status === 'computing',
+    ...passListProgress(cache, loadedAt),
     passes,
     now,
     offline: demo === null && net.isConnected === false,

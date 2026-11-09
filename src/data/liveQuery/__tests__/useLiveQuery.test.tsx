@@ -42,11 +42,13 @@ describe('useLiveQuery', () => {
 
     expect(then).toHaveBeenCalledTimes(1);
     expect(result.current.data).toEqual([{ id: 1 }]);
+    expect(result.current.loadedAt).not.toBeNull();
   });
 
   test('reloads once after a burst of row changes, not once per row', async () => {
     const { query, then } = fakeQuery([[], [{ id: 2 }]]);
     const { result } = await renderHook(() => useLiveQuery(query));
+    const firstLoad = result.current.loadedAt!;
 
     await act(async () => {
       for (let row = 0; row < 400; row++) {
@@ -57,6 +59,7 @@ describe('useLiveQuery', () => {
 
     expect(then).toHaveBeenCalledTimes(2);
     expect(result.current.data).toEqual([{ id: 2 }]);
+    expect(result.current.loadedAt).toBeGreaterThan(firstLoad);
   });
 
   test('ignores changes to other tables', async () => {

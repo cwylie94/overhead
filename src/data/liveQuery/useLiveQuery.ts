@@ -3,6 +3,7 @@ import { getTableConfig, SQLiteTable, type AnySQLiteSelect } from 'drizzle-orm/s
 import { addDatabaseChangeListener } from 'expo-sqlite';
 import { useEffect, useState, type DependencyList } from 'react';
 
+import { nextSequence } from '../sequence';
 import { coalesce } from './coalesce';
 
 export const LIVE_QUERY_SETTLE_MS = 50;
@@ -18,8 +19,11 @@ function tableNameOf(query: LiveQuery): string | null {
 export function useLiveQuery<T extends LiveQuery>(
   query: T,
   deps: DependencyList = [],
-): { data: Awaited<T> } {
-  const [data, setData] = useState<Awaited<T>>([] as Awaited<T>);
+): { data: Awaited<T>; loadedAt: number | null } {
+  const [result, setResult] = useState<{ data: Awaited<T>; loadedAt: number | null }>({
+    data: [] as Awaited<T>,
+    loadedAt: null,
+  });
 
   useEffect(() => {
     let active = true;
@@ -27,7 +31,7 @@ export function useLiveQuery<T extends LiveQuery>(
       query.then(
         (rows) => {
           if (active) {
-            setData(rows as Awaited<T>);
+            setResult({ data: rows as Awaited<T>, loadedAt: nextSequence() });
           }
         },
         () => {},
@@ -52,5 +56,5 @@ export function useLiveQuery<T extends LiveQuery>(
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the query is rebuilt every render; callers pass what it depends on
   }, deps);
 
-  return { data };
+  return result;
 }

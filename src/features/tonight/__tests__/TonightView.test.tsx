@@ -33,6 +33,7 @@ function makePass(overrides: Partial<UpcomingPass> = {}): UpcomingPass {
 const defaults: TonightViewProps = {
   location: { status: 'ready', observer: { latitude: 51.51, longitude: -0.13, altitude: 0 } },
   computing: false,
+  stale: false,
   passes: [makePass()],
   now: NOW,
   offline: false,
@@ -120,6 +121,19 @@ describe('TonightView', () => {
 
     expect(screen.getByText('No visible passes in the next two nights.')).toBeOnTheScreen();
     expect(screen.queryByText(/passes tonight/)).toBeNull();
+  });
+
+  test('shows progress instead of the old list while passes for a new place are worked out', async () => {
+    await renderView({ computing: true, stale: true });
+
+    expect(screen.getByText('Working out the passes over you…')).toBeOnTheScreen();
+    expect(screen.queryByText('SL-16 R/B')).toBeNull();
+  });
+
+  test('keeps the list while refreshing the same place', async () => {
+    await renderView({ computing: true, stale: false });
+
+    expect(screen.getByText('SL-16 R/B')).toBeOnTheScreen();
   });
 
   test('shows progress instead of an empty list while passes are being worked out', async () => {

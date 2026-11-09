@@ -1,15 +1,24 @@
 import type { Repositories } from '../repositories';
+import { nextSequence } from '../sequence';
 import {
   isPassCacheFresh,
+  PASS_CACHE_KEY,
+  passCacheKey,
   refreshPassCache,
   type PassCacheInput,
   type PassCacheOptions,
 } from './passCache';
 
+type RunnerProgress = {
+  computedAt: number | null;
+  settledAt: number | null;
+  replacing: boolean;
+};
+
 export type PassCacheState =
-  | { status: 'idle'; computedAt: number | null }
-  | { status: 'computing'; computedAt: number | null }
-  | { status: 'error'; computedAt: number | null; error: Error };
+  | ({ status: 'idle' } & RunnerProgress)
+  | ({ status: 'computing' } & RunnerProgress)
+  | ({ status: 'error'; error: Error } & RunnerProgress);
 
 export type PassCacheRunner = {
   getState(): PassCacheState;
@@ -23,7 +32,12 @@ export function createPassCacheRunner(
   repositories: RunnerRepositories,
   options: Pick<PassCacheOptions, 'yieldToUi'> = {},
 ): PassCacheRunner {
-  let state: PassCacheState = { status: 'idle', computedAt: null };
+  let state: PassCacheState = {
+    status: 'idle',
+    computedAt: null,
+    settledAt: null,
+    replacing: false,
+  };
   let current: AbortController | null = null;
   const listeners = new Set<() => void>();
 
@@ -42,12 +56,17 @@ export function createPassCacheRunner(
 
     async request(input, force = false) {
       if (!force && isPassCacheFresh(repositories, input)) {
+        if (state.settledAt === null) {
+          update({ ...state, settledAt: nextSequence() });
+        }
         return;
       }
       current?.abort();
       const controller = new AbortController();
       current = controller;
-      update({ status: 'computing', computedAt: state.computedAt });
+      const replacing =
+        repositories.syncMeta.get(PASS_CACHE_KEY) !== passCacheKey(repositories, input);
+      update({ ...state, status: 'computing', replacing });
 
       try {
         const result = await refreshPassCache(repositories, input, {
@@ -56,13 +75,19 @@ export function createPassCacheRunner(
           signal: controller.signal,
         });
         if (result.status !== 'cancelled') {
-          update({ status: 'idle', computedAt: input.now });
+          update({
+            status: 'idle',
+            computedAt: input.now,
+            settledAt: nextSequence(),
+            replacing,
+          });
         }
       } catch (cause) {
         if (!controller.signal.aborted) {
           update({
+            ...state,
             status: 'error',
-            computedAt: state.computedAt,
+            settledAt: nextSequence(),
             error: cause instanceof Error ? cause : new Error(String(cause)),
           });
         }

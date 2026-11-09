@@ -15,6 +15,7 @@ import type { Reminders } from './useReminders';
 export type TonightViewProps = {
   location: LocationState;
   computing: boolean;
+  stale: boolean;
   passes: UpcomingPass[];
   now: number;
   offline: boolean;
@@ -41,6 +42,7 @@ function Message({ text, hint }: { text: string; hint?: string }) {
 export function TonightView({
   location,
   computing,
+  stale,
   passes,
   now,
   offline,
@@ -100,7 +102,7 @@ export function TonightView({
     return <Message text={t('states.locating')} />;
   }
 
-  const sections = groupByNight(passes, now);
+  const sections = stale ? [] : groupByNight(passes, now);
   const tonightCount =
     sections.find((section) => section.label.kind === 'tonight')?.data.length ?? 0;
 

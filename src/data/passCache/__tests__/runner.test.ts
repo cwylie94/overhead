@@ -22,7 +22,36 @@ describe('pass cache runner', () => {
     await runner.request(input);
 
     expect(seen).toEqual(['computing', 'idle']);
-    expect(runner.getState()).toEqual({ status: 'idle', computedAt: input.now });
+    expect(runner.getState()).toMatchObject({ status: 'idle', computedAt: input.now });
+  });
+
+  test('says a run replaces the list when the place or orbits differ from what is stored', async () => {
+    const runner = createPassCacheRunner(setup(), { yieldToUi: async () => {} });
+    const replacing: boolean[] = [];
+    runner.subscribe(() => replacing.push(runner.getState().replacing));
+
+    await runner.request(input);
+    await runner.request(input, true);
+    await runner.request({ ...input, observer: { ...input.observer, latitude: 64.1 } });
+
+    expect(replacing).toEqual([true, true, false, false, true, true]);
+  });
+
+  test('marks each finished run, and a fresh cache once, as settled', async () => {
+    const repositories = setup();
+    const first = createPassCacheRunner(repositories, { yieldToUi: async () => {} });
+    await first.request(input);
+    const afterRun = first.getState().settledAt!;
+
+    const reopened = createPassCacheRunner(repositories, { yieldToUi: async () => {} });
+    expect(reopened.getState().settledAt).toBeNull();
+    await reopened.request(input);
+    const afterFreshCheck = reopened.getState().settledAt!;
+    await reopened.request(input);
+
+    expect(afterFreshCheck).toBeGreaterThan(afterRun);
+    expect(reopened.getState().settledAt).toBe(afterFreshCheck);
+    expect(reopened.getState().status).toBe('idle');
   });
 
   test('does nothing while the cache is fresh, unless forced', async () => {
