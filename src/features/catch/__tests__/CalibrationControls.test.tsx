@@ -4,8 +4,8 @@ import { CalibrationControls, type CalibrationControlsProps } from '../Calibrati
 
 const NOW = Date.UTC(2026, 10, 8, 21);
 
-async function renderControls(props: Partial<CalibrationControlsProps> = {}) {
-  const defaults: CalibrationControlsProps = {
+function makeProps(overrides: Partial<CalibrationControlsProps> = {}): CalibrationControlsProps {
+  return {
     calibrating: false,
     moonUp: true,
     calibratedAt: null,
@@ -14,48 +14,126 @@ async function renderControls(props: Partial<CalibrationControlsProps> = {}) {
     onStart: jest.fn(),
     onSet: jest.fn(),
     onCancel: jest.fn(),
+    ...overrides,
   };
-  const merged = { ...defaults, ...props };
-  await render(<CalibrationControls {...merged} />);
-  return merged;
+}
+
+async function showControls(props: CalibrationControlsProps) {
+  await render(<CalibrationControls {...props} />);
 }
 
 describe('CalibrationControls', () => {
-  test('offers to calibrate when the Moon is up', async () => {
-    const props = await renderControls();
+  let props: CalibrationControlsProps;
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Calibrate on the Moon' }));
+  describe('given the controls are showing while the Moon is up', () => {
+    beforeEach(async () => {
+      props = makeProps({ moonUp: true });
+      await showControls(props);
+    });
 
-    expect(props.onStart).toHaveBeenCalled();
+    describe('when the user presses Calibrate on the Moon', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Calibrate on the Moon' }));
+      });
+
+      test('then calibration starts', () => {
+        expect(props.onStart).toHaveBeenCalled();
+      });
+    });
   });
 
-  test('explains why it can’t calibrate when the Moon is down', async () => {
-    await renderControls({ moonUp: false });
+  describe('given the Moon is down', () => {
+    beforeEach(() => {
+      props = makeProps({ moonUp: false });
+    });
 
-    expect(screen.queryByRole('button', { name: 'Calibrate on the Moon' })).toBeNull();
-    expect(screen.getByText(/below the horizon/)).toBeOnTheScreen();
+    describe('when the controls open', () => {
+      beforeEach(async () => {
+        await showControls(props);
+      });
+
+      test('then it doesn’t offer to calibrate', () => {
+        expect(screen.queryByRole('button', { name: 'Calibrate on the Moon' })).toBeNull();
+      });
+
+      test('then it explains the Moon is below the horizon', () => {
+        expect(screen.getByText(/below the horizon/)).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('says when it was last calibrated', async () => {
-    await renderControls({ calibratedAt: NOW - 4 * 60_000 });
+  describe('given it was calibrated 4 minutes ago', () => {
+    beforeEach(() => {
+      props = makeProps({ calibratedAt: NOW - 4 * 60_000 });
+    });
 
-    expect(screen.getByText('Calibrated on the Moon 4 minutes ago')).toBeOnTheScreen();
+    describe('when the controls open', () => {
+      beforeEach(async () => {
+        await showControls(props);
+      });
+
+      test('then it says when it was last calibrated', () => {
+        expect(screen.getByText('Calibrated on the Moon 4 minutes ago')).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('sets or cancels while calibrating', async () => {
-    const props = await renderControls({ calibrating: true });
+  describe('given the user is calibrating', () => {
+    beforeEach(() => {
+      props = makeProps({ calibrating: true });
+    });
 
-    expect(screen.getByText('Put the Moon in the crosshair, then tap Set.')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Set' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+    describe('when the controls open', () => {
+      beforeEach(async () => {
+        await showControls(props);
+      });
 
-    expect(props.onSet).toHaveBeenCalled();
-    expect(props.onCancel).toHaveBeenCalled();
+      test('then it asks the user to put the Moon in the crosshair', () => {
+        expect(screen.getByText('Put the Moon in the crosshair, then tap Set.')).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('warns when the reading is too far from the Moon', async () => {
-    await renderControls({ calibrating: true, tooFar: true });
+  describe('given the controls are showing while the user is calibrating', () => {
+    beforeEach(async () => {
+      props = makeProps({ calibrating: true });
+      await showControls(props);
+    });
 
-    expect(screen.getByText(/more than 45° from the Moon/)).toBeOnTheScreen();
+    describe('when the user presses Set', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Set' }));
+      });
+
+      test('then the calibration is set', () => {
+        expect(props.onSet).toHaveBeenCalled();
+      });
+    });
+
+    describe('when the user presses Cancel', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+      });
+
+      test('then the calibration is cancelled', () => {
+        expect(props.onCancel).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('given the user is calibrating and the reading is too far from the Moon', () => {
+    beforeEach(() => {
+      props = makeProps({ calibrating: true, tooFar: true });
+    });
+
+    describe('when the controls open', () => {
+      beforeEach(async () => {
+        await showControls(props);
+      });
+
+      test('then it warns the reading is more than 45° from the Moon', () => {
+        expect(screen.getByText(/more than 45° from the Moon/)).toBeOnTheScreen();
+      });
+    });
   });
 });

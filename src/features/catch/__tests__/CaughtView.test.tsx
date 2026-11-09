@@ -36,99 +36,214 @@ const firstCatch: CatchSummary<NextPass> = {
   next: null,
 };
 
-async function renderCaught(overrides: Partial<CaughtViewProps> = {}) {
-  const props: CaughtViewProps = {
+const SL16: NextPass = {
+  id: 9,
+  noradId: 22285,
+  name: 'SL-16 R/B',
+  rarity: 'uncommon',
+  startAt: CAUGHT_AT + 2 * MINUTE,
+  endAt: CAUGHT_AT + 8 * MINUTE,
+  maxElevation: 37,
+  peakMagnitude: 2,
+};
+
+const repeatCatch: CatchSummary<NextPass> = {
+  ...firstCatch,
+  headline: 'again',
+  isNew: false,
+  count: 3,
+  personalBest: { now: 0.9, was: 2.4 },
+  set: { ...firstCatch.set!, before: 4, after: 4 },
+};
+
+const setCompleteCatch: CatchSummary<NextPass> = {
+  ...firstCatch,
+  headline: 'setComplete',
+  set: { id: 'spaceStations', before: 1, after: 2, total: 2, number: 2, cards: [saocom] },
+};
+
+function makeProps(summary: CatchSummary<NextPass>): CaughtViewProps {
+  return {
     noradId: saocom.noradId,
     rarity: 'rare',
     maxElevation: 69.4,
     caughtAt: CAUGHT_AT,
     angleError: 1.84,
     now: CAUGHT_AT,
-    summary: firstCatch,
+    summary,
     onViewCard: jest.fn(),
     onDone: jest.fn(),
     onCatchNext: jest.fn(),
-    ...overrides,
   };
+}
+
+async function openTheScreen(props: CaughtViewProps) {
   await render(<CaughtView {...props} />);
-  return props;
+}
+
+async function press(name: string) {
+  await fireEvent.press(screen.getByRole('button', { name }));
 }
 
 describe('CaughtView', () => {
-  test('a first catch shows the new card, the stats and the set moving on', async () => {
-    const props = await renderCaught();
+  let props: CaughtViewProps;
 
-    expect(screen.getByRole('header', { name: 'Caught!' })).toBeOnTheScreen();
-    expect(screen.getByText('NEW')).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'SAOCOM 1B, Rare, #4/16' })).toBeOnTheScreen();
-    expect(screen.getByText('1.8°')).toBeOnTheScreen();
-    expect(screen.getByText('69°')).toBeOnTheScreen();
-    expect(screen.getByText('3 → 4 of 16')).toBeOnTheScreen();
-
-    await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
-    expect(props.onDone).toHaveBeenCalledTimes(1);
-  });
-
-  test('leaves only once, however fast the buttons are pressed', async () => {
-    const props = await renderCaught();
-
-    await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'View card' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Done' }));
-
-    expect(props.onDone).toHaveBeenCalledTimes(1);
-    expect(props.onViewCard).not.toHaveBeenCalled();
-  });
-
-  test('a repeat catch counts the catches and celebrates a personal best', async () => {
-    await renderCaught({
-      summary: {
-        ...firstCatch,
-        headline: 'again',
-        isNew: false,
-        count: 3,
-        personalBest: { now: 0.9, was: 2.4 },
-        set: { ...firstCatch.set!, before: 4, after: 4 },
-      },
+  describe('given a first catch', () => {
+    beforeEach(() => {
+      props = makeProps(firstCatch);
     });
 
-    expect(screen.getByRole('header', { name: 'Caught again' })).toBeOnTheScreen();
-    expect(screen.queryByText('NEW')).toBeNull();
-    expect(screen.getByText('Caught 3 times')).toBeOnTheScreen();
-    expect(screen.getByText('Your best aim yet: 0.9°, was 2.4°')).toBeOnTheScreen();
-    expect(screen.getByText('4 of 16 caught')).toBeOnTheScreen();
+    describe('when the screen opens', () => {
+      beforeEach(async () => {
+        await openTheScreen(props);
+      });
+
+      test('then it says Caught!', () => {
+        expect(screen.getByRole('header', { name: 'Caught!' })).toBeOnTheScreen();
+      });
+
+      test('then it marks the card as new', () => {
+        expect(screen.getByText('NEW')).toBeOnTheScreen();
+      });
+
+      test('then it shows the card with its rarity and number in the set', () => {
+        expect(screen.getByRole('button', { name: 'SAOCOM 1B, Rare, #4/16' })).toBeOnTheScreen();
+      });
+
+      test('then it shows the aim and the peak elevation', () => {
+        expect(screen.getByText('1.8°')).toBeOnTheScreen();
+        expect(screen.getByText('69°')).toBeOnTheScreen();
+      });
+
+      test('then it shows the set moving on', () => {
+        expect(screen.getByText('3 → 4 of 16')).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('completing a set says so', async () => {
-    await renderCaught({
-      summary: {
-        ...firstCatch,
-        headline: 'setComplete',
-        set: { id: 'spaceStations', before: 1, after: 2, total: 2, number: 2, cards: [saocom] },
-      },
+  describe('given the screen is showing a first catch', () => {
+    beforeEach(async () => {
+      props = makeProps(firstCatch);
+      await openTheScreen(props);
     });
 
-    expect(screen.getByRole('header', { name: 'Set complete!' })).toBeOnTheScreen();
-    expect(screen.getByText('2 of 2 caught')).toBeOnTheScreen();
-    expect(screen.queryByText('off target')).toBeNull();
+    describe('when the user presses Done', () => {
+      beforeEach(async () => {
+        await press('Done');
+      });
+
+      test('then it leaves', () => {
+        expect(props.onDone).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('when the user presses Done, View card and Done again in quick succession', () => {
+      beforeEach(async () => {
+        await press('Done');
+        await press('View card');
+        await press('Done');
+      });
+
+      test('then it leaves only once', () => {
+        expect(props.onDone).toHaveBeenCalledTimes(1);
+      });
+
+      test('then it doesn’t open the card', () => {
+        expect(props.onViewCard).not.toHaveBeenCalled();
+      });
+    });
   });
 
-  test('offers the next pass when one starts soon', async () => {
-    const next: NextPass = {
-      id: 9,
-      noradId: 22285,
-      name: 'SL-16 R/B',
-      rarity: 'uncommon',
-      startAt: CAUGHT_AT + 2 * MINUTE,
-      endAt: CAUGHT_AT + 8 * MINUTE,
-      maxElevation: 37,
-      peakMagnitude: 2,
-    };
-    const props = await renderCaught({ summary: { ...firstCatch, next } });
+  describe('given a repeat catch with a personal best', () => {
+    beforeEach(() => {
+      props = makeProps(repeatCatch);
+    });
 
-    expect(screen.getByText(/^Up next, in 2 minutes/)).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Catch SL-16 R/B' }));
-    expect(props.onCatchNext).toHaveBeenCalledWith(next);
-    expect(screen.getByRole('button', { name: 'View card' })).toBeOnTheScreen();
+    describe('when the screen opens', () => {
+      beforeEach(async () => {
+        await openTheScreen(props);
+      });
+
+      test('then it says Caught again', () => {
+        expect(screen.getByRole('header', { name: 'Caught again' })).toBeOnTheScreen();
+      });
+
+      test('then it doesn’t mark the card as new', () => {
+        expect(screen.queryByText('NEW')).toBeNull();
+      });
+
+      test('then it counts the catches', () => {
+        expect(screen.getByText('Caught 3 times')).toBeOnTheScreen();
+      });
+
+      test('then it celebrates the personal best', () => {
+        expect(screen.getByText('Your best aim yet: 0.9°, was 2.4°')).toBeOnTheScreen();
+      });
+
+      test('then it shows the set unchanged', () => {
+        expect(screen.getByText('4 of 16 caught')).toBeOnTheScreen();
+      });
+    });
+  });
+
+  describe('given a catch that completes a set', () => {
+    beforeEach(() => {
+      props = makeProps(setCompleteCatch);
+    });
+
+    describe('when the screen opens', () => {
+      beforeEach(async () => {
+        await openTheScreen(props);
+      });
+
+      test('then it says Set complete!', () => {
+        expect(screen.getByRole('header', { name: 'Set complete!' })).toBeOnTheScreen();
+      });
+
+      test('then it shows the whole set caught', () => {
+        expect(screen.getByText('2 of 2 caught')).toBeOnTheScreen();
+      });
+
+      test('then it doesn’t say the aim was off target', () => {
+        expect(screen.queryByText('off target')).toBeNull();
+      });
+    });
+  });
+
+  describe('given a catch with the next pass starting in 2 minutes', () => {
+    beforeEach(() => {
+      props = makeProps({ ...firstCatch, next: SL16 });
+    });
+
+    describe('when the screen opens', () => {
+      beforeEach(async () => {
+        await openTheScreen(props);
+      });
+
+      test('then it offers the next pass', () => {
+        expect(screen.getByText(/^Up next, in 2 minutes/)).toBeOnTheScreen();
+      });
+    });
+  });
+
+  describe('given the screen is showing a catch with the next pass starting soon', () => {
+    beforeEach(async () => {
+      props = makeProps({ ...firstCatch, next: SL16 });
+      await openTheScreen(props);
+    });
+
+    describe('when the user presses Catch SL-16 R/B', () => {
+      beforeEach(async () => {
+        await press('Catch SL-16 R/B');
+      });
+
+      test('then it goes on to catch the next pass', () => {
+        expect(props.onCatchNext).toHaveBeenCalledWith(SL16);
+      });
+
+      test('then View card is still on the screen', () => {
+        expect(screen.getByRole('button', { name: 'View card' })).toBeOnTheScreen();
+      });
+    });
   });
 });

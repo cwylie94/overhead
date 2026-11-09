@@ -5,7 +5,9 @@ import type { LocationState } from '@/environment/location';
 import { CatchScreen } from '../CatchScreen';
 
 const MADRID = { latitude: 40.42, longitude: -3.7, altitude: 0 };
-let mockState: LocationState = { status: 'ready', observer: MADRID, estimated: true };
+const ESTIMATE: LocationState = { status: 'ready', observer: MADRID, estimated: true };
+const FIX: LocationState = { status: 'ready', observer: MADRID };
+let mockLocation: LocationState = ESTIMATE;
 
 jest.mock('react-native-reanimated', () => jest.requireActual('@/testing/reanimated'));
 jest.mock('react-native-gesture-handler', () => ({ Gesture: {}, GestureDetector: () => null }));
@@ -19,7 +21,7 @@ jest.mock('@/data/queries', () => ({ passWithSatelliteQuery: () => ({ get: () =>
 jest.mock('@/demo/session', () => ({ useDemo: () => null }));
 jest.mock('@/environment/location', () => ({
   ...jest.requireActual('@/environment/location'),
-  useLocation: () => ({ state: mockState }),
+  useLocation: () => ({ state: mockLocation }),
 }));
 jest.mock('../CatchCanvas', () => ({ CatchCanvas: () => null, POINTS_PER_DEGREE: 10 }));
 jest.mock('../CameraCatchView', () => ({ CameraCatchView: () => null }));
@@ -30,35 +32,65 @@ jest.mock('../usePointing', () => ({ usePointing: jest.fn() }));
 jest.mock('../useCatchSession', () => ({ useCatchSession: jest.fn() }));
 
 const FINDING = 'Finding your location. You can catch once it’s found.';
+const FOUND = 'Found your location. Go back to see the passes from where you are.';
+const PASS_NOT_VISIBLE = "This pass isn't visible right now";
 
 describe('CatchScreen', () => {
-  test('waits for a real location before catching', async () => {
-    mockState = { status: 'ready', observer: MADRID, estimated: true };
+  describe('given the location is only an estimate', () => {
+    beforeEach(() => {
+      mockLocation = ESTIMATE;
+    });
 
-    await render(<CatchScreen />);
+    describe('when the screen opens', () => {
+      beforeEach(async () => {
+        await render(<CatchScreen />);
+      });
 
-    expect(screen.getByText(FINDING)).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Done' })).toBeOnTheScreen();
+      test('then it says it is finding your location', () => {
+        expect(screen.getByText(FINDING)).toBeOnTheScreen();
+      });
+
+      test('then it offers Done to leave', () => {
+        expect(screen.getByRole('button', { name: 'Done' })).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('sends people back for the real passes once the location is found', async () => {
-    mockState = { status: 'ready', observer: MADRID, estimated: true };
-    const { rerender } = await render(<CatchScreen />);
+  describe('given the screen opened on an estimate', () => {
+    beforeEach(async () => {
+      mockLocation = ESTIMATE;
+      await render(<CatchScreen />);
+    });
 
-    mockState = { status: 'ready', observer: MADRID };
-    await rerender(<CatchScreen />);
+    describe('when a real location arrives', () => {
+      beforeEach(async () => {
+        mockLocation = FIX;
+        await screen.rerender(<CatchScreen />);
+      });
 
-    expect(
-      screen.getByText('Found your location. Go back to see the passes from where you are.'),
-    ).toBeOnTheScreen();
+      test('then it sends the user back for the passes from where they are', () => {
+        expect(screen.getByText(FOUND)).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('goes straight to the pass with a real location', async () => {
-    mockState = { status: 'ready', observer: MADRID };
+  describe('given a real location and a pass that isn’t visible now', () => {
+    beforeEach(() => {
+      mockLocation = FIX;
+    });
 
-    await render(<CatchScreen />);
+    describe('when the screen opens', () => {
+      beforeEach(async () => {
+        await render(<CatchScreen />);
+      });
 
-    expect(screen.queryByText(FINDING)).toBeNull();
-    expect(screen.getByText("This pass isn't visible right now")).toBeOnTheScreen();
+      test('then it doesn’t wait for a location', () => {
+        expect(screen.queryByText(FINDING)).toBeNull();
+      });
+
+      test('then it goes straight to the pass', () => {
+        expect(screen.getByText(PASS_NOT_VISIBLE)).toBeOnTheScreen();
+      });
+    });
   });
 });

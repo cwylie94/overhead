@@ -12,104 +12,165 @@ import {
 const G = 9.81;
 
 describe('elevationFromGravity', () => {
-  test.each([
-    ['lying flat, screen up, camera at the ground', { x: 0, y: 0, z: -G }, -90],
-    ['held upright, camera at the horizon', { x: 0, y: -G, z: 0 }, 0],
-    ['held overhead, screen down, camera at the zenith', { x: 0, y: 0, z: G }, 90],
-    ['tilted back 45 degrees', { x: 0, y: -G * Math.SQRT1_2, z: G * Math.SQRT1_2 }, 45],
-    ['upright in landscape', { x: -G, y: 0, z: 0 }, 0],
-  ])('%s', (_, gravity, expected) => {
-    expect(elevationFromGravity(gravity)).toBeCloseTo(expected, 6);
+  describe('given the phone held in different poses', () => {
+    test.each([
+      {
+        pose: 'lying flat, screen up, camera at the ground',
+        gravity: { x: 0, y: 0, z: -G },
+        elevation: -90,
+      },
+      { pose: 'held upright, camera at the horizon', gravity: { x: 0, y: -G, z: 0 }, elevation: 0 },
+      {
+        pose: 'held overhead, screen down, camera at the zenith',
+        gravity: { x: 0, y: 0, z: G },
+        elevation: 90,
+      },
+      {
+        pose: 'tilted back 45 degrees',
+        gravity: { x: 0, y: -G * Math.SQRT1_2, z: G * Math.SQRT1_2 },
+        elevation: 45,
+      },
+      { pose: 'upright in landscape', gravity: { x: -G, y: 0, z: 0 }, elevation: 0 },
+    ])('then it reads $elevation° for a phone $pose', ({ gravity, elevation }) => {
+      expect(elevationFromGravity(gravity)).toBeCloseTo(elevation, 6);
+    });
   });
 
-  test('returns the horizon when there is no reading', () => {
-    expect(elevationFromGravity({ x: 0, y: 0, z: 0 })).toBe(0);
+  describe('given no reading', () => {
+    test('then it returns the horizon', () => {
+      expect(elevationFromGravity({ x: 0, y: 0, z: 0 })).toBe(0);
+    });
   });
 });
 
 describe('wrapDegrees', () => {
-  test.each([
-    [10, 10],
-    [190, -170],
-    [-190, 170],
-    [360, 0],
-    [725, 5],
-  ])('%d wraps to %d', (input, expected) => {
-    expect(wrapDegrees(input)).toBeCloseTo(expected, 9);
+  describe('given angles inside and outside a half turn', () => {
+    test.each([
+      { input: 10, wrapped: 10 },
+      { input: 190, wrapped: -170 },
+      { input: -190, wrapped: 170 },
+      { input: 360, wrapped: 0 },
+      { input: 725, wrapped: 5 },
+    ])('then $input° wraps to $wrapped°', ({ input, wrapped }) => {
+      expect(wrapDegrees(input)).toBeCloseTo(wrapped, 9);
+    });
   });
 });
 
-describe('offsetToTarget and guideAngle', () => {
-  test('a target to the right and level points the guide right', () => {
-    const offset = offsetToTarget({ azimuth: 350, elevation: 0 }, { azimuth: 10, elevation: 0 });
+describe('offsetToTarget', () => {
+  describe('given a level target 20° to the right through north', () => {
+    test('then the target is 20° right and level', () => {
+      const offset = offsetToTarget({ azimuth: 350, elevation: 0 }, { azimuth: 10, elevation: 0 });
 
-    expect(offset.right).toBeCloseTo(20, 6);
-    expect(offset.up).toBe(0);
-    expect(guideAngle(offset)).toBeCloseTo(90, 6);
+      expect(offset.right).toBeCloseTo(20, 6);
+      expect(offset.up).toBe(0);
+    });
   });
 
-  test('a target straight above points the guide up', () => {
-    const offset = offsetToTarget({ azimuth: 100, elevation: 20 }, { azimuth: 100, elevation: 50 });
+  describe('given the same azimuth gap low and high in the sky', () => {
+    test('then azimuth counts for less high in the sky', () => {
+      const low = offsetToTarget({ azimuth: 0, elevation: 0 }, { azimuth: 10, elevation: 0 });
+      const high = offsetToTarget({ azimuth: 0, elevation: 80 }, { azimuth: 10, elevation: 80 });
 
-    expect(guideAngle(offset)).toBeCloseTo(0, 6);
+      expect(high.right).toBeLessThan(low.right / 4);
+    });
+  });
+});
+
+describe('guideAngle', () => {
+  describe('given a target to the right and level', () => {
+    test('then the guide points right', () => {
+      const offset = offsetToTarget({ azimuth: 350, elevation: 0 }, { azimuth: 10, elevation: 0 });
+
+      expect(guideAngle(offset)).toBeCloseTo(90, 6);
+    });
   });
 
-  test('azimuth counts for less high in the sky', () => {
-    const low = offsetToTarget({ azimuth: 0, elevation: 0 }, { azimuth: 10, elevation: 0 });
-    const high = offsetToTarget({ azimuth: 0, elevation: 80 }, { azimuth: 10, elevation: 80 });
+  describe('given a target straight above', () => {
+    test('then the guide points up', () => {
+      const offset = offsetToTarget(
+        { azimuth: 100, elevation: 20 },
+        { azimuth: 100, elevation: 50 },
+      );
 
-    expect(high.right).toBeLessThan(low.right / 4);
+      expect(guideAngle(offset)).toBeCloseTo(0, 6);
+    });
   });
 });
 
 describe('manualPointing', () => {
-  test('dragging right turns left and dragging down looks up, like moving the sky', () => {
-    const start = { azimuth: 10, elevation: 0 };
+  const start = { azimuth: 10, elevation: 0 };
 
-    expect(manualPointing(start, 40, 0, 4)).toEqual({ azimuth: 0, elevation: 0 });
-    expect(manualPointing(start, 0, 40, 4)).toEqual({ azimuth: 10, elevation: 10 });
+  describe('given a drag to the right', () => {
+    test('then it turns left, like moving the sky', () => {
+      expect(manualPointing(start, 40, 0, 4)).toEqual({ azimuth: 0, elevation: 0 });
+    });
   });
 
-  test('moves the target with the finger at any elevation', () => {
-    const start = { azimuth: 100, elevation: 60 };
+  describe('given a drag down', () => {
+    test('then it looks up, like moving the sky', () => {
+      expect(manualPointing(start, 0, 40, 4)).toEqual({ azimuth: 10, elevation: 10 });
+    });
+  });
+
+  describe('given a drag as far as a target high in the sky', () => {
+    const highStart = { azimuth: 100, elevation: 60 };
     const target = { azimuth: 90, elevation: 60 };
-    const dragX = offsetToTarget(start, target).right * -4;
 
-    const aimed = manualPointing(start, dragX, 0, 4);
+    test('then the target moves with the finger', () => {
+      const dragX = offsetToTarget(highStart, target).right * -4;
+      const aimed = manualPointing(highStart, dragX, 0, 4);
 
-    expect(Math.abs(offsetToTarget(aimed, target).right)).toBeLessThan(0.01);
+      expect(Math.abs(offsetToTarget(aimed, target).right)).toBeLessThan(0.01);
+    });
   });
 
-  test('wraps the azimuth and keeps the elevation in range', () => {
-    const aimed = manualPointing({ azimuth: 5, elevation: 0 }, 40, 400, 4);
-
-    expect(aimed).toEqual({ azimuth: 355, elevation: 90 });
+  describe('given a drag past north and beyond the zenith', () => {
+    test('then it wraps the azimuth and keeps the elevation in range', () => {
+      expect(manualPointing({ azimuth: 5, elevation: 0 }, 40, 400, 4)).toEqual({
+        azimuth: 355,
+        elevation: 90,
+      });
+    });
   });
 });
 
 describe('pulseInterval', () => {
-  test.each([
-    [null, null],
-    [45, null],
-    [40, 800],
-    [25, 500],
-    [10, 120],
-    [2, 120],
-  ])('an aim error of %s pulses every %s ms', (error, expected) => {
-    expect(pulseInterval(error)).toBe(expected);
+  describe('given no aim error or one too large to guide', () => {
+    test.each([{ error: null }, { error: 45 }])(
+      'then an aim error of $error doesn’t pulse',
+      ({ error }) => {
+        expect(pulseInterval(error)).toBe(null);
+      },
+    );
+  });
+
+  describe('given an aim closing in on the target', () => {
+    test.each([
+      { error: 40, interval: 800 },
+      { error: 25, interval: 500 },
+      { error: 10, interval: 120 },
+      { error: 2, interval: 120 },
+    ])('then an aim error of $error pulses every $interval ms', ({ error, interval }) => {
+      expect(pulseInterval(error)).toBe(interval);
+    });
   });
 });
 
 describe('smoothVector', () => {
-  test('takes the first reading as it is', () => {
-    expect(smoothVector(null, { x: 1, y: 2, z: 3 }, 0.25)).toEqual({ x: 1, y: 2, z: 3 });
+  describe('given no earlier reading', () => {
+    test('then it takes the first reading as it is', () => {
+      expect(smoothVector(null, { x: 1, y: 2, z: 3 }, 0.25)).toEqual({ x: 1, y: 2, z: 3 });
+    });
   });
 
-  test('moves part of the way towards each new reading', () => {
-    expect(smoothVector({ x: 0, y: -8, z: 0 }, { x: 4, y: -4, z: 8 }, 0.25)).toEqual({
-      x: 1,
-      y: -7,
-      z: 2,
+  describe('given an earlier reading', () => {
+    test('then it moves part of the way towards the new reading', () => {
+      expect(smoothVector({ x: 0, y: -8, z: 0 }, { x: 4, y: -4, z: 8 }, 0.25)).toEqual({
+        x: 1,
+        y: -7,
+        z: 2,
+      });
     });
   });
 });
@@ -117,17 +178,33 @@ describe('smoothVector', () => {
 describe('aimCounts', () => {
   const onTarget = { error: 3, now: 1_000, startAt: 500 };
 
-  test('with sensors, aiming counts without touching the screen', () => {
-    expect(aimCounts({ mode: 'sensors', touching: false, ...onTarget })).toBe(true);
+  describe('given sensors and no finger on the screen', () => {
+    test('then aiming counts', () => {
+      expect(aimCounts({ mode: 'sensors', touching: false, ...onTarget })).toBe(true);
+    });
   });
 
-  test('when dragging to aim, only a finger on the screen counts', () => {
-    expect(aimCounts({ mode: 'manual', touching: false, ...onTarget })).toBe(false);
-    expect(aimCounts({ mode: 'manual', touching: true, ...onTarget })).toBe(true);
+  describe('given drag to aim and no finger on the screen', () => {
+    test('then aiming doesn’t count', () => {
+      expect(aimCounts({ mode: 'manual', touching: false, ...onTarget })).toBe(false);
+    });
   });
 
-  test('nothing counts before the pass starts or without a position', () => {
-    expect(aimCounts({ mode: 'sensors', touching: false, ...onTarget, now: 400 })).toBe(false);
-    expect(aimCounts({ mode: 'sensors', touching: false, ...onTarget, error: null })).toBe(false);
+  describe('given drag to aim and a finger on the screen', () => {
+    test('then aiming counts', () => {
+      expect(aimCounts({ mode: 'manual', touching: true, ...onTarget })).toBe(true);
+    });
+  });
+
+  describe('given the pass hasn’t started', () => {
+    test('then nothing counts', () => {
+      expect(aimCounts({ mode: 'sensors', touching: false, ...onTarget, now: 400 })).toBe(false);
+    });
+  });
+
+  describe('given no position for the pass', () => {
+    test('then nothing counts', () => {
+      expect(aimCounts({ mode: 'sensors', touching: false, ...onTarget, error: null })).toBe(false);
+    });
   });
 });
