@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import type { UpcomingPass } from '@/data/queries';
 import { deriveCollection, type CollectableSatellite } from '@/domain/collection';
+import type { Reminders } from '@/features/tonight/useReminders';
 
 import type { CatchTonight } from '../catchTonight';
 import { CollectionView, type CollectionViewProps } from '../CollectionView';
@@ -40,7 +41,11 @@ const satellites: CollectableSatellite[] = [
   },
 ];
 
-const collection = deriveCollection(satellites, [{ noradId: 25544, observedAt: 1 }]);
+const ISS_CAUGHT = deriveCollection(satellites, [{ noradId: 25544, observedAt: 1 }]);
+const BOTH_STATIONS_CAUGHT = deriveCollection(satellites, [
+  { noradId: 25544, observedAt: 1 },
+  { noradId: 48274, observedAt: 2 },
+]);
 
 const NOW = new Date(2026, 10, 8, 18).getTime();
 const MINUTE = 60_000;
@@ -63,9 +68,9 @@ const hubble: UpcomingPass = {
 
 const chances: CatchTonight<UpcomingPass> = { label: { kind: 'tonight' }, passes: [hubble] };
 
-async function renderView(props: Partial<CollectionViewProps> = {}) {
-  const defaults: CollectionViewProps = {
-    collection,
+function makeProps(overrides: Partial<CollectionViewProps> = {}): CollectionViewProps {
+  return {
+    collection: ISS_CAUGHT,
     filters: { set: null, rarity: null },
     chances: null,
     reminders: null,
@@ -74,166 +79,396 @@ async function renderView(props: Partial<CollectionViewProps> = {}) {
     onRarityFilter: jest.fn(),
     onOpen: jest.fn(),
     onChance: jest.fn(),
+    ...overrides,
   };
-  await render(<CollectionView {...defaults} {...props} />);
-  return { ...defaults, ...props };
+}
+
+async function openTheCollection(props: CollectionViewProps) {
+  await render(<CollectionView {...props} />);
 }
 
 describe('CollectionView', () => {
-  test('shows overall, per-rarity and per-set progress', async () => {
-    await renderView();
+  let props: CollectionViewProps;
 
-    expect(screen.getByLabelText('1 of 4 caught')).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Common, 1 of 2 caught' })).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Legendary, 0 of 1 caught' })).toBeOnTheScreen();
-    expect(screen.queryByRole('button', { name: /^Uncommon/ })).toBeNull();
-    expect(screen.getByRole('header', { name: 'Space stations' })).toBeOnTheScreen();
-    expect(screen.getByText('1 of 2 caught · One to go')).toBeOnTheScreen();
-  });
-
-  test('names caught satellites with their catch date and hides the rest', async () => {
-    await renderView();
-
-    expect(screen.getByText('ISS (ZARYA)')).toBeOnTheScreen();
-    expect(screen.getByText('Caught Jan 1')).toBeOnTheScreen();
-    expect(screen.queryByText('HST')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Not caught yet, Rare, #1/1' })).toBeOnTheScreen();
-  });
-
-  test('numbers each card within its set and draws what kind of object it is', async () => {
-    await renderView();
-
-    expect(screen.getByRole('button', { name: 'ISS (ZARYA), Common, #2/2' })).toBeOnTheScreen();
-    expect(
-      screen.getAllByTestId('silhouette-station', { includeHiddenElements: true }),
-    ).toHaveLength(2);
-    expect(
-      screen.getByTestId('silhouette-telescope', { includeHiddenElements: true }),
-    ).toBeOnTheScreen();
-    expect(
-      screen.getByTestId('silhouette-rocketStage', { includeHiddenElements: true }),
-    ).toBeOnTheScreen();
-  });
-
-  test('opens a card, caught or not', async () => {
-    const { onOpen } = await renderView();
-
-    await fireEvent.press(screen.getByRole('button', { name: /^Not caught yet, Legendary/ }));
-
-    expect(onOpen).toHaveBeenCalledWith(694);
-  });
-
-  test('marks a finished set as complete', async () => {
-    await renderView({
-      collection: deriveCollection(satellites, [
-        { noradId: 25544, observedAt: 1 },
-        { noradId: 48274, observedAt: 2 },
-      ]),
+  describe('given one of the four satellites is caught and nothing passes tonight', () => {
+    beforeEach(() => {
+      props = makeProps({
+        collection: ISS_CAUGHT,
+        filters: { set: null, rarity: null },
+        chances: null,
+      });
     });
 
-    expect(screen.getByText('2 of 2 caught · Complete')).toBeOnTheScreen();
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then it shows how many are caught overall', () => {
+        expect(screen.getByLabelText('1 of 4 caught')).toBeOnTheScreen();
+      });
+
+      test('then it shows the progress of each rarity in the collection', () => {
+        expect(screen.getByRole('button', { name: 'Common, 1 of 2 caught' })).toBeOnTheScreen();
+        expect(screen.getByRole('button', { name: 'Legendary, 0 of 1 caught' })).toBeOnTheScreen();
+      });
+
+      test('then it leaves out rarities the collection has none of', () => {
+        expect(screen.queryByRole('button', { name: /^Uncommon/ })).toBeNull();
+      });
+
+      test('then it shows the progress of each set', () => {
+        expect(screen.getByRole('header', { name: 'Space stations' })).toBeOnTheScreen();
+        expect(screen.getByText('1 of 2 caught · One to go')).toBeOnTheScreen();
+      });
+
+      test('then it names the caught satellite', () => {
+        expect(screen.getByText('ISS (ZARYA)')).toBeOnTheScreen();
+      });
+
+      test('then it shows when the satellite was caught', () => {
+        expect(screen.getByText('Caught Jan 1')).toBeOnTheScreen();
+      });
+
+      test('then it hides the names of satellites not caught yet', () => {
+        expect(screen.queryByText('HST')).toBeNull();
+        expect(
+          screen.getByRole('button', { name: 'Not caught yet, Rare, #1/1' }),
+        ).toBeOnTheScreen();
+      });
+
+      test('then it numbers each card within its set', () => {
+        expect(screen.getByRole('button', { name: 'ISS (ZARYA), Common, #2/2' })).toBeOnTheScreen();
+      });
+
+      test('then it draws what kind of object each satellite is', () => {
+        expect(
+          screen.getAllByTestId('silhouette-station', { includeHiddenElements: true }),
+        ).toHaveLength(2);
+        expect(
+          screen.getByTestId('silhouette-telescope', { includeHiddenElements: true }),
+        ).toBeOnTheScreen();
+        expect(
+          screen.getByTestId('silhouette-rocketStage', { includeHiddenElements: true }),
+        ).toBeOnTheScreen();
+      });
+
+      test('then it leaves out the Catch tonight strip', () => {
+        expect(screen.queryByRole('header', { name: 'Catch tonight' })).toBeNull();
+      });
+    });
   });
 
-  test('filters by set', async () => {
-    await renderView({ filters: { set: 'observatories', rarity: null } });
-
-    expect(screen.queryByRole('header', { name: 'Space stations' })).toBeNull();
-    expect(screen.getByRole('header', { name: 'Observatories' })).toBeOnTheScreen();
-  });
-
-  test('filters by rarity across sets', async () => {
-    await renderView({ filters: { set: null, rarity: 'legendary' } });
-
-    expect(screen.getByRole('header', { name: 'Cold War veterans' })).toBeOnTheScreen();
-    expect(screen.queryByRole('header', { name: 'Space stations' })).toBeNull();
-  });
-
-  test('says so when nothing matches', async () => {
-    await renderView({ filters: { set: 'observatories', rarity: 'legendary' } });
-
-    expect(screen.getByText('No satellites match these filters.')).toBeOnTheScreen();
-  });
-
-  test('toggles a set filter on and off', async () => {
-    const { onSetFilter } = await renderView({ filters: { set: 'spaceStations', rarity: null } });
-
-    await fireEvent.press(screen.getByRole('button', { name: 'Observatories, 0 of 1 caught' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Space stations, 1 of 2 caught' }));
-
-    expect(onSetFilter).toHaveBeenNthCalledWith(1, 'observatories');
-    expect(onSetFilter).toHaveBeenNthCalledWith(2, null);
-  });
-
-  test('toggles a rarity filter from its meter', async () => {
-    const { onRarityFilter } = await renderView({ filters: { set: null, rarity: 'rare' } });
-
-    await fireEvent.press(screen.getByRole('button', { name: 'Legendary, 0 of 1 caught' }));
-    await fireEvent.press(screen.getByRole('button', { name: 'Rare, 0 of 1 caught' }));
-
-    expect(onRarityFilter).toHaveBeenNthCalledWith(1, 'legendary');
-    expect(onRarityFilter).toHaveBeenNthCalledWith(2, null);
-  });
-
-  test('lists uncaught satellites to catch tonight', async () => {
-    const { onChance } = await renderView({ chances });
-
-    expect(screen.getByRole('header', { name: 'Catch tonight' })).toBeOnTheScreen();
-    expect(screen.getByText('1 to catch')).toBeOnTheScreen();
-
-    await fireEvent.press(screen.getByTestId('chance-20580'));
-
-    expect(onChance).toHaveBeenCalledWith(chances.passes[0]);
-  });
-
-  test('says when a chance is about to start', async () => {
-    await renderView({ chances, now: NOW + 25 * MINUTE });
-
-    expect(screen.getByText(/^Get ready · /)).toBeOnTheScreen();
-  });
-
-  test('toggles a reminder for a chance', async () => {
-    const toggle = jest.fn();
-    await renderView({ chances, reminders: { isSet: () => false, toggle } });
-
-    const bell = screen.getByRole('switch', { name: 'Remind me' });
-    expect(bell).not.toBeChecked();
-
-    await fireEvent.press(bell);
-
-    expect(toggle).toHaveBeenCalledWith(hubble);
-  });
-
-  test('shows a reminder that is already set', async () => {
-    await renderView({ chances, reminders: { isSet: () => true, toggle: () => {} } });
-
-    expect(screen.getByRole('switch', { name: 'Remind me' })).toBeChecked();
-  });
-
-  test('offers no reminder once the pass is about to start', async () => {
-    await renderView({
-      chances,
-      now: NOW + 25 * MINUTE,
-      reminders: { isSet: () => false, toggle: () => {} },
+  describe('given the collection is open', () => {
+    beforeEach(async () => {
+      props = makeProps({ collection: ISS_CAUGHT, filters: { set: null, rarity: null } });
+      await openTheCollection(props);
     });
 
-    expect(screen.queryByRole('switch')).toBeNull();
+    describe('when the user presses a card not caught yet', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: /^Not caught yet, Legendary/ }));
+      });
+
+      test('then it opens that card', () => {
+        expect(props.onOpen).toHaveBeenCalledWith(694);
+      });
+    });
   });
 
-  test('offers no reminders when notifications are off', async () => {
-    await renderView({ chances, reminders: null });
+  describe('given both space stations are caught', () => {
+    beforeEach(() => {
+      props = makeProps({ collection: BOTH_STATIONS_CAUGHT });
+    });
 
-    expect(screen.queryByRole('switch')).toBeNull();
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then it marks the set as complete', () => {
+        expect(screen.getByText('2 of 2 caught · Complete')).toBeOnTheScreen();
+      });
+    });
   });
 
-  test('leaves out the strip when there is nothing to catch', async () => {
-    await renderView();
+  describe('given the collection is filtered to observatories', () => {
+    beforeEach(() => {
+      props = makeProps({ filters: { set: 'observatories', rarity: null } });
+    });
 
-    expect(screen.queryByRole('header', { name: 'Catch tonight' })).toBeNull();
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then it hides the other sets', () => {
+        expect(screen.queryByRole('header', { name: 'Space stations' })).toBeNull();
+      });
+
+      test('then it shows the observatories', () => {
+        expect(screen.getByRole('header', { name: 'Observatories' })).toBeOnTheScreen();
+      });
+    });
+  });
+
+  describe('given the collection is filtered to legendary satellites', () => {
+    beforeEach(() => {
+      props = makeProps({ filters: { set: null, rarity: 'legendary' } });
+    });
+
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then it shows the sets with a legendary satellite', () => {
+        expect(screen.getByRole('header', { name: 'Cold War veterans' })).toBeOnTheScreen();
+      });
+
+      test('then it hides the sets without one', () => {
+        expect(screen.queryByRole('header', { name: 'Space stations' })).toBeNull();
+      });
+    });
+  });
+
+  describe('given the collection is filtered to legendary observatories', () => {
+    beforeEach(() => {
+      props = makeProps({ filters: { set: 'observatories', rarity: 'legendary' } });
+    });
+
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then it says no satellites match', () => {
+        expect(screen.getByText('No satellites match these filters.')).toBeOnTheScreen();
+      });
+    });
+  });
+
+  describe('given the collection is open filtered to space stations', () => {
+    beforeEach(async () => {
+      props = makeProps({ filters: { set: 'spaceStations', rarity: null } });
+      await openTheCollection(props);
+    });
+
+    describe('when the user presses Observatories', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Observatories, 0 of 1 caught' }));
+      });
+
+      test('then it filters to observatories', () => {
+        expect(props.onSetFilter).toHaveBeenNthCalledWith(1, 'observatories');
+      });
+    });
+  });
+
+  describe('given the collection is open filtered to space stations and the user pressed Observatories', () => {
+    beforeEach(async () => {
+      props = makeProps({ filters: { set: 'spaceStations', rarity: null } });
+      await openTheCollection(props);
+      await fireEvent.press(screen.getByRole('button', { name: 'Observatories, 0 of 1 caught' }));
+    });
+
+    describe('when the user presses Space stations', () => {
+      beforeEach(async () => {
+        await fireEvent.press(
+          screen.getByRole('button', { name: 'Space stations, 1 of 2 caught' }),
+        );
+      });
+
+      test('then it clears the set filter', () => {
+        expect(props.onSetFilter).toHaveBeenNthCalledWith(2, null);
+      });
+    });
+  });
+
+  describe('given the collection is open filtered to rare satellites', () => {
+    beforeEach(async () => {
+      props = makeProps({ filters: { set: null, rarity: 'rare' } });
+      await openTheCollection(props);
+    });
+
+    describe('when the user presses the Legendary meter', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Legendary, 0 of 1 caught' }));
+      });
+
+      test('then it filters to legendary satellites', () => {
+        expect(props.onRarityFilter).toHaveBeenNthCalledWith(1, 'legendary');
+      });
+    });
+  });
+
+  describe('given the collection is open filtered to rare satellites and the user pressed the Legendary meter', () => {
+    beforeEach(async () => {
+      props = makeProps({ filters: { set: null, rarity: 'rare' } });
+      await openTheCollection(props);
+      await fireEvent.press(screen.getByRole('button', { name: 'Legendary, 0 of 1 caught' }));
+    });
+
+    describe('when the user presses the Rare meter', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('button', { name: 'Rare, 0 of 1 caught' }));
+      });
+
+      test('then it clears the rarity filter', () => {
+        expect(props.onRarityFilter).toHaveBeenNthCalledWith(2, null);
+      });
+    });
+  });
+
+  describe('given an uncaught satellite passes tonight', () => {
+    beforeEach(() => {
+      props = makeProps({ chances, now: NOW });
+    });
+
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then it shows the Catch tonight strip', () => {
+        expect(screen.getByRole('header', { name: 'Catch tonight' })).toBeOnTheScreen();
+      });
+
+      test('then it says how many are left to catch', () => {
+        expect(screen.getByText('1 to catch')).toBeOnTheScreen();
+      });
+    });
+  });
+
+  describe('given the collection is open with an uncaught satellite passing tonight', () => {
+    beforeEach(async () => {
+      props = makeProps({ chances, now: NOW });
+      await openTheCollection(props);
+    });
+
+    describe('when the user presses the chance', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByTestId('chance-20580'));
+      });
+
+      test('then it opens the pass', () => {
+        expect(props.onChance).toHaveBeenCalledWith(chances.passes[0]);
+      });
+    });
+  });
+
+  describe('given a chance starts in five minutes', () => {
+    beforeEach(() => {
+      props = makeProps({ chances, now: NOW + 25 * MINUTE });
+    });
+
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then it tells the user to get ready', () => {
+        expect(screen.getByText(/^Get ready · /)).toBeOnTheScreen();
+      });
+    });
+  });
+
+  describe('given a chance with no reminder set', () => {
+    let reminders: Reminders;
+
+    beforeEach(() => {
+      reminders = { isSet: () => false, toggle: jest.fn() };
+      props = makeProps({ chances, now: NOW, reminders });
+    });
+
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then its reminder is off', () => {
+        expect(screen.getByRole('switch', { name: 'Remind me' })).not.toBeChecked();
+      });
+    });
+  });
+
+  describe('given the collection is open with a chance that has no reminder set', () => {
+    let reminders: Reminders;
+
+    beforeEach(async () => {
+      reminders = { isSet: () => false, toggle: jest.fn() };
+      props = makeProps({ chances, now: NOW, reminders });
+      await openTheCollection(props);
+    });
+
+    describe('when the user presses Remind me', () => {
+      beforeEach(async () => {
+        await fireEvent.press(screen.getByRole('switch', { name: 'Remind me' }));
+      });
+
+      test('then it toggles the reminder for that pass', () => {
+        expect(reminders.toggle).toHaveBeenCalledWith(hubble);
+      });
+    });
+  });
+
+  describe('given a chance whose reminder is already set', () => {
+    beforeEach(() => {
+      props = makeProps({ chances, now: NOW, reminders: { isSet: () => true, toggle: () => {} } });
+    });
+
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then its reminder is on', () => {
+        expect(screen.getByRole('switch', { name: 'Remind me' })).toBeChecked();
+      });
+    });
+  });
+
+  describe('given a chance about to start and notifications on', () => {
+    beforeEach(() => {
+      props = makeProps({
+        chances,
+        now: NOW + 25 * MINUTE,
+        reminders: { isSet: () => false, toggle: () => {} },
+      });
+    });
+
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then it offers no reminder', () => {
+        expect(screen.queryByRole('switch')).toBeNull();
+      });
+    });
+  });
+
+  describe('given a chance and notifications off', () => {
+    beforeEach(() => {
+      props = makeProps({ chances, now: NOW, reminders: null });
+    });
+
+    describe('when the collection opens', () => {
+      beforeEach(async () => {
+        await openTheCollection(props);
+      });
+
+      test('then it offers no reminders', () => {
+        expect(screen.queryByRole('switch')).toBeNull();
+      });
+    });
   });
 });
 
 describe('rows', () => {
-  test('splits cards into rows of three', () => {
-    expect(rows([1, 2, 3, 4, 5, 6, 7], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7]]);
+  describe('given seven cards and rows of three', () => {
+    test('then it makes two full rows and a third with the card left over', () => {
+      expect(rows([1, 2, 3, 4, 5, 6, 7], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7]]);
+    });
   });
 });
