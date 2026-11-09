@@ -20,6 +20,9 @@ name: First launch onboarding, choosing a city
 - assertVisible: Catch one in three steps
 - tapOn:
     id: onboarding-next
+- assertVisible: Catch with the camera
+- tapOn:
+    id: onboarding-camera-next
 - tapOn:
     id: onboarding-finish
 - assertVisible: Tonight

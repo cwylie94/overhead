@@ -7,4 +7,6 @@ appId: com.craigwylie.overhead
 - tapOn:
     id: onboarding-next
 - tapOn:
+    id: onboarding-camera-next
+- tapOn:
     id: onboarding-finish

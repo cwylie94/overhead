@@ -1,8 +1,9 @@
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { OnboardingView, type OnboardingStep, type OnboardingViewProps } from '../OnboardingView';
 
 jest.mock('../DomeIllustration', () => ({ DomeIllustration: () => null }));
+jest.mock('../CameraSky', () => ({ CameraSky: () => null }));
 
 async function renderStep(step: OnboardingStep, overrides: Partial<OnboardingViewProps> = {}) {
   const props: OnboardingViewProps = {
@@ -29,7 +30,7 @@ test('welcome starts the flow, offers the demo and can be skipped', async () => 
     screen.getByRole('header', { name: 'Satellites cross your sky every night' }),
   ).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
-  expect(screen.getByLabelText('Step 1 of 4')).toBeTruthy();
+  expect(screen.getByLabelText('Step 1 of 5')).toBeTruthy();
 
   await fireEvent.press(screen.getByRole('button', { name: 'Get started' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Try the demo' }));
@@ -85,11 +86,50 @@ test('the catching step explains the three steps', async () => {
 test('the reminders step can turn reminders on or finish without them', async () => {
   const props = await renderStep('reminders');
 
-  expect(screen.getByLabelText('Step 4 of 4')).toBeTruthy();
+  expect(screen.getByLabelText('Step 5 of 5')).toBeTruthy();
 
   await fireEvent.press(screen.getByRole('button', { name: 'Turn on reminders' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Not now' }));
 
   expect(props.onEnableReminders).toHaveBeenCalledTimes(1);
   expect(props.onFinish).toHaveBeenCalledTimes(1);
+});
+
+describe('the camera step', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  test('walks through showing the camera, the Moon check and the hold', async () => {
+    const props = await renderStep('camera');
+
+    expect(screen.getByRole('header', { name: 'Catch with the camera' })).toBeTruthy();
+    expect(screen.getByText(/Tap Show camera in Catch/)).toBeTruthy();
+
+    await act(() => jest.advanceTimersByTime(2 * 1_600));
+    expect(screen.getByText(/Tap Calibrate on the Moon/)).toBeTruthy();
+    expect(screen.getByText('Marker 12° off the Moon')).toBeTruthy();
+    expect(screen.getByText('Set')).toBeTruthy();
+
+    await act(() => jest.advanceTimersByTime(1_600));
+    expect(screen.getByText('Lined up')).toBeTruthy();
+
+    await act(() => jest.advanceTimersByTime(3 * 1_600));
+    expect(screen.getByText('Caught!')).toBeTruthy();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Next' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Skip' }));
+    expect(props.onNext).toHaveBeenCalledTimes(1);
+    expect(props.onSkip).toHaveBeenCalledTimes(1);
+  });
+
+  test('tapping a frame shows its end state and stops the loop', async () => {
+    await renderStep('camera');
+
+    await fireEvent.press(screen.getByRole('button', { name: '2 Line up the Moon' }));
+    expect(screen.getByText('Lined up')).toBeTruthy();
+
+    await act(() => jest.advanceTimersByTime(10 * 1_600));
+    expect(screen.getByText('Lined up')).toBeTruthy();
+    expect(screen.getByRole('button', { name: '2 Line up the Moon' })).toBeSelected();
+  });
 });

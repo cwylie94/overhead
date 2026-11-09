@@ -27,6 +27,24 @@
     "holdHint": "Dos segundos añaden su carta",
     "next": "Siguiente"
   },
+  "camera": {
+    "title": "Atrapa con la cámara",
+    "body": "Las brújulas de los teléfonos suelen desviarse entre 5 y 15°. Una comprobación con la Luna lo corrige antes de apuntar.",
+    "frames": {
+      "show": "Mostrar cámara",
+      "moon": "Alinear la Luna",
+      "hold": "Mantener"
+    },
+    "captions": {
+      "show": "Toca Mostrar cámara en Atrapar. La trayectoria del satélite se dibuja sobre el cielo real.",
+      "moon": "Toca Calibrar con la Luna, ponla en la mira y toca Fijar. El marcador salta a la Luna y todas las trayectorias se mueven con él.",
+      "hold": "Sigue la trayectoria y mantén la mira sobre el satélite. El anillo se llena en 2 segundos."
+    },
+    "off": "Marcador a 12° de la Luna",
+    "linedUp": "Alineado",
+    "frameLabel": "{{number}} {{name}}",
+    "next": "Siguiente"
+  },
   "reminders": {
     "title": "¿Quieres un aviso antes de los pasos brillantes?",
     "body": "Toca la campana de cualquier paso y te avisaremos unos minutos antes de que salga.",

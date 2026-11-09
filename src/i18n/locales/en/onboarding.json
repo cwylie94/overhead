@@ -27,6 +27,24 @@
     "holdHint": "Two seconds adds its card",
     "next": "Next"
   },
+  "camera": {
+    "title": "Catch with the camera",
+    "body": "Phone compasses are often 5–15° off. A quick Moon check fixes that before you aim.",
+    "frames": {
+      "show": "Show camera",
+      "moon": "Line up the Moon",
+      "hold": "Hold"
+    },
+    "captions": {
+      "show": "Tap Show camera in Catch. The satellite’s path is drawn over the real sky.",
+      "moon": "Tap Calibrate on the Moon, put it in the crosshair and tap Set. The marker jumps onto the Moon, and every path moves with it.",
+      "hold": "Follow the path and keep the crosshair on the satellite. The ring fills in 2 seconds."
+    },
+    "off": "Marker 12° off the Moon",
+    "linedUp": "Lined up",
+    "frameLabel": "{{number}} {{name}}",
+    "next": "Next"
+  },
   "reminders": {
     "title": "Want a nudge before bright passes?",
     "body": "Tap the bell on any pass and you’ll get a reminder a few minutes before it rises.",

@@ -16,9 +16,10 @@ import {
   typography,
 } from '@/ui/theme';
 
+import { CameraWalkthrough } from './CameraWalkthrough';
 import { DomeIllustration } from './DomeIllustration';
 
-export const ONBOARDING_STEPS = ['welcome', 'location', 'catching', 'reminders'] as const;
+export const ONBOARDING_STEPS = ['welcome', 'location', 'catching', 'camera', 'reminders'] as const;
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
 const SAMPLE_PASS_TIME = new Date(2026, 0, 1, 20, 57).getTime();
@@ -49,7 +50,7 @@ export type OnboardingViewProps = {
 export function OnboardingView(props: OnboardingViewProps) {
   const { t } = useTranslation('onboarding');
   const index = ONBOARDING_STEPS.indexOf(props.step);
-  const canSkip = props.step === 'welcome' || props.step === 'catching';
+  const canSkip = props.step === 'welcome' || props.step === 'catching' || props.step === 'camera';
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -120,6 +121,13 @@ function StepContent({ step, place }: OnboardingViewProps) {
           </View>
         </>
       );
+    case 'camera':
+      return (
+        <>
+          <Heading title={t('camera.title')} body={t('camera.body')} />
+          <CameraWalkthrough />
+        </>
+      );
     case 'reminders':
       return (
         <>
@@ -186,6 +194,14 @@ function StepActions(props: OnboardingViewProps) {
     case 'catching':
       return (
         <PrimaryButton testID="onboarding-next" label={t('catching.next')} onPress={props.onNext} />
+      );
+    case 'camera':
+      return (
+        <PrimaryButton
+          testID="onboarding-camera-next"
+          label={t('camera.next')}
+          onPress={props.onNext}
+        />
       );
     case 'reminders':
       return (
