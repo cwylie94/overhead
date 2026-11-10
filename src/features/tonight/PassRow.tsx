@@ -21,6 +21,7 @@ import {
 
 import { Countdown } from './Countdown';
 import { SkyGlyph } from './SkyGlyph';
+import { useCatchWindow } from './useCatchWindow';
 
 const SOON = 60 * 60_000;
 const LARGE_TEXT_SCALE = 1.3;
@@ -43,7 +44,7 @@ type CatchButtonProps = { pass: UpcomingPass; wide?: boolean; onCatch(): void };
 
 export function CatchButton({ pass, wide = false, onCatch }: CatchButtonProps) {
   const { t } = useTranslation('catch');
-  const window = catchWindow(pass, useNow(1_000));
+  const window = useCatchWindow(pass);
   if (window !== 'ready' && window !== 'live') {
     return null;
   }

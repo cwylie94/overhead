@@ -11,3 +11,11 @@ export function catchWindow(pass: { startAt: number; endAt: number }, now: numbe
   }
   return now >= pass.startAt - CATCH_READY_LEAD ? 'ready' : 'early';
 }
+
+export function nextCatchWindowChange(
+  pass: { startAt: number; endAt: number },
+  now: number,
+): number | null {
+  const changes = [pass.startAt - CATCH_READY_LEAD, pass.startAt, pass.endAt];
+  return changes.find((time) => time > now) ?? null;
+}
