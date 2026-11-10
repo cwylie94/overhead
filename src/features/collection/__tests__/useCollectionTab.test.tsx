@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 
-import type { UpcomingPass } from '@/data/queries';
+import type { PassSummary } from '@/data/queries';
 import { deriveCollection, type CollectableSatellite } from '@/domain/collection';
 import { ClockProvider } from '@/environment/clock';
 
@@ -28,7 +28,7 @@ const SATELLITES: CollectableSatellite[] = [
   },
 ];
 
-function pass(noradId: number, startAt: number, id: number): UpcomingPass {
+function pass(noradId: number, startAt: number, id: number): PassSummary {
   return {
     id,
     noradId,
@@ -37,7 +37,6 @@ function pass(noradId: number, startAt: number, id: number): UpcomingPass {
     endAt: startAt + 4 * MINUTE,
     maxElevation: 60,
     peakMagnitude: 1,
-    track: [],
     name: String(noradId),
     rarity: 'common',
   };
@@ -50,7 +49,7 @@ const mockCollection = deriveCollection(SATELLITES, [{ noradId: 25544, observedA
 
 jest.mock('expo-router', () => ({ router: { push: jest.fn() } }));
 jest.mock('@/data/AppDataContext', () => ({ useAppData: () => ({ db: {} }) }));
-jest.mock('@/data/queries', () => ({ upcomingPassesQuery: () => 'passes' }));
+jest.mock('@/data/queries', () => ({ upcomingPassSummariesQuery: () => 'passes' }));
 jest.mock('@/data/liveQuery/useLiveQuery', () => ({
   useLiveQuery: () => ({ data: mockPasses, loadedAt: 1 }),
 }));

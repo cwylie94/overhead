@@ -2,7 +2,8 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { UpcomingPass } from '@/data/queries';
+import { useAppData } from '@/data/AppDataContext';
+import type { PassSummary } from '@/data/queries';
 import { compassPoint } from '@/domain/compass';
 import { positionOnTrack } from '@/domain/sky';
 import { useSessionFeatures } from '@/session/appSession';
@@ -17,14 +18,15 @@ import {
 } from './reminders';
 
 export type Reminders = {
-  isSet(pass: UpcomingPass): boolean;
-  toggle(pass: UpcomingPass): void;
+  isSet(pass: PassSummary): boolean;
+  toggle(pass: PassSummary): void;
 };
 
 export function useReminders(): Reminders | null {
   const notificationsEnabled = useSettingsStore((settings) => settings.notificationsEnabled);
   const enabled = useSessionFeatures().reminders && notificationsEnabled;
   const { t } = useTranslation(['tonight', 'common']);
+  const { repositories } = useAppData();
   const [ids, setIds] = useState<ReadonlySet<string>>(new Set());
 
   useFocusEffect(
@@ -44,14 +46,15 @@ export function useReminders(): Reminders | null {
   );
 
   const toggle = useCallback(
-    async (pass: UpcomingPass) => {
+    async (pass: PassSummary) => {
       const id = reminderId(pass);
       if (ids.has(id)) {
         await cancelReminder(pass);
         setIds((current) => new Set([...current].filter((existing) => existing !== id)));
         return;
       }
-      const start = positionOnTrack(pass.track, pass.startAt);
+      const track = repositories.passes.getById(pass.id)?.track ?? [];
+      const start = positionOnTrack(track, pass.startAt);
       const scheduled = await setReminder(pass, {
         title: t('reminder.title', { name: pass.name, minutes: REMINDER_LEAD / 60_000 }),
         body: t('reminder.body', {
@@ -63,7 +66,7 @@ export function useReminders(): Reminders | null {
         setIds((current) => new Set([...current, id]));
       }
     },
-    [ids, t],
+    [ids, repositories, t],
   );
 
   if (!enabled) {

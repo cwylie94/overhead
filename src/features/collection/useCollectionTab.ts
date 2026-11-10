@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 
 import { useAppData } from '@/data/AppDataContext';
 import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
-import { upcomingPassesQuery } from '@/data/queries';
+import { upcomingPassSummariesQuery } from '@/data/queries';
 import { useCollection } from '@/data/useCollection';
 import { catchTonight } from '@/domain/catchTonight';
 import { catchWindow } from '@/domain/catchWindow';
@@ -19,7 +19,7 @@ export function useCollectionTab(): CollectionViewProps {
   const now = useNow(60_000);
   const reminders = useReminders();
   const collection = useCollection();
-  const { data: passes } = useLiveQuery(upcomingPassesQuery(db, now), [now]);
+  const { data: passes } = useLiveQuery(upcomingPassSummariesQuery(db, now), [now]);
   const [filters, setFilters] = useState<CollectionFilters>({ set: null, rarity: null });
   const caught = useMemo(() => caughtIds(collection), [collection]);
   const chances = useMemo(() => catchTonight(passes, caught, now), [passes, caught, now]);

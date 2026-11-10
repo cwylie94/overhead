@@ -5,7 +5,7 @@ import { NAKED_EYE_LIMIT } from '@/domain/brightness';
 import type { Database } from './database';
 import { orbits, passes, satellites, sightings } from './schema';
 
-const passWithSatellite = {
+const passSummary = {
   id: passes.id,
   noradId: passes.noradId,
   startAt: passes.startAt,
@@ -13,21 +13,36 @@ const passWithSatellite = {
   endAt: passes.endAt,
   maxElevation: passes.maxElevation,
   peakMagnitude: passes.peakMagnitude,
-  track: passes.track,
   name: satellites.name,
   rarity: satellites.rarity,
 };
+
+const passWithSatellite = { ...passSummary, track: passes.track };
+
+function isUpcoming(now: number) {
+  return and(gt(passes.endAt, now), lte(passes.peakMagnitude, NAKED_EYE_LIMIT));
+}
 
 export function upcomingPassesQuery(db: Database, now: number) {
   return db
     .select(passWithSatellite)
     .from(passes)
     .innerJoin(satellites, eq(passes.noradId, satellites.noradId))
-    .where(and(gt(passes.endAt, now), lte(passes.peakMagnitude, NAKED_EYE_LIMIT)))
+    .where(isUpcoming(now))
+    .orderBy(asc(passes.startAt));
+}
+
+export function upcomingPassSummariesQuery(db: Database, now: number) {
+  return db
+    .select(passSummary)
+    .from(passes)
+    .innerJoin(satellites, eq(passes.noradId, satellites.noradId))
+    .where(isUpcoming(now))
     .orderBy(asc(passes.startAt));
 }
 
 export type UpcomingPass = Awaited<ReturnType<typeof upcomingPassesQuery>>[number];
+export type PassSummary = Awaited<ReturnType<typeof upcomingPassSummariesQuery>>[number];
 
 export function orbitFreshnessQuery(db: Database) {
   return db

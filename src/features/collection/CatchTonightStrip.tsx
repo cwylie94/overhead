@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import type { UpcomingPass } from '@/data/queries';
+import type { PassSummary } from '@/data/queries';
 import { brightnessTier } from '@/domain/brightness';
 import type { CatchTonight } from '@/domain/catchTonight';
 import { catchWindow } from '@/domain/catchWindow';
@@ -21,10 +21,10 @@ import {
 } from '@/ui/theme';
 
 type CatchTonightStripProps = {
-  chances: CatchTonight<UpcomingPass>;
+  chances: CatchTonight<PassSummary>;
   reminders: Reminders | null;
   now: number;
-  onPress(pass: UpcomingPass): void;
+  onPress(pass: PassSummary): void;
 };
 
 function useHeading(label: NightLabel): string {
@@ -36,7 +36,7 @@ function useHeading(label: NightLabel): string {
 }
 
 type ChanceProps = {
-  pass: UpcomingPass;
+  pass: PassSummary;
   reminder: ReminderControl | null;
   now: number;
   onPress(): void;
@@ -84,7 +84,7 @@ function Chance({ pass, reminder, now, onPress }: ChanceProps) {
 export function CatchTonightStrip({ chances, reminders, now, onPress }: CatchTonightStripProps) {
   const { t } = useTranslation('collection');
   const heading = useHeading(chances.label);
-  const reminderFor = (pass: UpcomingPass): ReminderControl | null =>
+  const reminderFor = (pass: PassSummary): ReminderControl | null =>
     reminders &&
     catchWindow(pass, now) === 'early' &&
     (reminders.isSet(pass) || canRemind(pass, now))

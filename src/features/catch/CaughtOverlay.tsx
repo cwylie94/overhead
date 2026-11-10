@@ -2,8 +2,13 @@ import { router } from 'expo-router';
 
 import { useAppData } from '@/data/AppDataContext';
 import { useLiveQuery } from '@/data/liveQuery/useLiveQuery';
-import { satelliteSightingsQuery, upcomingPassesQuery, type UpcomingPass } from '@/data/queries';
+import {
+  satelliteSightingsQuery,
+  upcomingPassSummariesQuery,
+  type UpcomingPass,
+} from '@/data/queries';
 import { useCollection } from '@/data/useCollection';
+import { useNow } from '@/environment/clock';
 
 import { summarizeCatch } from './catchSummary';
 import { CaughtView } from './CaughtView';
@@ -21,7 +26,8 @@ export function CaughtOverlay({ pass, caughtAt, angleError, now }: CaughtOverlay
     pass.noradId,
   ]);
   const collection = useCollection();
-  const { data: passes } = useLiveQuery(upcomingPassesQuery(db, now), [now]);
+  const listedAt = useNow(60_000);
+  const { data: passes } = useLiveQuery(upcomingPassSummariesQuery(db, listedAt), [listedAt]);
   const summary = summarizeCatch({
     noradId: pass.noradId,
     rarity: pass.rarity,

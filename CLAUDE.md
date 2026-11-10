@@ -46,6 +46,7 @@ It is an interview showcase project, so code quality, tests and a working demo m
 ## Architecture rules
 
 - SQLite is the single source of truth for data. Database rows never go into Zustand. Screens read them with Drizzle live queries.
+- Pass tracks are about 4 KB of JSON each, around 1 MB for a night. Read them (`upcomingPassesQuery`) only where a track is drawn or aimed at; lists that don't draw one use `upcomingPassSummariesQuery`. Give a live query a clock of a minute or coarser, never `useNow(1_000)`, since every new time reruns it.
 - There is no backend. The only network access is the CelesTrak orbit refresh in `src/sync/`; screens never call an API directly. Sightings stay on the phone.
 - All orbit maths lives in the pure `domain/` layer and takes a clock and a location as inputs. Never call `Date.now()` or read sensors inside `domain/`.
 - Fast-changing sensor data (compass heading, tilt) stays in Reanimated shared values, never in Zustand.

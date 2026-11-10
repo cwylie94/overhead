@@ -1,5 +1,10 @@
 import type { Database } from '../database';
-import { nextPassQuery, satelliteOrbitQuery } from '../queries';
+import {
+  nextPassQuery,
+  satelliteOrbitQuery,
+  upcomingPassesQuery,
+  upcomingPassSummariesQuery,
+} from '../queries';
 import { createRepositories } from '../repositories';
 import { bundledSnapshot, importSnapshot } from '../snapshot';
 import { createTestDatabase } from '../testing/createTestDatabase';
@@ -57,6 +62,24 @@ describe('satelliteOrbitQuery', () => {
       expect(await satelliteOrbitQuery(db, ISS_NORAD_ID)).toEqual([
         expect.objectContaining({ hostId: null, hostName: null }),
       ]);
+    });
+  });
+});
+
+describe('upcomingPassSummariesQuery', () => {
+  describe('given an ISS pass is stored with its track', () => {
+    beforeEach(() => {
+      const repositories = createRepositories(db);
+      importSnapshot(repositories, bundledSnapshot);
+      repositories.passes.replaceAll([makePass({ startAt: FIRST_PASS })]);
+    });
+
+    test('then it lists the same pass as the full query, without the track', async () => {
+      const [full] = await upcomingPassesQuery(db, FIRST_PASS - 60_000);
+      const { track, ...summary } = full!;
+
+      expect(track.length).toBeGreaterThan(0);
+      expect(await upcomingPassSummariesQuery(db, FIRST_PASS - 60_000)).toEqual([summary]);
     });
   });
 });

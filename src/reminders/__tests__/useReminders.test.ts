@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react-native';
 
-import type { UpcomingPass } from '@/data/queries';
+import type { PassSummary } from '@/data/queries';
 import { DEMO_FEATURES, DEVICE_FEATURES, type SessionFeatures } from '@/session/features';
 import { useSettingsStore } from '@/stores/settingsStore';
 
@@ -13,6 +13,14 @@ jest.mock('expo-router', () => {
 });
 
 jest.mock('expo-notifications', () => ({}));
+
+jest.mock('@/data/AppDataContext', () => ({
+  useAppData: () => ({
+    repositories: {
+      passes: { getById: (id: number) => (id === 1 ? { track: mockTrack } : undefined) },
+    },
+  }),
+}));
 
 let mockFeatures: SessionFeatures = DEVICE_FEATURES;
 
@@ -28,7 +36,7 @@ jest.mock('../reminders', () => ({
 const START = Date.UTC(2026, 10, 8, 20, 0);
 const MINUTE = 60_000;
 
-const pass: UpcomingPass = {
+const pass: PassSummary = {
   id: 1,
   noradId: 25544,
   startAt: START,
@@ -36,13 +44,13 @@ const pass: UpcomingPass = {
   endAt: START + 4 * MINUTE,
   maxElevation: 56.4,
   peakMagnitude: -2,
-  track: [
-    { time: START, azimuth: 225, elevation: 10 },
-    { time: START + 4 * MINUTE, azimuth: 45, elevation: 10 },
-  ],
   name: 'ISS (ZARYA)',
   rarity: 'common',
 };
+const mockTrack = [
+  { time: START, azimuth: 225, elevation: 10 },
+  { time: START + 4 * MINUTE, azimuth: 45, elevation: 10 },
+];
 
 type HookResult = Awaited<ReturnType<typeof renderReminders>>['result'];
 

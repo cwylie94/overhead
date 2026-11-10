@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, SectionList, StyleSheet, View } from 'react-native';
 
-import type { UpcomingPass } from '@/data/queries';
+import type { PassSummary } from '@/data/queries';
 import type { CatchTonight } from '@/domain/catchTonight';
 import type { Collection, CollectionSetProgress } from '@/domain/collection';
 import type { CollectionSet } from '@/domain/collectionSets';
@@ -20,13 +20,13 @@ const CARDS_PER_ROW = 3;
 export type CollectionViewProps = {
   collection: Collection;
   filters: CollectionFilters;
-  chances: CatchTonight<UpcomingPass> | null;
+  chances: CatchTonight<PassSummary> | null;
   reminders: Reminders | null;
   now: number;
   onSetFilter(set: CollectionSet | null): void;
   onRarityFilter(rarity: Rarity | null): void;
   onOpen(noradId: number): void;
-  onChance(pass: UpcomingPass): void;
+  onChance(pass: PassSummary): void;
 };
 
 function SetChip({

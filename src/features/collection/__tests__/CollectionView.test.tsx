@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
-import type { UpcomingPass } from '@/data/queries';
+import type { PassSummary } from '@/data/queries';
 import type { CatchTonight } from '@/domain/catchTonight';
 import { deriveCollection, type CollectableSatellite } from '@/domain/collection';
 import type { Reminders } from '@/reminders/useReminders';
@@ -50,7 +50,7 @@ const BOTH_STATIONS_CAUGHT = deriveCollection(satellites, [
 const NOW = new Date(2026, 10, 8, 18).getTime();
 const MINUTE = 60_000;
 
-const hubble: UpcomingPass = {
+const hubble: PassSummary = {
   id: 7,
   noradId: 20580,
   name: 'HST',
@@ -60,13 +60,9 @@ const hubble: UpcomingPass = {
   endAt: NOW + 35 * MINUTE,
   maxElevation: 50,
   peakMagnitude: 2,
-  track: [
-    { time: NOW + 30 * MINUTE, azimuth: 225, elevation: 10 },
-    { time: NOW + 35 * MINUTE, azimuth: 45, elevation: 10 },
-  ],
 };
 
-const chances: CatchTonight<UpcomingPass> = { label: { kind: 'tonight' }, passes: [hubble] };
+const chances: CatchTonight<PassSummary> = { label: { kind: 'tonight' }, passes: [hubble] };
 
 function makeProps(overrides: Partial<CollectionViewProps> = {}): CollectionViewProps {
   return {
