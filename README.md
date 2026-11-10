@@ -13,7 +13,7 @@ Overhead finds the satellites passing over you tonight, guides you to them in th
 - **Catch** guides you to a satellite during its pass. Hold the crosshair on it for 3 seconds to catch it.
 - **Collection** groups what you've caught into themed sets.
 
-Built with Expo SDK 58, React Native and TypeScript, for iOS and Android. [docs/design.md](docs/design.md) covers how it works, the architecture and the trade-offs.
+Built with Expo SDK 58, React Native and TypeScript, for iOS and Android. [docs/design.md](docs/design.md) covers how it works, and the architecture.
 
 ## Set up
 
