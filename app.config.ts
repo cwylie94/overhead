@@ -6,6 +6,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: config.slug ?? 'overhead',
   ios: {
     ...config.ios,
-    appleTeamId: process.env.APPLE_TEAM_ID || config.ios?.appleTeamId,
+    bundleIdentifier: process.env.IOS_BUNDLE_ID || config.ios?.bundleIdentifier,
   },
 });
