@@ -1,4 +1,4 @@
-import { lookAnglesFromEci, toGeodetic } from '../observer';
+import { groundDistanceKm, lookAnglesFromEci, toGeodetic } from '../observer';
 import { positionAt } from '../orbit';
 import { london, orbitFor, skyfield } from '../testing/skyfieldFixture';
 
@@ -25,5 +25,21 @@ describe('lookAnglesFromEci', () => {
       expect(angularDifference(angles.azimuth, expected.azimuth)).toBeLessThan(0.01);
       expect(Math.abs(angles.rangeKm - expected.rangeKm)).toBeLessThan(0.1);
     });
+  });
+});
+
+describe('groundDistanceKm', () => {
+  const paris = { latitude: 48.8566, longitude: 2.3522, altitude: 0 };
+
+  test('then London to Paris is about 344 km', () => {
+    expect(groundDistanceKm(london, paris)).toBeCloseTo(344, -1);
+  });
+
+  test('then a place is no distance from itself, whatever its altitude', () => {
+    expect(groundDistanceKm(london, { ...london, altitude: 1.2 })).toBe(0);
+  });
+
+  test('then it is the same both ways', () => {
+    expect(groundDistanceKm(paris, london)).toBe(groundDistanceKm(london, paris));
   });
 });

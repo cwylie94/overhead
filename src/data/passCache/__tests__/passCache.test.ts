@@ -127,6 +127,21 @@ describe('refreshPassCache', () => {
       expect(isPassCacheFresh(repositories, { ...input, ...changed })).toBe(false);
     });
 
+    test.each([
+      {
+        change: 'the observer moves 3 km north',
+        observer: { ...london, latitude: london.latitude + 0.027 },
+      },
+      { change: 'only the altitude changes', observer: { ...london, altitude: 0.3 } },
+    ])('then it stays fresh when $change', ({ observer }) => {
+      expect(isPassCacheFresh(repositories, { ...input, observer })).toBe(true);
+    });
+
+    test('then it needs recomputing once the observer is more than 5 km away', () => {
+      const observer = { ...london, latitude: london.latitude + 0.05 };
+      expect(isPassCacheFresh(repositories, { ...input, observer })).toBe(false);
+    });
+
     describe('when a refresh is asked for without forcing it', () => {
       let result: PassCacheResult;
 

@@ -1,5 +1,5 @@
 import { visibleWindow } from '@/domain/compass';
-import type { Observer } from '@/domain/observer';
+import { groundDistanceKm, type Observer } from '@/domain/observer';
 import { orbitFromOmm } from '@/domain/orbit';
 import { findPasses } from '@/domain/passFinder';
 import { CELESTRAK_GROUPS } from '@/domain/types';
@@ -16,8 +16,10 @@ export const MIN_LOOKAHEAD = 24 * HOUR;
 export const SATELLITES_PER_CHUNK = 12;
 
 export const PASS_CACHE_KEY = 'passes.key';
-const PASS_CACHE_VERSION = 2;
+const PASS_CACHE_VERSION = 3;
 export const PASS_CACHE_VALID_UNTIL = 'passes.validUntil';
+export const PASS_CACHE_OBSERVER = 'passes.observer';
+export const SAME_PLACE_KM = 5;
 
 export type PassCacheInput = {
   observer: Observer;
@@ -40,12 +42,29 @@ const nextTick = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 export function passCacheKey(
   repositories: Pick<Repositories, 'orbits'>,
-  { observer, minElevation }: Omit<PassCacheInput, 'now'>,
+  { minElevation }: Pick<PassCacheInput, 'minElevation'>,
 ): string {
   const orbitStamps = CELESTRAK_GROUPS.map(
     (group) => `${group}:${repositories.orbits.latestFetchedAt(group) ?? 'none'}`,
   ).join(',');
-  return `v${PASS_CACHE_VERSION}|${orbitStamps}|${observer.latitude},${observer.longitude},${observer.altitude}|${minElevation}`;
+  return `v${PASS_CACHE_VERSION}|${orbitStamps}|${minElevation}`;
+}
+
+function storedObserver(repositories: Pick<Repositories, 'syncMeta'>): Observer | null {
+  const stored = repositories.syncMeta.get(PASS_CACHE_OBSERVER);
+  return stored ? (JSON.parse(stored) as Observer) : null;
+}
+
+export function isPassCacheFor(
+  repositories: Pick<Repositories, 'orbits' | 'syncMeta'>,
+  input: Omit<PassCacheInput, 'now'>,
+): boolean {
+  const observer = storedObserver(repositories);
+  return (
+    repositories.syncMeta.get(PASS_CACHE_KEY) === passCacheKey(repositories, input) &&
+    observer !== null &&
+    groundDistanceKm(observer, input.observer) <= SAME_PLACE_KM
+  );
 }
 
 export function isPassCacheFresh(
@@ -53,10 +72,7 @@ export function isPassCacheFresh(
   input: PassCacheInput,
 ): boolean {
   const validUntil = Number(repositories.syncMeta.get(PASS_CACHE_VALID_UNTIL) ?? 0);
-  return (
-    repositories.syncMeta.get(PASS_CACHE_KEY) === passCacheKey(repositories, input) &&
-    input.now < validUntil
-  );
+  return isPassCacheFor(repositories, input) && input.now < validUntil;
 }
 
 export async function refreshPassCache(
@@ -115,6 +131,7 @@ export async function refreshPassCache(
   }
   repositories.passes.replaceAll(rows);
   repositories.syncMeta.set(PASS_CACHE_KEY, key);
+  repositories.syncMeta.set(PASS_CACHE_OBSERVER, JSON.stringify(input.observer));
   repositories.syncMeta.set(PASS_CACHE_VALID_UNTIL, String(to - MIN_LOOKAHEAD));
   return { status: 'computed', passes: rows.length };
 }

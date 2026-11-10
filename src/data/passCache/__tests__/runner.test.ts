@@ -82,6 +82,35 @@ describe('createPassCacheRunner', () => {
     });
   });
 
+  describe('given a runner that has computed passes for London, watched for its status', () => {
+    let runner: PassCacheRunner;
+    let seen: string[];
+
+    beforeAll(async () => {
+      runner = runnerFor(setup());
+      await runner.request(input);
+      seen = [];
+      runner.subscribe(() => seen.push(runner.getState().status));
+    });
+
+    describe('when the location fix moves 1 km and gains an altitude', () => {
+      beforeAll(async () => {
+        await runner.request({
+          ...input,
+          observer: {
+            latitude: input.observer.latitude + 0.009,
+            longitude: input.observer.longitude,
+            altitude: 0.1,
+          },
+        });
+      });
+
+      test('then it keeps the passes it has', () => {
+        expect(seen).toEqual([]);
+      });
+    });
+  });
+
   describe('given a runner that has computed and recomputed passes for London, watched for whether runs replace the list', () => {
     let runner: PassCacheRunner;
     let replacing: boolean[];

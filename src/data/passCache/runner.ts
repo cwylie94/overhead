@@ -1,9 +1,8 @@
 import type { Repositories } from '../repositories';
 import { nextSequence } from '../sequence';
 import {
+  isPassCacheFor,
   isPassCacheFresh,
-  PASS_CACHE_KEY,
-  passCacheKey,
   refreshPassCache,
   type PassCacheInput,
   type PassCacheOptions,
@@ -59,8 +58,7 @@ export function createPassCacheRunner(
     current?.abort();
     const controller = new AbortController();
     current = controller;
-    const replacing =
-      repositories.syncMeta.get(PASS_CACHE_KEY) !== passCacheKey(repositories, input);
+    const replacing = !isPassCacheFor(repositories, input);
     update({ ...state, status: 'computing', replacing });
 
     try {
