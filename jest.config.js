@@ -49,13 +49,13 @@ module.exports = {
   ],
   coverageReporters: ['text', 'text-summary', 'html'],
   coverageThreshold: {
-    global: { statements: 70, branches: 76, functions: 65, lines: 70 },
-    './src/domain/': { statements: 98, branches: 94, functions: 100, lines: 98 },
+    global: { statements: 70, branches: 76, functions: 66, lines: 70 },
+    './src/domain/': { statements: 99, branches: 95, functions: 100, lines: 99 },
     './src/stores/': { statements: 100, branches: 100, functions: 100, lines: 100 },
     './src/sync/': { statements: 100, branches: 93, functions: 100, lines: 100 },
     './src/data/repositories/': { statements: 100, branches: 100, functions: 100, lines: 100 },
     './src/demo/': { statements: 100, branches: 100, functions: 100, lines: 100 },
     './src/session/': { statements: 100, branches: 100, functions: 100, lines: 100 },
-    './src/translations/': { statements: 100, branches: 91, functions: 100, lines: 100 },
+    './src/translations/': { statements: 100, branches: 95, functions: 100, lines: 100 },
   },
 };
