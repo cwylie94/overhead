@@ -25,7 +25,8 @@
     "add": "Remind me",
     "set": "Reminder set",
     "title": "{{name}} in {{minutes}} minutes",
-    "body": "Look {{direction}}. It climbs to {{degrees}}°."
+    "body": "Look {{direction}}. It climbs to {{degrees}}°.",
+    "bodyHeight": "It climbs to {{degrees}}°."
   },
   "location": {
     "current": "Your location",

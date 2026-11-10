@@ -27,7 +27,8 @@
     "add": "Avísame",
     "set": "Aviso activado",
     "title": "{{name}} en {{minutes}} minutos",
-    "body": "Mira al {{direction}}. Sube hasta {{degrees}}°."
+    "body": "Mira al {{direction}}. Sube hasta {{degrees}}°.",
+    "bodyHeight": "Sube hasta {{degrees}}°."
   },
   "location": {
     "current": "Tu ubicación",

@@ -17,12 +17,17 @@ jest.mock('expo-notifications', () => ({}));
 jest.mock('@/data/AppDataContext', () => ({
   useAppData: () => ({
     repositories: {
-      passes: { getById: (id: number) => (id === 1 ? { track: mockTrack } : undefined) },
+      passes: {
+        listBetween: (from: number, to: number) =>
+          mockStored.filter((stored) => stored.endAt > from && stored.startAt < to),
+      },
     },
   }),
 }));
 
 let mockFeatures: SessionFeatures = DEVICE_FEATURES;
+let mockStored: { id: number; noradId: number; startAt: number; endAt: number; track: unknown }[] =
+  [];
 
 jest.mock('@/session/appSession', () => ({ useSessionFeatures: () => mockFeatures }));
 
@@ -62,6 +67,7 @@ async function renderReminders() {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockStored = [{ ...pass, track: mockTrack }];
   mockFeatures = DEVICE_FEATURES;
   useSettingsStore.setState({ notificationsEnabled: true });
   jest.mocked(scheduledReminderIds).mockResolvedValue(new Set());
@@ -150,6 +156,49 @@ describe('useReminders', () => {
 
       test('then the pass has a reminder', () => {
         expect(result.current!.isSet(pass)).toBe(true);
+      });
+    });
+  });
+
+  describe('given the passes were recomputed after the list loaded, giving the pass a new id', () => {
+    beforeEach(async () => {
+      mockStored = [
+        { id: 90, noradId: 33591, startAt: START, endAt: START + 4 * MINUTE, track: [] },
+        { ...pass, id: 91, startAt: START + 1_000, track: mockTrack },
+      ];
+      ({ result } = await renderReminders());
+    });
+
+    describe('when the user turns on the reminder for the pass', () => {
+      beforeEach(async () => {
+        await act(async () => result.current!.toggle(pass));
+      });
+
+      test('then it still says where to look, from the same satellite at the same time', () => {
+        expect(setReminder).toHaveBeenCalledWith(pass, {
+          title: 'ISS (ZARYA) in 5 minutes',
+          body: 'Look southwest. It climbs to 56°.',
+        });
+      });
+    });
+  });
+
+  describe('given the pass is no longer stored', () => {
+    beforeEach(async () => {
+      mockStored = [];
+      ({ result } = await renderReminders());
+    });
+
+    describe('when the user turns on the reminder for the pass', () => {
+      beforeEach(async () => {
+        await act(async () => result.current!.toggle(pass));
+      });
+
+      test('then it says how high it climbs, without guessing a direction', () => {
+        expect(setReminder).toHaveBeenCalledWith(pass, {
+          title: 'ISS (ZARYA) in 5 minutes',
+          body: 'It climbs to 56°.',
+        });
       });
     });
   });
