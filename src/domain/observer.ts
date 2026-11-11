@@ -1,3 +1,5 @@
+'worklet';
+
 import { ecfToLookAngles, eciToEcf, gstime, type GeodeticLocation } from 'satellite.js';
 
 import { DEG, EARTH_RADIUS_KM, normalizeDegrees, type Vector3 } from './geometry';

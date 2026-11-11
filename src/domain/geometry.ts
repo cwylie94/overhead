@@ -1,3 +1,5 @@
+'worklet';
+
 export type Vector3 = { x: number; y: number; z: number };
 
 export const DEG = Math.PI / 180;

@@ -1,3 +1,5 @@
+'worklet';
+
 import type { FoundPass } from './passFinder';
 import { positionOnTrack } from './sky';
 

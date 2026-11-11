@@ -1,3 +1,5 @@
+'worklet';
+
 import { ecfToEci, geodeticToEcf, gstime, type GeodeticLocation } from 'satellite.js';
 
 import { apparentMagnitude, phaseAngle } from './brightness';
@@ -127,6 +129,14 @@ function findCrossing(context: Context, peakAt: number, direction: -1 | 1): numb
   return bisect(isUp, outside, inside);
 }
 
+function trackPoint(context: Context, time: number): TrackPoint {
+  const position = positionAt(context.orbit, time);
+  const angles = position
+    ? lookAnglesFromEci(position, context.observer, time)
+    : { azimuth: 0, elevation: BELOW_EVERYTHING };
+  return { time, azimuth: angles.azimuth, elevation: angles.elevation };
+}
+
 function buildTrack(context: Context, riseAt: number, setAt: number): TrackPoint[] {
   const track: TrackPoint[] = [];
   for (let time = riseAt; time < setAt; time += TRACK_STEP) {
@@ -134,14 +144,6 @@ function buildTrack(context: Context, riseAt: number, setAt: number): TrackPoint
   }
   track.push(trackPoint(context, setAt));
   return track;
-}
-
-function trackPoint(context: Context, time: number): TrackPoint {
-  const position = positionAt(context.orbit, time);
-  const angles = position
-    ? lookAnglesFromEci(position, context.observer, time)
-    : { azimuth: 0, elevation: BELOW_EVERYTHING };
-  return { time, azimuth: angles.azimuth, elevation: angles.elevation };
 }
 
 function findVisibleIntervals(context: Context, track: TrackPoint[]): VisibleInterval[] {

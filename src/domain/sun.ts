@@ -1,3 +1,5 @@
+'worklet';
+
 import type { GeodeticLocation } from 'satellite.js';
 
 import { DEG, dot, EARTH_RADIUS_KM, julianDay, length, subtract, type Vector3 } from './geometry';

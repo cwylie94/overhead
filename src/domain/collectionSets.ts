@@ -61,6 +61,7 @@ export const COMMERCIAL_CONSTELLATION_PREFIXES = [
 ] as const;
 
 export function startsWithAny(name: string, prefixes: readonly string[]): boolean {
+  'worklet';
   const upper = name.toUpperCase();
   return prefixes.some(
     (prefix) =>

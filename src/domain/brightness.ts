@@ -1,3 +1,5 @@
+'worklet';
+
 import { startsWithAny } from './collectionSets';
 import { dot, length, subtract, type Vector3 } from './geometry';
 import type { ObjectType } from './types';

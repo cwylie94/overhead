@@ -1,3 +1,5 @@
+'worklet';
+
 import { json2satrec, propagate, type SatRec } from 'satellite.js';
 
 import { EARTH_RADIUS_KM, type Vector3 } from './geometry';
