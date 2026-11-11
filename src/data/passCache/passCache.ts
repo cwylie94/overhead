@@ -1,11 +1,10 @@
-import { visibleWindow } from '@/domain/compass';
 import { groundDistanceKm, type Observer } from '@/domain/observer';
-import { orbitFromOmm } from '@/domain/orbit';
-import { findPasses } from '@/domain/passFinder';
+import type { PassSearch } from '@/domain/passFinder';
 import { CELESTRAK_GROUPS } from '@/domain/types';
 
 import type { Repositories } from '../repositories';
 import type { NewPass } from '../schema';
+import { passRows, type PassOrbit } from './passRows';
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -27,10 +26,16 @@ export type PassCacheInput = {
   now: number;
 };
 
+export type ComputePassRows = (
+  orbits: PassOrbit[],
+  search: PassSearch,
+) => NewPass[] | Promise<NewPass[]>;
+
 export type PassCacheOptions = {
   force?: boolean;
   signal?: AbortSignal;
   yieldToUi?: () => Promise<void>;
+  computeRows?: ComputePassRows;
 };
 
 export type PassCacheResult =
@@ -75,10 +80,33 @@ export function isPassCacheFresh(
   return isPassCacheFor(repositories, input) && input.now < validUntil;
 }
 
+function chunks<T>(items: T[], size: number): T[][] {
+  const result: T[][] = [];
+  for (let start = 0; start < items.length; start += size) {
+    result.push(items.slice(start, start + size));
+  }
+  return result;
+}
+
+function orbitsToSearch(repositories: PassCacheRepositories): PassOrbit[] {
+  const standardMagnitudes = new Map(
+    repositories.satellites
+      .listAll()
+      .map((satellite) => [satellite.noradId, satellite.standardMagnitude]),
+  );
+  const docked = repositories.orbits.dockingHosts();
+  return repositories.orbits.listAll().flatMap(({ noradId, omm }) => {
+    const standardMagnitude = standardMagnitudes.get(noradId);
+    return standardMagnitude === undefined || docked.has(noradId)
+      ? []
+      : [{ noradId, omm, standardMagnitude }];
+  });
+}
+
 export async function refreshPassCache(
   repositories: PassCacheRepositories,
   input: PassCacheInput,
-  { force = false, signal, yieldToUi = nextTick }: PassCacheOptions = {},
+  { force = false, signal, yieldToUi = nextTick, computeRows = passRows }: PassCacheOptions = {},
 ): Promise<PassCacheResult> {
   if (!force && isPassCacheFresh(repositories, input)) {
     return { status: 'fresh' };
@@ -87,43 +115,23 @@ export async function refreshPassCache(
   const key = passCacheKey(repositories, input);
   const from = input.now - PASS_WINDOW_BEFORE;
   const to = input.now + PASS_WINDOW_AFTER;
-  const search = { observer: input.observer, from, to, minElevation: input.minElevation };
-  const standardMagnitudes = new Map(
-    repositories.satellites
-      .listAll()
-      .map((satellite) => [satellite.noradId, satellite.standardMagnitude]),
-  );
-  const orbits = repositories.orbits.listAll();
-  const docked = repositories.orbits.dockingHosts();
+  const search: PassSearch = {
+    observer: { ...input.observer },
+    from,
+    to,
+    minElevation: input.minElevation,
+  };
+  const batches = chunks(orbitsToSearch(repositories), SATELLITES_PER_CHUNK);
   const rows: NewPass[] = [];
 
-  for (let index = 0; index < orbits.length; index++) {
-    if (index > 0 && index % SATELLITES_PER_CHUNK === 0) {
+  for (const [index, batch] of batches.entries()) {
+    if (index > 0) {
       await yieldToUi();
     }
     if (signal?.aborted) {
       return { status: 'cancelled' };
     }
-
-    const { noradId, omm } = orbits[index]!;
-    const standardMagnitude = standardMagnitudes.get(noradId);
-    if (standardMagnitude === undefined || docked.has(noradId)) {
-      continue;
-    }
-    for (const pass of findPasses(orbitFromOmm(omm), search, standardMagnitude)) {
-      const window = visibleWindow(pass);
-      if (window) {
-        rows.push({
-          noradId,
-          startAt: window.startAt,
-          peakAt: window.peakAt,
-          endAt: window.endAt,
-          maxElevation: window.maxElevation,
-          peakMagnitude: pass.peakMagnitude,
-          track: pass.track,
-        });
-      }
-    }
+    rows.push(...(await computeRows(batch, search)));
   }
 
   if (signal?.aborted) {

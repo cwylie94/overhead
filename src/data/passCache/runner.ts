@@ -30,7 +30,7 @@ type RunnerRepositories = Parameters<typeof refreshPassCache>[0] & Pick<Reposito
 
 export function createPassCacheRunner(
   repositories: RunnerRepositories,
-  options: Pick<PassCacheOptions, 'yieldToUi'> = {},
+  options: Pick<PassCacheOptions, 'yieldToUi' | 'computeRows'> = {},
 ): PassCacheRunner {
   let state: PassCacheState = {
     status: 'idle',

@@ -2,7 +2,7 @@ import { london, skyfield } from '@/domain/testing/skyfieldFixture';
 
 import type { Database } from '../../database';
 import { createRepositories, type Repositories } from '../../repositories';
-import { bundledSnapshot, importSnapshot } from '../../snapshot';
+import { bundledSnapshot, importSnapshot, type Snapshot } from '../../snapshot';
 import { createTestDatabase } from '../../testing/createTestDatabase';
 import { makeOrbit } from '../../testing/fixtures';
 import {
@@ -10,11 +10,20 @@ import {
   MIN_LOOKAHEAD,
   PASS_WINDOW_AFTER,
   refreshPassCache,
+  SATELLITES_PER_CHUNK,
   type PassCacheInput,
   type PassCacheResult,
 } from '../passCache';
+import { passRows, type PassOrbit } from '../passRows';
 
 const noYield = async () => {};
+const SMALL_SNAPSHOT: Snapshot = {
+  ...bundledSnapshot,
+  groups: {
+    visual: bundledSnapshot.groups.visual.slice(0, 2 * SATELLITES_PER_CHUNK + 6),
+    stations: bundledSnapshot.groups.stations,
+  },
+};
 const input: PassCacheInput = { observer: london, minElevation: 10, now: skyfield.window.start };
 const FIRST_NIGHT_END = input.now + 16 * 60 * 60_000;
 
@@ -25,8 +34,14 @@ function computePasses(into: Repositories = repositories) {
   return refreshPassCache(into, input, { force: true, yieldToUi: noYield });
 }
 
-function storedPasses() {
-  return repositories.passes.listBetween(input.now, input.now + PASS_WINDOW_AFTER);
+function storedPasses(from: Repositories = repositories) {
+  return from.passes.listBetween(input.now, input.now + PASS_WINDOW_AFTER);
+}
+
+function smallCatalogue() {
+  const small = createRepositories(createTestDatabase());
+  importSnapshot(small, SMALL_SNAPSHOT);
+  return small;
 }
 
 beforeAll(() => {
@@ -197,6 +212,107 @@ describe('refreshPassCache', () => {
       test('then it needs recomputing', () => {
         expect(isPassCacheFresh(isolated, input)).toBe(false);
       });
+    });
+  });
+
+  describe('given a small catalogue worked out on a worker that answers asynchronously', () => {
+    let small: Repositories;
+    let inProcess: ReturnType<typeof storedPasses>;
+    let batches: PassOrbit[][];
+
+    beforeAll(async () => {
+      small = smallCatalogue();
+      await computePasses(small);
+      inProcess = storedPasses(small);
+      batches = [];
+      await refreshPassCache(small, input, {
+        force: true,
+        yieldToUi: noYield,
+        computeRows: async (orbits, search) => {
+          batches.push(orbits);
+          return passRows(orbits, search);
+        },
+      });
+    });
+
+    test('then it stores the same passes as working them out in process', () => {
+      const withoutIds = (passes: typeof inProcess) => passes.map(({ id: _id, ...pass }) => pass);
+      expect(inProcess.length).toBeGreaterThan(0);
+      expect(withoutIds(storedPasses(small))).toEqual(withoutIds(inProcess));
+    });
+
+    test('then it sends at most a chunk of satellites at a time', () => {
+      expect(Math.max(...batches.map((batch) => batch.length))).toBe(SATELLITES_PER_CHUNK);
+    });
+
+    test('then it never sends a docked module or visiting vehicle', () => {
+      const sent = new Set(batches.flat().map((orbit) => orbit.noradId));
+      const docked = [...small.orbits.dockingHosts().keys()];
+      expect(docked.length).toBeGreaterThan(0);
+      expect(docked.filter((noradId) => sent.has(noradId))).toEqual([]);
+    });
+  });
+
+  describe('given a small catalogue cancelled while the worker has a batch', () => {
+    let small: Repositories;
+    let before: number;
+    let result: PassCacheResult;
+
+    beforeAll(async () => {
+      small = smallCatalogue();
+      await computePasses(small);
+      before = storedPasses(small).length;
+      const controller = new AbortController();
+      result = await refreshPassCache(
+        small,
+        { ...input, minElevation: 40 },
+        {
+          signal: controller.signal,
+          yieldToUi: noYield,
+          computeRows: async (orbits, search) => {
+            controller.abort();
+            return passRows(orbits, search);
+          },
+        },
+      );
+    });
+
+    test('then it reports the run as cancelled', () => {
+      expect(result).toEqual({ status: 'cancelled' });
+    });
+
+    test('then it leaves the previous cache untouched', () => {
+      expect(storedPasses(small)).toHaveLength(before);
+    });
+  });
+
+  describe('given a small catalogue whose worker fails part way through a run', () => {
+    let small: Repositories;
+    let before: number;
+    let failure: unknown;
+
+    beforeAll(async () => {
+      small = smallCatalogue();
+      await computePasses(small);
+      before = storedPasses(small).length;
+      failure = await refreshPassCache(
+        small,
+        { ...input, minElevation: 40 },
+        {
+          yieldToUi: noYield,
+          computeRows: async () => {
+            throw new Error('Worker stopped');
+          },
+        },
+      ).catch((error: unknown) => error);
+    });
+
+    test('then the run fails with the worker error', () => {
+      expect(failure).toEqual(new Error('Worker stopped'));
+    });
+
+    test('then it leaves the previous cache untouched', () => {
+      expect(storedPasses(small)).toHaveLength(before);
     });
   });
 });
