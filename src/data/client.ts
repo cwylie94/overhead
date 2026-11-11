@@ -1,6 +1,7 @@
 import { drizzle, type ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
 import { deleteDatabaseSync, openDatabaseSync } from 'expo-sqlite';
 
+import { computePassRowsOnWorker } from './passCache/passWorker';
 import { createPassCacheRunner, type PassCacheRunner } from './passCache/runner';
 import { createRepositories, type Repositories } from './repositories';
 import * as schema from './schema';
@@ -28,7 +29,7 @@ function openAppData(name: string, key: string, { wal }: { wal: boolean }): Open
     key,
     db,
     repositories,
-    passCacheRunner: createPassCacheRunner(repositories),
+    passCacheRunner: createPassCacheRunner(repositories, { computeRows: computePassRowsOnWorker }),
     close: () => sqlite.closeSync(),
   };
 }
